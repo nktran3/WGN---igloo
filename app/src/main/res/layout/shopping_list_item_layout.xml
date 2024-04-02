@@ -9,17 +9,12 @@
     app:cardElevation="6dp"
     android:background="@drawable/items_background">
 
-    <TextView
-        android:id="@+id/itemTextView"
+    <CheckBox
+        android:id="@+id/shoppingItemCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="15dp"
         android:text="Item"
         android:textSize="20dp"
-        android:textStyle="bold"
-        android:fontFamily="@font/judson"
-        android:padding="8dp"/>
-
+        android:fontFamily="@font/judson"/>
 
 </androidx.cardview.widget.CardView>

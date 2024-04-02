@@ -7,5 +7,6 @@
     <string name="freezer">Freezer</string>
     <string name="meats">Meats</string>
     <string name="produce">Produce</string>
-    <string name="miscellaneous">Micellaneous</string>
+    <string name="miscellaneous">Miscellaneous</string>
+    <string name="shopping_list">Shopping List</string>
 </resources>

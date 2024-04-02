@@ -2,12 +2,9 @@ package com.example.wgn_igloo
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.view.*
+import android.widget.*
+import androidx.recyclerview.widget.*
 
 class InventoryDisplayFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {

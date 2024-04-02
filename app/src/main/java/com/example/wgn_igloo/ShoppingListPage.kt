@@ -2,31 +2,13 @@ package com.example.wgn_igloo
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.*
+import androidx.recyclerview.widget.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ShoppingListPage.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ShoppingListPage : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
@@ -37,23 +19,34 @@ class ShoppingListPage : Fragment() {
         return inflater.inflate(R.layout.fragment_shopping_list_page, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ShoppingListPage.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ShoppingListPage().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val items = listOf("Yogurt", "Whole Milk", "Cheese", "Cream Cheese")
+        val recyclerView: RecyclerView = view.findViewById(R.id.shopping_list_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = ShoppingListAdapter(items)
     }
+
 }
+
+class ShoppingListAdapter(private val items: List<String>) : RecyclerView.Adapter<ShoppingListAdapter.ShoppingListViewHolder>() {
+
+    class ShoppingListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val checkBox: CheckBox = view.findViewById(R.id.shoppingItemCheckBox)
+
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShoppingListViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.shopping_list_item_layout, parent, false)
+        return ShoppingListViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ShoppingListViewHolder, position: Int) {
+        holder.checkBox.text = items[position]
+    }
+
+    override fun getItemCount() = items.size
+}
+
+
