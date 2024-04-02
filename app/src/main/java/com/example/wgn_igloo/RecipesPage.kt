@@ -2,31 +2,31 @@ package com.example.wgn_igloo
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.recyclerview.widget.*
+import android.widget.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [RecipesPage.newInstance] factory method to
- * create an instance of this fragment.
- */
+data class Recipe (
+    val imageId: Int,
+    val recipeName: String,
+    val preparationTime: String,
+    val cookTime: String,
+    val totalTime: String,
+    val servingSize: String
+)
+
+
 class RecipesPage : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
+    private val recipeData = listOf(
+        Recipe(R.drawable.lobster, "Lobster Thermidor", "30 mins", "45 mins", "1 hr 15 mins", "2 servings"),
+        Recipe(R.drawable.salmon, "Garlic Butter Salmon", "20 mins", "30 mins", "50 mins", "4 servings"),
+        Recipe(R.drawable.salad, "Caesar Salad", "15 mins", "0 mins", "15 mins", "3 servings")
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
     }
 
     override fun onCreateView(
@@ -37,23 +37,58 @@ class RecipesPage : Fragment() {
         return inflater.inflate(R.layout.fragment_recipes_page, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment RecipesPage.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            RecipesPage().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val suggestedRecipeRecyclerView: RecyclerView = view.findViewById(R.id.suggested_recipes_recycler_view)
+        suggestedRecipeRecyclerView.layoutManager = LinearLayoutManager(context)
+        suggestedRecipeRecyclerView.adapter = RecipeAdapter(recipeData)
+
+        val savedRecipeRecyclerView: RecyclerView = view.findViewById(R.id.saved_recipes_recycler_view)
+        savedRecipeRecyclerView.layoutManager = LinearLayoutManager(context)
+        savedRecipeRecyclerView.adapter = RecipeAdapter(recipeData)
     }
 }
+
+class RecipeAdapter(recipeData: List<Recipe>) : RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
+
+    private val recipeData = listOf(
+        Recipe(R.drawable.lobster, "Lobster Thermidor", "30 mins", "45 mins", "1 hr 15 mins", "2 servings"),
+        Recipe(R.drawable.salmon, "Garlic Butter Salmon", "20 mins", "30 mins", "50 mins", "4 servings"),
+        Recipe(R.drawable.salad, "Caesar Salad", "15 mins", "0 mins", "15 mins", "3 servings")
+    )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.recipe_item_layout, parent, false)
+        return RecipeViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
+        val recipe = recipeData[position]
+        holder.bind(recipe)
+    }
+
+    override fun getItemCount(): Int = recipeData.size
+
+    class RecipeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val recipeImage: ImageView = itemView.findViewById(R.id.recipe_image)
+        private val recipeTitle: TextView = itemView.findViewById(R.id.recipe_title)
+        private val prepTimeInfo: TextView = itemView.findViewById(R.id.prep_time_info)
+        private val cookTimeInfo: TextView = itemView.findViewById(R.id.cook_time_info)
+        private val totalTimeInfo: TextView = itemView.findViewById(R.id.total_time_info)
+        private val servingSizeInfo: TextView = itemView.findViewById(R.id.serving_size_info)
+
+        fun bind(recipe: Recipe) {
+            recipeImage.setImageResource(recipe.imageId)
+            recipeTitle.text = recipe.recipeName
+            prepTimeInfo.text = recipe.preparationTime
+            cookTimeInfo.text = recipe.cookTime
+            totalTimeInfo.text = recipe.totalTime
+            servingSizeInfo.text = recipe.servingSize
+        }
+    }
+
+}
+
+
+
+
