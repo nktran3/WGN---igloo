@@ -1,5 +1,11 @@
 <resources>
-    <string name="app_name">WGN -igloo</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">igloo</string>
+    <string name="my_items">My Items</string>
+    <string name="condiments">Condiments</string>
+    <string name="dairy">Dairy</string>
+    <string name="drinks">Drinks</string>
+    <string name="freezer">Freezer</string>
+    <string name="meats">Meats</string>
+    <string name="produce">Produce</string>
+    <string name="miscellaneous">Micellaneous</string>
 </resources>
