@@ -1,11 +1,15 @@
 package com.example.wgn_igloo
 
 import android.os.Bundle
-import android.util.*
-import androidx.fragment.app.Fragment
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.constraintlayout.helper.widget.Carousel
+import androidx.fragment.app.Fragment
+
 
 class HomePage : Fragment() {
 
