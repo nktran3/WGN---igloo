@@ -7,11 +7,22 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.wgn_igloo.databinding.ActivityLoginBinding
 import com.example.wgn_igloo.databinding.ActivitySignUpBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity: AppCompatActivity() {
     private lateinit var binding : ActivityLoginBinding
     private lateinit var  auth: FirebaseAuth
+    lateinit var googleSignInClient: GoogleSignInClient
+
+    val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken("938243713874-9iik8hlaoikc60pdpv6glich1gek2a9d.apps.googleusercontent.com")
+        .requestEmail()
+        .build()
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +38,16 @@ class LoginActivity: AppCompatActivity() {
         binding.textViewSignUp.setOnClickListener(){
             goToSignUp()
         }
+
+        binding.googleBtSignIn.setOnClickListener(){
+            loginGoogleUser()
+        }
+    }
+
+    private fun loginGoogleUser(){
+        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions)
+        val intent: Intent = googleSignInClient.signInIntent
+        startActivity(intent)
     }
 
     private fun loginUser(){

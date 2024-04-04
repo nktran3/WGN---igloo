@@ -37,6 +37,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -60,6 +61,7 @@ dependencies {
 
     // Google Sign In SDK
     implementation("com.google.android.gms:play-services-auth:20.5.0")
+    implementation ("com.github.bumptech.glide:glide:4.11.0")
 
     // Firebase SDK
     implementation(platform("com.google.firebase:firebase-bom:32.0.0"))
@@ -67,6 +69,8 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation ("com.google.android.gms:play-services-auth:x.x.x")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.firebaseui:firebase-ui-auth")
 
     // Firebase UI Library
     implementation("com.firebaseui:firebase-ui-auth:8.0.2")
