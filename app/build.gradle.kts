@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -11,6 +12,10 @@ android {
     compileSdk = 34
 
     defaultConfig {
+
+
+
+
         applicationId = "com.example.wgn_igloo"
         minSdk = 24
         targetSdk = 34
