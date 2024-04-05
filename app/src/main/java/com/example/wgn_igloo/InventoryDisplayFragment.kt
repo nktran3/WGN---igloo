@@ -5,10 +5,16 @@ import androidx.fragment.app.Fragment
 import android.view.*
 import android.widget.*
 import androidx.recyclerview.widget.*
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
 
 class InventoryDisplayFragment : Fragment() {
+
+    private lateinit var firestoreHelper: FirestoreHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Initialize FirestoreHelper with the fragment's context
+        firestoreHelper = FirestoreHelper(requireContext())
     }
 
     override fun onCreateView(
@@ -26,6 +32,23 @@ class InventoryDisplayFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = MyItemAdapter(myItems)
+        // You can call this method when you want to add an item to the grocery list
+        // For demonstration purposes, let's assume you call it here directly
+        addGroceryItemToFirestore()
+    }
+
+    private fun addGroceryItemToFirestore() {
+        // Example data - replace with actual data input from user
+//        val groceryItem = GroceryItem(
+//            Category = "vegetables",
+//            expirationDate = Timestamp.now(), // Use current timestamp or get user input
+//            Name = "spinach",
+//            sharedWith = FirebaseFirestore.getInstance().document("User/U123456"), // Replace with actual user reference
+//            Status = true
+//        )
+//
+//        // Replace "U11894403" with the actual UID of the user
+//        firestoreHelper.addGroceryItem("U11894403", groceryItem)
     }
 
 }
