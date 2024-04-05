@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bottomNavigation: BottomNavigationView
     private lateinit var selectedFragment: Fragment
+    private lateinit var firestoreHelper: FirestoreHelper
 
     //Firebase Instance Variables
     private lateinit var auth: FirebaseAuth
@@ -28,6 +29,9 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation = findViewById(R.id.bottom_navigation)
 
         bottomNavigation.selectedItemId= R.id.home_nav
+
+        // Initialize FirestoreHelper
+        firestoreHelper = FirestoreHelper(this)
 
         bottomNavigation.setOnItemSelectedListener{
             if (it.itemId == R.id.recipe_nav) {
