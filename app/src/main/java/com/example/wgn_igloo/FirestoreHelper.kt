@@ -20,19 +20,18 @@ class FirestoreHelper(private val context: Context) {
             .addOnFailureListener { e -> Log.w(TAG, "Error adding user", e) }
     }
 
-    fun addGroceryItem(uid: String, item: GroceryItem) {
-        db.collection("users").document(uid)
-            .collection("groceryItems").document(item.name) // Ensure item.name is capitalized correctly as in the GroceryItem class
-            .set(item)
+    fun addGroceryItem(uid: String, item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(uid).collection("groceryItems").add(item)
             .addOnSuccessListener {
-                // Handle success, e.g., log a message or update UI
-                Log.d(TAG, "Item added successfully to database")
+                Log.d(TAG, "Item added successfully")
+                onSuccess()
             }
-            .addOnFailureListener {
-                // Handle error, e.g., log a message or show an error to the user
-                e -> Log.w(TAG, "Error adding user: ", e)
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error adding item", e)
+                onFailure(e)
             }
     }
+
 
     fun addSavedRecipe(uid: String, recipe: SavedRecipe) {
         db.collection("users").document(uid)
@@ -44,7 +43,6 @@ class FirestoreHelper(private val context: Context) {
                 Log.w(TAG, "Error adding saved recipe", e)
             }
     }
-
 
     fun addShoppingListItem(uid: String, item: ShoppingListItem) {
         db.collection("users").document(uid)
@@ -69,5 +67,17 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    // Add other Firestore operations here...
+    fun fetchGroceryItems(uid: String, onSuccess: (List<GroceryItem>) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(uid).collection("groceryItems")
+            .get()
+            .addOnSuccessListener { result ->
+                val items = result.toObjects(GroceryItem::class.java)
+                onSuccess(items)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+                Log.w(TAG, "Error fetching grocery items", e)
+            }
+    }
+
 }

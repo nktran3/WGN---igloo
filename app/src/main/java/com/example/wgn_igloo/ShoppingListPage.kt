@@ -14,14 +14,12 @@ class ShoppingListPage : Fragment() {
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestoreDb: FirebaseFirestore
     private var userUid: String? = null
+    private lateinit var recyclerView: RecyclerView
 
     companion object {
         private const val TAG = "FirestoreHelper"
     }
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firestoreHelper = FirestoreHelper(requireContext())
@@ -39,15 +37,39 @@ class ShoppingListPage : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recyclerView: RecyclerView = view.findViewById(R.id.shopping_list_recycler_view)
+        recyclerView = view.findViewById(R.id.shopping_list_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = ShoppingListAdapter(listOf("Yogurt", "Whole Milk", "Cheese", "Cream Cheese"))
+        recyclerView.adapter = ShoppingListAdapter(emptyList()) // Initialize with an empty list
 
-//        userUid?.let { uid ->
-//            moveGroceryItemsToShoppingList(uid)
-//        } ?: Log.d(TAG, "User is not logged in")
+        userUid?.let { uid ->
+            fetchShoppingListItems(uid,
+                onSuccess = { items ->
+                    (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
+                },
+                onFailure = { exception ->
+                    Log.w(TAG, "Error getting shopping list items: ", exception)
+                }
+            )
+        }
         // Add a dummy shopping list item for testing purposes
-        addDummyShoppingListItem()
+        // adding the item -- how to call to add the item
+//        addDummyShoppingListItem()
+    }
+
+    private fun fetchShoppingListItems(
+        uid: String,
+        onSuccess: (List<ShoppingListItem>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        firestoreDb.collection("users").document(uid)
+            .collection("shoppingList").get()
+            .addOnSuccessListener { querySnapshot ->
+                val shoppingListItems = querySnapshot.toObjects(ShoppingListItem::class.java)
+                onSuccess(shoppingListItems)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
     }
 
     private fun addDummyShoppingListItem() {
@@ -56,12 +78,23 @@ class ShoppingListPage : Fragment() {
             val dummyItem = ShoppingListItem(
                 category = "Meat",
                 lastPurchased = Timestamp.now(), // Use a dummy timestamp
-                name = "Chicken",
+                name = "Turkey",
                 purchasedBy = uid  // Use the UID of the current user
             )
 
             // Add the dummy item to Firestore using FirestoreHelper
             firestoreHelper.addShoppingListItem(uid, dummyItem)
+        }
+        // after add fetch again
+        userUid?.let { uid ->
+            fetchShoppingListItems(uid,
+                onSuccess = { items ->
+                    (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
+                },
+                onFailure = { exception ->
+                    Log.w(TAG, "Error getting shopping list items: ", exception)
+                }
+            )
         }
     }
 
@@ -91,11 +124,10 @@ class ShoppingListPage : Fragment() {
 
 }
 
-class ShoppingListAdapter(private val items: List<String>) : RecyclerView.Adapter<ShoppingListAdapter.ShoppingListViewHolder>() {
+class ShoppingListAdapter(private var items: List<ShoppingListItem>) : RecyclerView.Adapter<ShoppingListAdapter.ShoppingListViewHolder>() {
 
     class ShoppingListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val checkBox: CheckBox = view.findViewById(R.id.shoppingItemCheckBox)
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShoppingListViewHolder {
@@ -104,10 +136,17 @@ class ShoppingListAdapter(private val items: List<String>) : RecyclerView.Adapte
     }
 
     override fun onBindViewHolder(holder: ShoppingListViewHolder, position: Int) {
-        holder.checkBox.text = items[position]
+        val item = items[position]
+        holder.checkBox.text = item.name
     }
 
     override fun getItemCount() = items.size
+
+    fun updateItems(newItems: List<ShoppingListItem>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
 }
+
 
 

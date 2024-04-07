@@ -15,10 +15,44 @@ class InventoryDisplayFragment : Fragment() {
 
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestoreDb: FirebaseFirestore
+    private lateinit var adapter: MyItemAdapter
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_inventory_display, container, false)
+    }
 
     companion object {
         const val TAG = "FirestoreHelper"
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Setup RecyclerView and Adapter
+        val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        adapter = MyItemAdapter(emptyList())
+        recyclerView.adapter = adapter
+
+        // Fetch initial grocery items
+        fetchGroceryItems()
+
+        // NEED TO SET UP BUTTON with OnClickListener
+//        val addButton: Button = view.findViewById(R.id.add_button)
+//        addButton.setOnClickListener {
+            // Check for user's UID
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (userUid != null) {
+            // Add grocery item for user and then fetch updated list
+//            addGroceryItemForUser(userUid)
+        } else {
+            Log.d(TAG, "User is not logged in")
+            // Consider showing a Toast message or UI indication for login requirement
+        }
+//        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,60 +61,71 @@ class InventoryDisplayFragment : Fragment() {
         firestoreDb = FirebaseFirestore.getInstance()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_inventory_display, container, false)
+    private fun fetchGroceryItems() {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        FirebaseFirestore.getInstance().collection("users")
+            .document(userUid).collection("groceryItems")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val items = snapshot.toObjects(GroceryItem::class.java)
+                print("this is the items:" + items)
+                adapter.updateItems(items)
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+            }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val myItems = listOf("Yogurt", "Whole Milk", "Cheese", "Cream Cheese")
-        val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = MyItemAdapter(myItems)
-
-        // Fetching the user's email using their UID
-        // Assuming you have the user's UID, replace "userUid" with the actual UID variable or method to retrieve it
-//        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-//        fetchUserEmailByUid(userUid)
-        // Fetching the user's UID and adding a grocery item
-        val userUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (userUid != null) {
-            addGroceryItemForUser(userUid)
-        } else {
-            Log.d(TAG, "User is not logged in")
-        }
-
-        // You can call this method when you want to add an item to the grocery list
-        // For demonstration purposes, let's assume you call it here directly
-//        addGroceryItemToFirestore()
+    private fun fetchAndDisplayGroceryItems(adapter: MyItemAdapter) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        firestoreHelper.fetchGroceryItems(userUid, { items ->
+            activity?.runOnUiThread {
+                adapter.updateItems(items)
+            }
+        }, { e ->
+            Log.d(TAG, "Error fetching grocery items", e)
+        })
     }
 
+//    }
     private fun addGroceryItemForUser(uid: String) {
-        // Create a GroceryItem object with the necessary details
+        // test 1
+//        val groceryItem = GroceryItem(
+//            category = "vegetables",
+//            expirationDate = Timestamp.now(),
+//            dateBought = Timestamp.now(),
+//            name = "spinach",
+//            quantity = 1,
+//            sharedWith = "U123456",
+//            status = true
+//        )
+        // test 2
         val groceryItem = GroceryItem(
-            category = "vegetables",
+            category = "meat",
             expirationDate = Timestamp.now(),
             dateBought = Timestamp.now(),
-            name = "spinach",
+            name = "snake",
             quantity = 1,
-            sharedWith = "U123456", // This should be a UID of the user with whom the item is shared
+            sharedWith = "U123456",
             status = true
         )
 
-        // Use FirestoreHelper to add the item to the Firestore
-        firestoreHelper.addGroceryItem(uid, groceryItem)
+        firestoreHelper.addGroceryItem(uid, groceryItem, onSuccess = {
+            // Successfully added item, now fetch the updated list
+            fetchGroceryItems()
+        }, onFailure = { e ->
+            Log.e(TAG, "Failed to add item: ", e)
+            // Optionally, show a failure message to the user
+        })
     }
 }
 
-class MyItemAdapter(private val items: List<String>) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
+class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
 
-    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.itemTextView)
+    fun updateItems(newItems: List<GroceryItem>) {
+        items = newItems
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -89,9 +134,15 @@ class MyItemAdapter(private val items: List<String>) : RecyclerView.Adapter<MyIt
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        holder.textView.text = items[position]
+        val item = items[position]
+        holder.textView.text = "${item.name} - Qty: ${item.quantity}"
     }
 
     override fun getItemCount() = items.size
+
+    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textView: TextView = view.findViewById(R.id.itemTextView)
+    }
 }
+
 
