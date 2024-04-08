@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "${auth.currentUser}")
         if (auth.currentUser == null) {
             // Not signed in, launch the Sign In activity
+            Log.d(TAG, "User is not signed in")
             startActivity(Intent(this, SignUpActivity::class.java))
             finish()
             return

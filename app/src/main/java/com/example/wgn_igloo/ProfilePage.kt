@@ -8,9 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.wgn_igloo.databinding.FragmentProfilePageBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlin.math.sign
 
 
 private const val TAG = "ProfilePage"
@@ -19,8 +23,8 @@ class ProfilePage : Fragment() {
 
 
     private lateinit var binding: FragmentProfilePageBinding
-
     private lateinit var auth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
 
 
 
@@ -28,6 +32,15 @@ class ProfilePage : Fragment() {
         super.onCreate(savedInstanceState)
         // Initialize Firebase Auth
         auth = Firebase.auth
+        // Initialize Google Sign-In options
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(com.firebase.ui.auth.R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
     }
 
     override fun onCreateView(
@@ -37,7 +50,7 @@ class ProfilePage : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentProfilePageBinding.inflate(inflater, container, false)
         binding.logoutButton.setOnClickListener(){
-            Firebase.auth.signOut()
+            signOut()
             goToLoginActivity()
             Log.d(TAG, "Signed out")
         }
@@ -50,6 +63,16 @@ class ProfilePage : Fragment() {
         // You can also put extra data to pass to the destination activity
         intent.putExtra("key", "value")
         startActivity(intent)
+    }
+
+    private fun signOut() {
+        // Firebase sign out
+        FirebaseAuth.getInstance().signOut()
+
+        // Google sign out
+        googleSignInClient.signOut().addOnCompleteListener {
+            // Handle sign out result
+        }
     }
 
 }
