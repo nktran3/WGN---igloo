@@ -121,11 +121,21 @@ class InventoryDisplayFragment : Fragment() {
     }
 }
 
+
 class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
 
     fun updateItems(newItems: List<GroceryItem>) {
         items = newItems
         notifyDataSetChanged()
+    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textView: TextView = view.findViewById(R.id.itemTextView)
+
+//        init {
+//            textView.setOnClickListener {
+//                val itemDetailFragment = HomeItemDetail()
+//                supportFragmentManager.beginTransaction().replace(R.id.fragment_container, itemDetailFragment).commit()
+//            }
+//        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
