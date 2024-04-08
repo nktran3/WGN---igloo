@@ -66,5 +66,19 @@ class HomePage : Fragment() {
             }
         })
 
+        val addButton : Button = view.findViewById(R.id.add_button)
+
+        addButton.setOnClickListener{
+            val formFragment = NewItemsFormFragment()
+            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
+
+
+
+        }
+
+
+
+
+
     }
 }
