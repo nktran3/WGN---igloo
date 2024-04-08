@@ -1,5 +1,6 @@
 package com.example.wgn_igloo
 
+import BarcodeScannerFragment
 import android.R.attr.button
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -90,6 +91,8 @@ class HomePage : Fragment() {
 
                         }
                         R.id.add_barcode -> {
+                            val barcodeFragment = BarcodeScannerFragment()
+                            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, barcodeFragment).commit()
                             Toast.makeText(requireContext(), "Adding by barcode", Toast.LENGTH_SHORT).show()
                             true
                         }
