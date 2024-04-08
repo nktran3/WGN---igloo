@@ -5,7 +5,7 @@
         android:title="Add Manually" />
 
     <item
-        android:id="@+id/shopping_list_nav"
+        android:id="@+id/add_barcode"
         android:title="Scan Barcode" />
 
 </menu>

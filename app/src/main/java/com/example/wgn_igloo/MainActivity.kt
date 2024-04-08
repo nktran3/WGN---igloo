@@ -50,6 +50,8 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+
+
         // Initialize Firebase Auth and check if the user is signed in
         auth = Firebase.auth
         if (auth.currentUser == null) {
