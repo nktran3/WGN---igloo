@@ -17,6 +17,7 @@ class InventoryDisplayFragment : Fragment() {
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var adapter: MyItemAdapter
 
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_inventory_display, container, false)
