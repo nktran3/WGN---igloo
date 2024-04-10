@@ -1,6 +1,7 @@
 package com.example.wgn_igloo
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -27,7 +28,6 @@ class ProfilePage : Fragment() {
     private lateinit var googleSignInClient: GoogleSignInClient
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize Firebase Auth
@@ -37,7 +37,6 @@ class ProfilePage : Fragment() {
             .requestIdToken(getString(com.firebase.ui.auth.R.string.default_web_client_id))
             .requestEmail()
             .build()
-
 
         // Build a GoogleSignInClient with the options specified by gso.
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
@@ -53,6 +52,9 @@ class ProfilePage : Fragment() {
             signOut()
             goToLoginActivity()
             Log.d(TAG, "Signed out")
+        }
+        binding.supportButton.setOnClickListener {
+            openGoogleApp()
         }
 
         return binding.root
@@ -72,6 +74,19 @@ class ProfilePage : Fragment() {
         // Google sign out
         googleSignInClient.signOut().addOnCompleteListener {
             // Handle sign out result
+        }
+    }
+
+    private fun openGoogleApp() {
+        try {
+            val gmmIntentUri = Uri.parse("googlechrome://navigate?url=https://www.google.com/")
+            val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            intent.setPackage("com.google.android.apps.chrome")
+            startActivity(intent)
+        } catch (e: Exception) {
+            val gmmIntentUri = Uri.parse("https://www.google.com/")
+            val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            startActivity(intent)
         }
     }
 
