@@ -178,7 +178,8 @@ class BarcodeScannerFragment : Fragment() {
                     val foodDescription = foodDetailResponse.description
                     val foodBrand = foodDetailResponse.brandOwner
                     binding.textView.text = "$foodBrand $foodDescription"
-                    val formFragment = NewItemsFormFragment()
+                    val testMessage = "$foodDescription"
+                    val formFragment = NewItemsFormFragment.newInstance(testMessage)
                     requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
                     Toast.makeText(requireContext(), "Adding manually", Toast.LENGTH_SHORT).show()
                     true
