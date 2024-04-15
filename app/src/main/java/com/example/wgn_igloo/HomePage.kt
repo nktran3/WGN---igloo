@@ -67,6 +67,7 @@ class HomePage : Fragment() {
         })
 
         val addButton : Button = view.findViewById(R.id.add_button)
+        addButton.bringToFront();
 
         addButton.setOnClickListener{
             val formFragment = NewItemsFormFragment()
