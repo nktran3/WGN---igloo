@@ -31,6 +31,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.fragment.app.Fragment
+import com.example.wgn_igloo.NewItemsFormFragment
+import com.example.wgn_igloo.R
 import com.example.wgn_igloo.USDAFoodDatabaseAPI
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -176,6 +178,11 @@ class BarcodeScannerFragment : Fragment() {
                     val foodDescription = foodDetailResponse.description
                     val foodBrand = foodDetailResponse.brandOwner
                     binding.textView.text = "$foodBrand $foodDescription"
+                    val formFragment = NewItemsFormFragment()
+                    requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
+                    Toast.makeText(requireContext(), "Adding manually", Toast.LENGTH_SHORT).show()
+                    true
+
 
                     Log.d(TAG, "$foodDescription")
                 } else {
