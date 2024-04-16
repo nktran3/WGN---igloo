@@ -26,8 +26,21 @@ class NewItemsFormFragment : Fragment() {
   
     private var _binding: FragmentNewItemsFormBinding? = null
     private val binding get() = _binding!!
-  
     var message: String? = null
+    private lateinit var auth: FirebaseAuth
+    private lateinit var firestoreHelper: FirestoreHelper
+
+    private lateinit var submitButton: Button
+    // input item for the form
+    private lateinit var itemInput: EditText
+    private lateinit var expirationDateInput: EditText
+    private lateinit var quantityInput: EditText
+    private lateinit var categoryInput: Spinner
+    private lateinit var sharedWithInput: Spinner
+    // Hard coded list
+    private val categoryList = arrayOf("choose an option", "Meat", "Vegetable", "Dairy", "Fruits", "Carbohydrate")
+    private val sharedWithList = arrayOf("choose an option", "Wilbert", "Gary", "Nicole", "Rhett")
+
 
     companion object {
         private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
@@ -40,18 +53,6 @@ class NewItemsFormFragment : Fragment() {
             return fragment
         }
     }
-
-
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firestoreHelper: FirestoreHelper
-    private lateinit var submitButton: Button
-    private lateinit var itemInput: EditText
-    private lateinit var categoryInput: Spinner
-    private lateinit var expirationDateInput: EditText
-    private lateinit var quantityInput: EditText
-    private lateinit var sharedWithInput: EditText
-
-    private val categoryList = arrayOf("choose an option", "Meat", "Vegetable", "Dairy", "Fruits", "Carbohydrate")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,65 +68,66 @@ class NewItemsFormFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_new_items_form, container, false)
-//        val navigateButton: Button = view.findViewById(R.id.submit_button) // Assuming you have a button to navigate
-        // Initialize your views here, similar to how you've done before
-        categoryInput = view.findViewById(R.id.category_input)
-        submitButton = view.findViewById(R.id.submit_button)
-        itemInput = view.findViewById(R.id.item_input)
-        expirationDateInput = view.findViewById(R.id.expiration_input)
+        _binding = FragmentNewItemsFormBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        setupViews()
         setupDatePicker()
+        setupSpinnerCategory()
+        setupSpinnerRoomate()
 
-        // Set item input to what barcode scanned
-        itemInput.setText(message)
 
         submitButton.setOnClickListener {
-            val fragmentManager = requireActivity().supportFragmentManager
-            fragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, NewItemsFormFragment()) // Ensure you have a container in your activity's layout where fragments are swapped
-                .addToBackStack(null) // This line ensures you can navigate back to InventoryDisplayFragment
-                .commit()
-            navigateBack()
-        }
-
-        // Setup the ArrayAdapter for the Spinner
-        val categoryAdapter = ArrayAdapter(
-            requireContext(), // Context
-            android.R.layout.simple_spinner_item, // Layout for the spinner's row
-            categoryList // Data array
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-
-        categoryInput.adapter = categoryAdapter
-
-        categoryInput.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // Skip the default prompt
-                if (position == 0) {
-                    // "choose an option" is selected, do nothing or prompt the user to select a valid option
-                    Toast.makeText(context, "Please select a valid option", Toast.LENGTH_SHORT).show()
-                } else {
-                    // A valid category is selected, proceed with your logic
-                    val selectedCategory = categoryList[position]
-                    Toast.makeText(context, "Selected: $selectedCategory", Toast.LENGTH_SHORT).show()
-                    // Implement your logic here based on the selected category
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Optionally handle the scenario when nothing is selected
-                navigateBack()
+            if (validateInputs()) {
+                submitGroceryItem()
+//                navigateBack()
+            } else {
+                Toast.makeText(context, "Please fill all fields correctly", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Initialize other inputs (ownerInput, imageInput, etc.) here as well
-        submitButton.setOnClickListener {
-            // blocker in submitGroceryItem to add to the database - under review
-//            submitGroceryItem()
-            navigateBack()
-        }
         return view
     }
+
+    private fun setupViews() {
+        submitButton = binding.submitButton
+        itemInput = binding.itemInput
+        categoryInput = binding.categoryInput
+        expirationDateInput = binding.expirationInput
+        quantityInput = binding.quantityInput
+        sharedWithInput = binding.sharedWithInput
+    }
+
+    private fun validateInputs(): Boolean {
+        return itemInput.text.isNotEmpty() &&
+                quantityInput.text.isNotEmpty() &&
+                expirationDateInput.text.isNotEmpty() &&
+                categoryInput.selectedItemPosition != 0
+    }
+
+    private fun setupSpinnerRoomate() {
+        val roommateAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            sharedWithList  // Correct list for roommates
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        sharedWithInput.adapter = roommateAdapter  // Use the correct Spinner
+    }
+
+
+    private fun setupSpinnerCategory() {
+        val categoryAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categoryList  // Use the correct list here
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        categoryInput.adapter = categoryAdapter  // Correct Spinner
+    }
+
 
     private fun submitGroceryItem() {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid
@@ -136,18 +138,18 @@ class NewItemsFormFragment : Fragment() {
 
         val category = categoryInput.selectedItem.toString().takeIf { it != "choose an option" } ?: return
         val name = itemInput.text.toString()
+        val sharedWithInput = sharedWithInput.selectedItem.toString().takeIf { it != "choose an option" } ?: return
         val quantity = quantityInput.text.toString().toIntOrNull() ?: return
         val expirationDate = convertStringToTimestamp(expirationDateInput.text.toString())
         // Collect other inputs similarly
-        // Assume convertStringToTimestamp is a method you'll implement to parse the date string to Timestamp
 
         val groceryItem = GroceryItem(
             category = category,
             expirationDate = expirationDate,
             dateBought = Timestamp.now(), // Assuming the current timestamp as dateBought
             name = name,
-            quantity = quantityInput.text.toString().toInt(),
-            sharedWith = sharedWithInput.text.toString(),
+            quantity = quantity,
+            sharedWith = sharedWithInput,
             status = true // Assuming a new item is always active, adjust based on your logic
         )
 
@@ -159,19 +161,23 @@ class NewItemsFormFragment : Fragment() {
     private fun addGroceryItemForUser(uid: String, groceryItem: GroceryItem) {
         firestoreHelper.addGroceryItem(uid, groceryItem, onSuccess = {
             // Navigate back to InventoryDisplayFragment upon success
-            requireActivity().supportFragmentManager.popBackStack()
-            navigateBack()
+            Toast.makeText(context, "Item added successfully", Toast.LENGTH_SHORT).show()
+//            requireActivity().supportFragmentManager.popBackStack()
+//            navigateBack()
         }, onFailure = { e ->
             Log.e("NewItemsFormFragment", "Failed to add item: ", e)
             Toast.makeText(context, "Failed to add item", Toast.LENGTH_SHORT).show()
         })
     }
 
-    private fun navigateBack() {
-        if (isAdded) {
-            requireActivity().supportFragmentManager.popBackStack()
-        }
-    }
+//    private fun navigateBack() {
+//        Log.d(TAG, "Back stack entry count: ${requireActivity().supportFragmentManager.backStackEntryCount}")
+//        if (requireActivity().supportFragmentManager.backStackEntryCount > 0) {
+//            requireActivity().supportFragmentManager.popBackStack()
+//        } else {
+//            Log.w(TAG, "No back stack entry to pop.")
+//        }
+//    }
 
     private fun setupDatePicker() {
         val calendar = Calendar.getInstance()
@@ -219,4 +225,5 @@ class NewItemsFormFragment : Fragment() {
             Timestamp.now() // Return current time if parsing fails
         }
     }
+    
 }

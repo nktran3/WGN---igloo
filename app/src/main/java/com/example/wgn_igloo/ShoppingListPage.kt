@@ -78,7 +78,7 @@ class ShoppingListPage : Fragment() {
         }
         // Add a dummy shopping list item for testing purposes
         // adding the item -- how to call to add the item
-        addDummyShoppingListItem()
+//        addDummyShoppingListItem()
     }
 
     private fun moveItemToInventory(item: ShoppingListItem) {
@@ -118,6 +118,7 @@ class ShoppingListPage : Fragment() {
                 category = "Fruit",
                 lastPurchased = Timestamp.now(), // Use a dummy timestamp
                 name = "Apple",
+                quantity = 2,
                 purchasedBy = uid  // Use the UID of the current user
             )
 
