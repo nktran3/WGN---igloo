@@ -36,8 +36,17 @@ class InventoryDisplayFragment : Fragment() {
         adapter = MyItemAdapter(emptyList())
         recyclerView.adapter = adapter
 
+        // Initialize FirestoreHelper with the fragment's context
+        firestoreHelper = FirestoreHelper(requireContext())
+        firestoreDb = FirebaseFirestore.getInstance()
+
         // Fetch initial grocery items
         fetchGroceryItems()
+
+        // Set up the button (Replace 'R.id.add_button' with your actual button ID)
+        view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
+            navigateToAddNewItemForm()
+        }
 
         // NEED TO SET UP BUTTON with OnClickListener
 //        val addButton: Button = view.findViewById(R.id.add_button)
@@ -53,6 +62,14 @@ class InventoryDisplayFragment : Fragment() {
             // Consider showing a Toast message or UI indication for login requirement
         }
 //        }
+    }
+
+    private fun navigateToAddNewItemForm() {
+        val newItemsFormFragment = NewItemsFormFragment.newInstance("Your message here") // Use appropriate message or data
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, newItemsFormFragment)
+            .addToBackStack(null) // This is crucial for the back navigation to work
+            .commit()
     }
 
 
