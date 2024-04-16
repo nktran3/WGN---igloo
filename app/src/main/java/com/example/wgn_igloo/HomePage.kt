@@ -1,5 +1,7 @@
 package com.example.wgn_igloo
 
+import BarcodeScannerFragment
+import android.R.attr.button
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.helper.widget.Carousel
 import androidx.fragment.app.Fragment
 
@@ -66,19 +69,43 @@ class HomePage : Fragment() {
             }
         })
 
+
         val addButton : Button = view.findViewById(R.id.add_button)
         addButton.bringToFront();
 
-        addButton.setOnClickListener{
-            val formFragment = NewItemsFormFragment()
-            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
 
 
 
-        }
 
+            val addButton: Button = view.findViewById(R.id.add_button)
+            addButton.setOnClickListener { v ->
+                // Note: Use requireContext() to get the context for the PopupMenu
+                val popup = PopupMenu(requireContext(), v)
+                // Inflating the Popup using the menu resource
+                popup.menuInflater.inflate(R.menu.add_popup_menu, popup.menu)
 
+                // Setting up a click listener for the menu items
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.add_manually -> {
+                            val formFragment = NewItemsFormFragment()
+                            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
+                            Toast.makeText(requireContext(), "Adding manually", Toast.LENGTH_SHORT).show()
+                            true
 
+                        }
+                        R.id.add_barcode -> {
+                            val barcodeFragment = BarcodeScannerFragment()
+                            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, barcodeFragment).commit()
+                            Toast.makeText(requireContext(), "Adding by barcode", Toast.LENGTH_SHORT).show()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                // Showing the popup menu
+                popup.show()
+            }
 
 
     }

@@ -23,8 +23,33 @@ import com.example.wgn_igloo.FirestoreHelper
 import com.example.wgn_igloo.R
 import com.google.firebase.auth.FirebaseUser
 import com.example.wgn_igloo.GroceryItem
+ import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.example.wgn_igloo.databinding.FragmentNewItemsFormBinding
+
+private const val TAG = "NewItemsForm"
 
 class NewItemsFormFragment : Fragment() {
+  
+    private var _binding: FragmentNewItemsFormBinding? = null
+    private val binding get() = _binding!!
+  
+    var message: String? = null
+
+    companion object {
+        private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
+
+        fun newInstance(message: String): NewItemsFormFragment {
+            val fragment = NewItemsFormFragment()
+            val args = Bundle()
+            args.putString(EXTRA_MESSAGE, message)
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firestoreHelper: FirestoreHelper
@@ -41,6 +66,10 @@ class NewItemsFormFragment : Fragment() {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
         firestoreHelper = FirestoreHelper(requireContext())
+        arguments?.let {
+            message = it.getString(EXTRA_MESSAGE)
+            Log.d(TAG, "Testing to see if the data went through: $message")
+        }
     }
 
     override fun onCreateView(
