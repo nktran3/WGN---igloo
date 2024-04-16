@@ -78,7 +78,7 @@ class ShoppingListPage : Fragment() {
         }
         // Add a dummy shopping list item for testing purposes
         // adding the item -- how to call to add the item
-        addDummyShoppingListItem()
+//        addDummyShoppingListItem()
     }
 
     private fun moveItemToInventory(item: ShoppingListItem) {
