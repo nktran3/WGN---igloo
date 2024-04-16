@@ -73,6 +73,8 @@ class BarcodeScannerFragment : Fragment() {
         }
     }
 
+
+    // ChatGpt assisted function -> used to help establish the skeleton of using the CameraX library
     @OptIn(ExperimentalGetImage::class)
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
