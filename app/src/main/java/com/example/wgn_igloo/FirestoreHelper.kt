@@ -45,10 +45,20 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+//    fun addShoppingListItem(uid: String, item: ShoppingListItem) {
+//        db.collection("users").document(uid).collection("shoppingList").add(item)
+////        db.collection("users").document(uid)
+////            .collection("shoppingList").document(item.name).add(item)
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Shopping list item added successfully")
+//            }
+//            .addOnFailureListener { e ->
+//                Log.w(TAG, "Error adding shopping list item", e)
+//            }
+//    }
+
     fun addShoppingListItem(uid: String, item: ShoppingListItem) {
-        db.collection("users").document(uid).collection("shoppingList").add(item)
-//        db.collection("users").document(uid)
-//            .collection("shoppingList").document(item.name).add(item)
+        db.collection("users").document(uid).collection("shoppingList").document(item.name).set(item)
             .addOnSuccessListener {
                 Log.d(TAG, "Shopping list item added successfully")
             }
@@ -63,7 +73,8 @@ class FirestoreHelper(private val context: Context) {
             .addOnSuccessListener {
                 // Add to grocery items with a unique name
                 val groceryItem = mapShoppingListItemToGroceryItem(item)
-                db.collection("users").document(uid).collection("groceryItems").add(item)
+//                db.collection("users").document(uid).collection("groceryItems").add(item)
+                db.collection("users").document(uid).collection("groceryItems").add(groceryItem)
 //                db.collection("users").document(uid).collection("groceryItems").document(groceryItem.name).set(groceryItem)
                     .addOnSuccessListener {
                         Log.d(TAG, "Item moved to grocery items successfully")
