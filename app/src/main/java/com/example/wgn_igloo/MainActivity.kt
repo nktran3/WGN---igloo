@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bottomNavigation: BottomNavigationView
     private lateinit var selectedFragment: Fragment
+    private lateinit var firestoreHelper: FirestoreHelper
 
     //Firebase Instance Variables
     private lateinit var auth: FirebaseAuth
@@ -28,6 +29,9 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation = findViewById(R.id.bottom_navigation)
 
         bottomNavigation.selectedItemId= R.id.home_nav
+
+        // Initialize FirestoreHelper
+        firestoreHelper = FirestoreHelper(this)
 
         bottomNavigation.setOnItemSelectedListener{
             if (it.itemId == R.id.recipe_nav) {
@@ -45,6 +49,8 @@ class MainActivity : AppCompatActivity() {
 
             true
         }
+
+
 
         // Initialize Firebase Auth and check if the user is signed in
         auth = Firebase.auth
@@ -64,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "${auth.currentUser}")
         if (auth.currentUser == null) {
             // Not signed in, launch the Sign In activity
+            Log.d(TAG, "User is not signed in")
             startActivity(Intent(this, SignUpActivity::class.java))
             finish()
             return
