@@ -18,15 +18,6 @@ import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
 import java.text.ParseException
-import android.widget.ImageView
-import com.example.wgn_igloo.FirestoreHelper
-import com.example.wgn_igloo.R
-import com.google.firebase.auth.FirebaseUser
-import com.example.wgn_igloo.GroceryItem
- import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.example.wgn_igloo.databinding.FragmentNewItemsFormBinding
 
 private const val TAG = "NewItemsForm"
@@ -78,13 +69,15 @@ class NewItemsFormFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_new_items_form, container, false)
 //        val navigateButton: Button = view.findViewById(R.id.submit_button) // Assuming you have a button to navigate
-
         // Initialize your views here, similar to how you've done before
         categoryInput = view.findViewById(R.id.category_input)
         submitButton = view.findViewById(R.id.submit_button)
         itemInput = view.findViewById(R.id.item_input)
         expirationDateInput = view.findViewById(R.id.expiration_input)
         setupDatePicker()
+
+        // Set item input to what barcode scanned
+        itemInput.setText(message)
 
         submitButton.setOnClickListener {
             val fragmentManager = requireActivity().supportFragmentManager
@@ -131,7 +124,7 @@ class NewItemsFormFragment : Fragment() {
 //            submitGroceryItem()
             navigateBack()
         }
-        return inflater.inflate(R.layout.fragment_new_items_form, container, false)
+        return view
     }
 
     private fun submitGroceryItem() {
