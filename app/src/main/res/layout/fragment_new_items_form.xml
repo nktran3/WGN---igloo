@@ -44,7 +44,7 @@
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/item_input"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:hint="hint"
         app:layout_constraintEnd_toEndOf="parent"
@@ -69,7 +69,7 @@
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/quantity_input"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:hint="hint"
         app:layout_constraintEnd_toEndOf="parent"
@@ -117,7 +117,7 @@
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/expiration_input"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:hint="hint"
         android:inputType="date"

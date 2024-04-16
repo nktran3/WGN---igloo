@@ -51,7 +51,7 @@ class NewItemsFormFragment : Fragment() {
     private lateinit var quantityInput: EditText
     private lateinit var sharedWithInput: EditText
 
-    private val categoryList = arrayOf("choose an option", "Meat", "Vegetable", "Dairy", "Fruits", "Carbohydrate")
+    private val categoryList = arrayOf("choose an option", "Meat", "Vegetable", "Dairy", "Fruits", "Carbohydrate", "Miscellaneous")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
