@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".InboxPage"
-    android:layout_margin="10dp"
     android:background="@color/white">
 
     <androidx.cardview.widget.CardView
