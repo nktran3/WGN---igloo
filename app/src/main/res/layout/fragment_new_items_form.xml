@@ -7,7 +7,6 @@
     tools:context=".NewItemsFormFragment"
     android:layout_margin="10dp"
     android:background="@color/white">
-
     <androidx.cardview.widget.CardView
         android:id="@+id/add_items_prompt"
         android:layout_width="match_parent"
@@ -19,13 +18,13 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_item"
+            android:background="@color/secondary_color"
             android:fontFamily="@font/judson"
-            android:textSize="32dp"
-            android:textStyle="bold"
+            android:padding="5dp"
+            android:text="@string/add_item"
             android:textColor="@color/black"
-            android:padding="10dp"
-            android:background="@color/secondary_color"/>
+            android:textSize="32dp"
+            android:textStyle="bold" />
 
     </androidx.cardview.widget.CardView>
 
@@ -79,6 +78,30 @@
         app:layout_constraintTop_toBottomOf="@+id/quantity_form" />
 
     <TextView
+        android:id="@+id/category_form"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/judson"
+        android:text="category"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.003"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quantity_input" />
+
+
+    <Spinner
+        android:id="@+id/category_input"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_form" />
+
+    <TextView
         android:id="@+id/expiration_form"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -89,7 +112,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quantity_input" />
+        app:layout_constraintTop_toBottomOf="@+id/category_input" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/expiration_input"
@@ -97,7 +120,9 @@
         android:layout_height="48dp"
         android:layout_marginTop="8dp"
         android:hint="hint"
+        android:inputType="date"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/expiration_form" />
 
@@ -105,22 +130,22 @@
         android:id="@+id/owner_form"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/judson"
         android:text="@string/owner"
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.003"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/expiration_input" />
-
 
     <Spinner
         android:id="@+id/owner_input"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/owner_form" />
 
@@ -133,23 +158,24 @@
         android:text="@string/add_image"
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.003"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/owner_input" />
 
     <ImageView
         android:id="@+id/image_input"
         android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="138dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/image_border"
         android:src="@android:drawable/ic_menu_camera"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.764"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/image_form" />
 
     <Button
-        android:id="@+id/cancel_button"
+        android:id="@+id/submit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -157,9 +183,9 @@
         android:text="@string/new_item"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.062"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image_input"
-        app:layout_constraintVertical_bias="0.636" />
-
+        app:layout_constraintTop_toBottomOf="@+id/image_form"
+        app:layout_constraintVertical_bias="0.977" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

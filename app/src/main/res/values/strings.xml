@@ -38,7 +38,9 @@
     <string name="quantity_form">Quantity:</string>
     <string name="new_item">Add New Item</string>
     <string name="add_image">Add Image</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="scan_button">Scan</string>
+    <string name="accept">Accept</string>
+    <string name="deny">Deny</string>
+    <string name="see_fridge"><u>See in Your Fridge</u></string>
 </resources>
