@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/shopping_list_items_text_view"
+            android:id="@+id/Notifications_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/notifications"
