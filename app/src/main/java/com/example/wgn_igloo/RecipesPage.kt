@@ -6,13 +6,18 @@ import androidx.fragment.app.Fragment
 import android.view.*
 import androidx.recyclerview.widget.*
 import android.widget.*
+import com.example.wgn_igloo.databinding.FragmentRecipesPageBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.example.wgn_igloo.RecipeSearchFragment
 
+private const val TAG = "RecipePage"
 
 class RecipesPage : Fragment() {
 //    private val adapter: RecipeAdapter
     private lateinit var firestoreHelper: FirestoreHelper
     private var userUid: String? = null
+    private lateinit var binding: FragmentRecipesPageBinding
+    private var query = ""
 
     companion object {
         private const val TAG = "FirestoreHelper"
@@ -30,7 +35,15 @@ class RecipesPage : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_recipes_page, container, false)
+        binding = FragmentRecipesPageBinding.inflate(inflater, container, false)
+
+        binding.recipeSearchButton.setOnClickListener(){
+            query = binding.recipesSearchView.query.toString()
+            Log.d(TAG, "Searching for recipe")
+            val recipeSearchFragment = RecipeSearchFragment.newInstance(query)
+            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, recipeSearchFragment).commit()
+        }
+        return binding.root
     }
 
     private fun addDummyRecipeListItem() {
