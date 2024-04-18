@@ -76,22 +76,22 @@ class ProfilePage : Fragment() {
             requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, faqFragment).commit()
         }
 
-//        binding.supportButton.setOnClickListener {
-//            Toast.makeText(context, "Support clicked!", Toast.LENGTH_SHORT).show()
-//        }
+        // Commented out section for supportButton, uncomment if needed
+        // binding.supportButton.setOnClickListener {
+        //     Toast.makeText(context, "Support clicked!", Toast.LENGTH_SHORT).show()
+        // }
 
         binding.logoutButton.setOnClickListener {
             signOut()
             goToLoginActivity()
             Log.d(TAG, "Signed out")
         }
-        
+
         binding.supportButton.setOnClickListener {
             openGoogleApp()
         }
-
-        return binding.root
     }
+
 
     fun goToLoginActivity() {
         val intent = Intent(activity, LoginActivity::class.java)
