@@ -15,6 +15,8 @@ class ShoppingListPage : Fragment() {
     private lateinit var firestoreDb: FirebaseFirestore
     private var userUid: String? = null
     private lateinit var recyclerView: RecyclerView
+//    private val db = FirebaseFirestore.getInstance()
+
 
     companion object {
         private const val TAG = "FirestoreHelper"
@@ -34,36 +36,27 @@ class ShoppingListPage : Fragment() {
         return inflater.inflate(R.layout.fragment_shopping_list_page, container, false)
     }
 
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//
-//        recyclerView = view.findViewById(R.id.shopping_list_recycler_view)
-//        recyclerView.layoutManager = LinearLayoutManager(context)
-//        recyclerView.adapter = ShoppingListAdapter(emptyList()) // Initialize with an empty list
-//
-//        userUid?.let { uid ->
-//            fetchShoppingListItems(uid,
-//                onSuccess = { items ->
-//                    (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
-//                },
-//                onFailure = { exception ->
-//                    Log.w(TAG, "Error getting shopping list items: ", exception)
-//                }
-//            )
-//        }
-//        // Add a dummy shopping list item for testing purposes
-//        // adding the item -- how to call to add the item
-////        addDummyShoppingListItem()
-//    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.shopping_list_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = ShoppingListAdapter(emptyList()) { item ->
-            moveItemToInventory(item)
-//            moveGroceryItemsToShoppingList(item)
+            userUid?.let { uid ->
+                firestoreHelper.moveItemToInventory(uid, item,
+                    onSuccess = {
+                        // Fetch updated items after successful inventory move
+                        fetchShoppingListItems(uid, { items ->
+                            (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
+                        }, { exception ->
+                            Log.w(TAG, "Error refreshing shopping list after moving item", exception)
+                        })
+                    },
+                    onFailure = { exception ->
+                        Log.e(TAG, "Failed to move item to inventory", exception)
+                    }
+                )
+            }
         }
 
         userUid?.let { uid ->
@@ -72,27 +65,13 @@ class ShoppingListPage : Fragment() {
                     (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
                 },
                 onFailure = { exception ->
-                    Log.w(TAG, "Error getting shopping list items: ", exception)
+                    Log.w(TAG, "Error getting shopping list items", exception)
                 }
             )
         }
         // Add a dummy shopping list item for testing purposes
         // adding the item -- how to call to add the item
 //        addDummyShoppingListItem()
-    }
-
-    private fun moveItemToInventory(item: ShoppingListItem) {
-        userUid?.let { uid ->
-            firestoreHelper.moveItemToInventory(uid, item, onSuccess = {
-                fetchShoppingListItems(uid, { items ->
-                    (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
-                }, { exception ->
-                    Log.w(TAG, "Error getting shopping list items: ", exception)
-                })
-            }, onFailure = {
-                Log.e(TAG, "Failed to move item to grocery items", it)
-            })
-        }
     }
 
     private fun fetchShoppingListItems(
@@ -117,7 +96,8 @@ class ShoppingListPage : Fragment() {
             val dummyItem = ShoppingListItem(
                 category = "Fruit",
                 lastPurchased = Timestamp.now(), // Use a dummy timestamp
-                name = "Apple",
+                name = "Dragon Fruit",
+                quantity = 1,
                 purchasedBy = uid  // Use the UID of the current user
             )
 
