@@ -1,6 +1,7 @@
 package com.example.wgn_igloo
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -39,7 +40,6 @@ class ProfilePage : Fragment() {
             .requestIdToken(getString(com.firebase.ui.auth.R.string.default_web_client_id))
             .requestEmail()
             .build()
-
 
         // Build a GoogleSignInClient with the options specified by gso.
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
@@ -85,6 +85,12 @@ class ProfilePage : Fragment() {
             goToLoginActivity()
             Log.d(TAG, "Signed out")
         }
+        
+        binding.supportButton.setOnClickListener {
+            openGoogleApp()
+        }
+
+        return binding.root
     }
 
     fun goToLoginActivity() {
@@ -103,5 +109,35 @@ class ProfilePage : Fragment() {
             // Handle sign out result
         }
     }
+
+//    private fun openGoogleApp() {
+//        try {
+//            val gmmIntentUri = Uri.parse("googlechrome://navigate?url=https://www.google.com/")
+//            val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+//            intent.setPackage("com.google.android.apps.chrome")
+//            startActivity(intent)
+//        } catch (e: Exception) {
+//            val gmmIntentUri = Uri.parse("https://www.google.com/")
+//            val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+//            startActivity(intent)
+//        }
+//    }
+
+    private fun openGoogleApp() {
+        try {
+            // URL for the Google Form
+            val formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSci-UHF6PjLyTdzAEr_5TKxWdTbQQi8jx7Y8HsXbPrypzTmeQ/viewform"
+            val gmmIntentUri = Uri.parse("googlechrome://navigate?url=$formUrl")
+            val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            intent.setPackage("com.google.android.apps.chrome")
+            startActivity(intent)
+        } catch (e: Exception) {
+            // Fallback to opening the form in any available browser if Chrome is not installed
+            val gmmIntentUri = Uri.parse("https://docs.google.com/forms/d/e/1FAIpQLSci-UHF6PjLyTdzAEr_5TKxWdTbQQi8jx7Y8HsXbPrypzTmeQ/viewform")
+            val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            startActivity(intent)
+        }
+    }
+
 
 }
