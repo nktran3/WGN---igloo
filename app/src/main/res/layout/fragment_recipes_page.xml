@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    tools:context=".RecipesPage"
-    android:scrollbars="vertical">
+    android:keepScreenOn="true">
 
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    android:background="@color/white">
+
+    android:background="@color/white"
+    android:paddingBottom="10dp">
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/recipes_search_view"
@@ -21,6 +21,7 @@
         android:layout_marginTop="16dp"
         android:queryHint="@string/search_recipes"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,6 +29,7 @@
         android:id="@+id/suggested_recipes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:fontFamily="@font/judson"
         android:text="@string/suggested_recipes"
@@ -64,6 +66,7 @@
         android:id="@+id/saved_recipes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:fontFamily="@font/judson"
         android:text="@string/saved_recipes"
@@ -87,4 +90,4 @@
         app:layout_constraintTop_toBottomOf="@+id/saved_recipes" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+</ScrollView>

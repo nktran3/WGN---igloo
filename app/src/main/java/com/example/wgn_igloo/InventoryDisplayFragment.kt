@@ -9,13 +9,14 @@ import androidx.recyclerview.widget.*
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import GroceryItem
+import com.example.wgn_igloo.GroceryItem
 
 class InventoryDisplayFragment : Fragment() {
 
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var adapter: MyItemAdapter
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -46,6 +47,7 @@ class InventoryDisplayFragment : Fragment() {
         if (userUid != null) {
             // Add grocery item for user and then fetch updated list
 //            addGroceryItemForUser(userUid)
+//            onShareItemClicked("WZSXlJUk8jQTkoKi8bYG", "EVzFbTC1qhe8N1cG77DoAKv1s4s2")
         } else {
             Log.d(TAG, "User is not logged in")
             // Consider showing a Toast message or UI indication for login requirement
@@ -77,18 +79,21 @@ class InventoryDisplayFragment : Fragment() {
             }
     }
 
-    private fun fetchAndDisplayGroceryItems(adapter: MyItemAdapter) {
-        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        firestoreHelper.fetchGroceryItems(userUid, { items ->
-            activity?.runOnUiThread {
-                adapter.updateItems(items)
-            }
-        }, { e ->
-            Log.d(TAG, "Error fetching grocery items", e)
-        })
+    // Example of a function within InventoryDisplayFragment to handle sharing an item
+    fun onShareItemClicked(itemId: String, friendUserId: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        userId?.let {
+            firestoreHelper.shareGroceryItem(it, itemId, friendUserId, onSuccess = {
+                Toast.makeText(context, "Item shared successfully", Toast.LENGTH_SHORT).show()
+            }, onFailure = { exception ->
+                Log.e(TAG, "Failed to share item: ${exception.message}", exception)
+                Toast.makeText(context, "Failed to share item", Toast.LENGTH_SHORT).show()
+            })
+        }
     }
 
-//    }
+
+    //    }
     private fun addGroceryItemForUser(uid: String) {
         // test 1
 //        val groceryItem = GroceryItem(
@@ -128,16 +133,6 @@ class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter
         items = newItems
         notifyDataSetChanged()
     }
-//    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-//        val textView: TextView = view.findViewById(R.id.itemTextView)
-//
-////        init {
-////            textView.setOnClickListener {
-////                val itemDetailFragment = HomeItemDetail()
-////                supportFragmentManager.beginTransaction().replace(R.id.fragment_container, itemDetailFragment).commit()
-////            }
-////        }
-//    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false)

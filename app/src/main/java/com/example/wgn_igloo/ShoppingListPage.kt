@@ -34,12 +34,37 @@ class ShoppingListPage : Fragment() {
         return inflater.inflate(R.layout.fragment_shopping_list_page, container, false)
     }
 
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//
+//        recyclerView = view.findViewById(R.id.shopping_list_recycler_view)
+//        recyclerView.layoutManager = LinearLayoutManager(context)
+//        recyclerView.adapter = ShoppingListAdapter(emptyList()) // Initialize with an empty list
+//
+//        userUid?.let { uid ->
+//            fetchShoppingListItems(uid,
+//                onSuccess = { items ->
+//                    (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
+//                },
+//                onFailure = { exception ->
+//                    Log.w(TAG, "Error getting shopping list items: ", exception)
+//                }
+//            )
+//        }
+//        // Add a dummy shopping list item for testing purposes
+//        // adding the item -- how to call to add the item
+////        addDummyShoppingListItem()
+//    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.shopping_list_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = ShoppingListAdapter(emptyList()) // Initialize with an empty list
+        recyclerView.adapter = ShoppingListAdapter(emptyList()) { item ->
+            moveItemToInventory(item)
+//            moveGroceryItemsToShoppingList(item)
+        }
 
         userUid?.let { uid ->
             fetchShoppingListItems(uid,
@@ -54,6 +79,20 @@ class ShoppingListPage : Fragment() {
         // Add a dummy shopping list item for testing purposes
         // adding the item -- how to call to add the item
 //        addDummyShoppingListItem()
+    }
+
+    private fun moveItemToInventory(item: ShoppingListItem) {
+        userUid?.let { uid ->
+            firestoreHelper.moveItemToInventory(uid, item, onSuccess = {
+                fetchShoppingListItems(uid, { items ->
+                    (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
+                }, { exception ->
+                    Log.w(TAG, "Error getting shopping list items: ", exception)
+                })
+            }, onFailure = {
+                Log.e(TAG, "Failed to move item to grocery items", it)
+            })
+        }
     }
 
     private fun fetchShoppingListItems(
@@ -76,9 +115,9 @@ class ShoppingListPage : Fragment() {
         userUid?.let { uid ->
             // Create a dummy ShoppingListItem
             val dummyItem = ShoppingListItem(
-                category = "Meat",
+                category = "Fruit",
                 lastPurchased = Timestamp.now(), // Use a dummy timestamp
-                name = "Turkey",
+                name = "Apple",
                 purchasedBy = uid  // Use the UID of the current user
             )
 
@@ -98,33 +137,12 @@ class ShoppingListPage : Fragment() {
         }
     }
 
-    private fun moveGroceryItemsToShoppingList(uid: String) {
-        firestoreDb.collection("users").document(uid)
-            .collection("groceryItems").whereEqualTo("status", false).get()
-            .addOnSuccessListener { querySnapshot ->
-                for (document in querySnapshot) {
-                    val dateBought = document.getTimestamp("dateBought") ?: Timestamp.now()
-                    val groceryItemName = document.getString("name") ?: "Unknown"
-
-                    val shoppingListItem = ShoppingListItem(
-                        category = document.getString("category") ?: "Unknown",
-                        lastPurchased = dateBought,
-                        name = groceryItemName,
-                        purchasedBy = uid
-                    )
-
-                    firestoreHelper.addShoppingListItem(uid, shoppingListItem)
-                    // Additionally, consider removing the item from the groceryItems or updating its status
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting grocery items: ", exception)
-            }
-    }
-
 }
 
-class ShoppingListAdapter(private var items: List<ShoppingListItem>) : RecyclerView.Adapter<ShoppingListAdapter.ShoppingListViewHolder>() {
+class ShoppingListAdapter(
+    private var items: List<ShoppingListItem>,
+    private val onItemChecked: (ShoppingListItem) -> Unit
+) : RecyclerView.Adapter<ShoppingListAdapter.ShoppingListViewHolder>() {
 
     class ShoppingListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val checkBox: CheckBox = view.findViewById(R.id.shoppingItemCheckBox)
@@ -138,6 +156,11 @@ class ShoppingListAdapter(private var items: List<ShoppingListItem>) : RecyclerV
     override fun onBindViewHolder(holder: ShoppingListViewHolder, position: Int) {
         val item = items[position]
         holder.checkBox.text = item.name
+        holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                onItemChecked(item)
+            }
+        }
     }
 
     override fun getItemCount() = items.size
@@ -147,6 +170,3 @@ class ShoppingListAdapter(private var items: List<ShoppingListItem>) : RecyclerV
         notifyDataSetChanged()
     }
 }
-
-
-
