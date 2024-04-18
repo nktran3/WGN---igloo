@@ -69,8 +69,8 @@ class ShoppingListPage : Fragment() {
                 }
             )
         }
-
-        // this is to add item to shopping list
+        // Add a dummy shopping list item for testing purposes
+        // adding the item -- how to call to add the item
 //        addDummyShoppingListItem()
     }
 

@@ -4,11 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".InboxPage"
+    tools:context=".FaqFragment"
+    android:layout_margin="10dp"
     android:background="@color/white">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/Notifications"
+        android:id="@+id/faq"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
@@ -16,10 +17,10 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/Notifications_text_view"
+            android:id="@+id/faq_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/notifications"
+            android:text="@string/faq"
             android:fontFamily="@font/judson"
             android:textSize="32dp"
             android:textStyle="bold"
@@ -30,10 +31,10 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/notifications_recycler_view"
+        android:id="@+id/faq_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/Notifications" />
+        app:layout_constraintTop_toBottomOf="@+id/faq" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

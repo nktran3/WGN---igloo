@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 
 class RecipesPage : Fragment() {
-//    private val adapter: RecipeAdapter
+    // private val adapter: RecipeAdapter
     private lateinit var firestoreHelper: FirestoreHelper
     private var userUid: String? = null
 
