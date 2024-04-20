@@ -60,6 +60,11 @@ class ProfilePage : Fragment() {
 
         binding.profileButton.setOnClickListener {
             Toast.makeText(context, "Profile clicked!", Toast.LENGTH_SHORT).show()
+            val profileFragment = ProfileFragment()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, profileFragment)
+                .addToBackStack(null)
+                .commit()
         }
 
         binding.settingsButton.setOnClickListener {

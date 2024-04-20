@@ -1,3 +1,6 @@
 package com.example.wgn_igloo
 
-data class User(val email: String, val uid: String)
+data class User(
+    val uid: String = "",
+    val email: String = ""
+)
