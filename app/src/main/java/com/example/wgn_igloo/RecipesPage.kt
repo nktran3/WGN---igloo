@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.*
 import android.widget.*
 import com.example.wgn_igloo.databinding.FragmentRecipesPageBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.example.wgn_igloo.RecipeSearchFragment
+
 
 private const val TAG = "RecipePage"
 

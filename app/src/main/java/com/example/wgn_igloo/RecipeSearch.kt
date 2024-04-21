@@ -1,10 +1,10 @@
 package com.example.wgn_igloo
 
-data class SearchRecipe (
-    val imageId: Int,
-    val recipeName: String,
-    val preparationTime: String,
-    val cookTime: String,
-    val totalTime: String,
-    val servingSize: String
+data class RecipeSearch (
+    var imageId: Int,
+    var recipeName: String,
+    var preparationTime: String,
+    var cookTime: String,
+    var totalTime: String,
+    var servingSize: String
 )
