@@ -45,10 +45,20 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+//    fun addShoppingListItem(uid: String, item: ShoppingListItem) {
+//        db.collection("users").document(uid).collection("shoppingList").add(item)
+////        db.collection("users").document(uid)
+////            .collection("shoppingList").document(item.name).add(item)
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Shopping list item added successfully")
+//            }
+//            .addOnFailureListener { e ->
+//                Log.w(TAG, "Error adding shopping list item", e)
+//            }
+//    }
+
     fun addShoppingListItem(uid: String, item: ShoppingListItem) {
-        db.collection("users").document(uid).collection("shoppingList").add(item)
-//        db.collection("users").document(uid)
-//            .collection("shoppingList").document(item.name).add(item)
+        db.collection("users").document(uid).collection("shoppingList").document(item.name).set(item)
             .addOnSuccessListener {
                 Log.d(TAG, "Shopping list item added successfully")
             }
@@ -63,7 +73,8 @@ class FirestoreHelper(private val context: Context) {
             .addOnSuccessListener {
                 // Add to grocery items with a unique name
                 val groceryItem = mapShoppingListItemToGroceryItem(item)
-                db.collection("users").document(uid).collection("groceryItems").add(item)
+//                db.collection("users").document(uid).collection("groceryItems").add(item)
+                db.collection("users").document(uid).collection("groceryItems").add(groceryItem)
 //                db.collection("users").document(uid).collection("groceryItems").document(groceryItem.name).set(groceryItem)
                     .addOnSuccessListener {
                         Log.d(TAG, "Item moved to grocery items successfully")
@@ -107,6 +118,30 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+    fun getUser(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val user = document.toObject(User::class.java)
+                user?.let { onSuccess(it) }
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error getting user", e)
+                onFailure(e)
+            }
+    }
+
+    fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(uid).update("uid", newUsername)
+            .addOnSuccessListener {
+                Log.d(TAG, "Username updated successfully")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error updating username", e)
+                onFailure(e)
+            }
+    }
+
 
     fun addFriend(currentUserId: String, friendUserId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val friendRef = db.collection("users").document(currentUserId).collection("friendList").document(friendUserId)
@@ -118,19 +153,6 @@ class FirestoreHelper(private val context: Context) {
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error adding friend", exception)
                 onFailure(exception)
-            }
-    }
-
-
-    fun getUser(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("users").document(userId).get()
-            .addOnSuccessListener { document ->
-                val user = document.toObject(User::class.java)
-                user?.let { onSuccess(it) }
-            }
-            .addOnFailureListener { e ->
-                onFailure(e)
-                Log.w("FirestoreHelper", "Error getting user", e)
             }
     }
 

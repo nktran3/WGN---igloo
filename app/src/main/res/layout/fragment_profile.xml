@@ -33,7 +33,6 @@
     <!-- Email Label -->
 
     <!-- Email Display -->
-
     <TextView
         android:id="@+id/emailLabel"
         android:layout_width="wrap_content"
@@ -48,9 +47,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/account_name" />
 
-    <!-- UID Label -->
-
-    <!-- UID Display -->
 
     <TextView
         android:id="@+id/emailTextView"
@@ -66,9 +62,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/emailLabel" />
 
-    <!-- New Username Label -->
 
-    <!-- New Username Input -->
+    <TextView
+        android:id="@+id/emailTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="example@example.com"
+        android:textSize="18sp"
+        android:padding="10dp"
+        android:background="@drawable/rounded_background"
+        app:layout_constraintTop_toBottomOf="@id/emailLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- UID Label -->
+
+    <!-- UID Display -->
+
     <TextView
         android:id="@+id/uidLabel"
         android:layout_width="wrap_content"
@@ -79,12 +90,12 @@
         android:textStyle="bold"
         android:fontFamily="@font/judson"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.043"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/emailTextView" />
 
     <TextView
         android:id="@+id/uidTextView"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -110,7 +121,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/uidTextView" />
 
-    <!-- Save Changes Button -->
     <EditText
         android:id="@+id/usernameEditText"
         android:layout_width="wrap_content"
@@ -124,6 +134,9 @@
         app:layout_constraintHorizontal_bias="0.07"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/newUsernameLabel" />
+
+
+    <!-- Save Changes Button -->
 
     <Button
         android:id="@+id/saveButton"

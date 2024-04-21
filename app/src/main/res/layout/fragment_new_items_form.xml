@@ -133,7 +133,7 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/expiration_form" />
-
+<!-- 
         <TextView
             android:id="@+id/owner_form"
             android:layout_width="wrap_content"
@@ -155,7 +155,30 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/owner_form" />
+            app:layout_constraintTop_toBottomOf="@+id/owner_form" /> -->
+      
+        <TextView
+          android:id="@+id/shareWith_form"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:fontFamily="@font/judson"
+          android:text="Share item with: "
+          android:textSize="20dp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0.0"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@+id/expiration_input" />
+
+        <Spinner
+            android:id="@+id/sharedWithInput"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/shareWith_form" />
 
         <TextView
             android:id="@+id/image_form"
@@ -168,7 +191,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.003"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/owner_input" />
+            app:layout_constraintTop_toBottomOf="@+id/sharedWithInput" />
 
         <ImageView
             android:id="@+id/image_input"
