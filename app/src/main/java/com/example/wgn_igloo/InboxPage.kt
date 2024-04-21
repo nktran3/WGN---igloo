@@ -39,7 +39,7 @@ class InboxPage : Fragment() {
         recyclerView = view.findViewById(R.id.notifications_recycler_view)
 
         notificationList = listOf(
-            Notification("Roommate 1 requested to borrow eggs"),
+             Notification("Roommate 1 requested to borrow eggs"),
             Notification("Roommate 2 requested to borrow milk"),
         )
 
