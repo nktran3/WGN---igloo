@@ -29,9 +29,9 @@ class RecipeSearchFragment : Fragment() {
     var query: String? = null
 
     private val recipeSearchList = listOf(
-        RecipeSearch(R.drawable.lobster, "Lobster Thermidor", "30 mins", "45 mins", "1 hr 15 mins", "2 servings"),
-        RecipeSearch(R.drawable.salmon, "Garlic Butter Salmon", "20 mins", "30 mins", "50 mins", "4 servings"),
-        RecipeSearch(R.drawable.salad, "Caesar Salad", "15 mins", "0 mins", "15 mins", "3 servings")
+        RecipeSearch("", "Lobster Thermidor", "1 hr 15 mins", "2 servings"),
+        RecipeSearch("", "Garlic Butter Salmon",  "50 mins", "4 servings"),
+        RecipeSearch("", "Caesar Salad",  "15 mins", "3 servings")
     )
 
     companion object {
@@ -90,10 +90,8 @@ class RecipeSearchFragment : Fragment() {
                 val response = edamamRecipeApi.searchRecipes(query, APP_ID, API_KEY)
                 val newRecipes = response.hits.map { hit ->
                     RecipeSearch(
-                        imageId = 0, // Replace with actual image logic
+                        imageId = hit.recipe.image, // Replace with actual image logic
                         recipeName = hit.recipe.label,
-                        preparationTime = hit.recipe.totalTime.toString(), // Adjust based on actual API model
-                        cookTime = "",
                         totalTime = hit.recipe.totalTime.toString(),
                         servingSize = hit.recipe.yield.toString() + " servings"
                     )

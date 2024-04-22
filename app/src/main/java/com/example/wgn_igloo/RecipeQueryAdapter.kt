@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.databinding.RecipeItemLayoutBinding
+import com.bumptech.glide.Glide
 
 class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
     RecyclerView.Adapter<RecipeQueryAdapter.RecipeViewHolder>() {
@@ -21,10 +22,8 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
     override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
         val recipe = recipeList[position]
         with(holder.binding) {
-            // Update the binding with your recipe model data
+            Glide.with(holder.itemView.context).load(recipe.imageId).into(recipeImage)
             recipeTitle.text = recipe.recipeName
-            prepTimeInfo.text = recipe.preparationTime
-            cookTimeInfo.text = recipe.cookTime
             totalTimeInfo.text = recipe.totalTime
             servingSizeInfo.text = recipe.servingSize
         }
