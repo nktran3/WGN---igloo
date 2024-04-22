@@ -30,11 +30,48 @@
 
     </androidx.cardview.widget.CardView>
 
+    <!-- Add Friend Label -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fridge_members_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/fridge_members" />
+        app:layout_constraintTop_toBottomOf="@+id/fridge_members"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <TextView
+        android:id="@+id/addFriendLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Friend"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/fridge_members_recycler_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- UID or Email Input -->
+    <EditText
+        android:id="@+id/friendUidInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter UID or Email"
+        android:ems="10"
+        android:inputType="textEmailAddress"
+        app:layout_constraintTop_toBottomOf="@+id/addFriendLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Submit Button -->
+    <Button
+        android:id="@+id/submitFriendRequestButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send Friend Request"
+        app:layout_constraintTop_toBottomOf="@+id/friendUidInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
