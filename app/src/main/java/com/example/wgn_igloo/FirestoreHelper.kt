@@ -111,24 +111,31 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    fun getUserByEmailOrUid(identifier: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
-        val query = if (identifier.contains("@")) {
-            db.collection("users").whereEqualTo("email", identifier)
-        } else {
-            db.collection("users").whereEqualTo("uid", identifier)
-        }
 
-        query.get().addOnSuccessListener { documents ->
-            if (!documents.isEmpty) {
-                val user = documents.first().toObject(User::class.java)
-                onSuccess(user)
-            } else {
-                onFailure(Exception("No user found with that identifier."))
+    fun getUser(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val user = document.toObject(User::class.java)
+                user?.let { onSuccess(it) }
             }
-        }.addOnFailureListener { e ->
-            onFailure(e)
-        }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error getting user", e)
+                onFailure(e)
+            }
     }
+
+    fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(uid).update("uid", newUsername)
+            .addOnSuccessListener {
+                Log.d(TAG, "Username updated successfully")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error updating username", e)
+                onFailure(e)
+            }
+    }
+
 
     fun getUserByUid(uid: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(uid).get()
