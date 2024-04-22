@@ -64,20 +64,51 @@ class SignUpActivity : AppCompatActivity() {
 //    }
 
     //implementation to check with addtional submission to the database
+//    private fun registerUser() {
+//        val userEmail = binding.editTextEmailAddress.text.toString()
+//        val userPassword = binding.editTextPassword.text.toString()
+////        // Replace editTextUsername with your actual username input field id if available
+////        val username = binding.editTextUsername.text.toString()
+////        if (username.isNotEmpty() && userEmail.isNotEmpty() && userPassword.isNotEmpty()) {
+//        if (userEmail.isNotEmpty() && userPassword.isNotEmpty()) {
+//            auth.createUserWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(this) { task ->
+//                if(task.isSuccessful){
+//                    // Here we get the newly created user's UID
+//                    val uid = auth.currentUser?.uid
+//                    if (uid != null) {
+//                        // Create a new User object with the username, email, and UID
+//                        val newUser = User(email = userEmail, uid = uid)
+//                        // Use FirestoreHelper to add the user to Firestore
+//                        firestoreHelper.addUser(newUser)
+//                    }
+//                    // Proceed to MainActivity
+//                    val intent = Intent(this, MainActivity::class.java)
+//                    startActivity(intent)
+//                    finish()
+//                } else {
+//                    // If sign up fails, display a message to the user.
+//                    task.exception?.message?.let { message ->
+//                        Toast.makeText(baseContext, message, Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//            }
+//        } else {
+//            Toast.makeText(this, "Please fill out all fields.", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+
     private fun registerUser() {
         val userEmail = binding.editTextEmailAddress.text.toString()
         val userPassword = binding.editTextPassword.text.toString()
-//        // Replace editTextUsername with your actual username input field id if available
-//        val username = binding.editTextUsername.text.toString()
-//        if (username.isNotEmpty() && userEmail.isNotEmpty() && userPassword.isNotEmpty()) {
+
         if (userEmail.isNotEmpty() && userPassword.isNotEmpty()) {
             auth.createUserWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(this) { task ->
-                if(task.isSuccessful){
+                if (task.isSuccessful) {
                     // Here we get the newly created user's UID
                     val uid = auth.currentUser?.uid
                     if (uid != null) {
-                        // Create a new User object with the username, email, and UID
-                        val newUser = User(email = userEmail, uid = uid)
+                        // Create a new User object with the email, uid, and an initialized empty list of friends
+                        val newUser = User(email = userEmail, uid = uid, friends = mutableListOf())
                         // Use FirestoreHelper to add the user to Firestore
                         firestoreHelper.addUser(newUser)
                     }
@@ -96,6 +127,7 @@ class SignUpActivity : AppCompatActivity() {
             Toast.makeText(this, "Please fill out all fields.", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun goToLogin(){
         val intent = Intent(this, LoginActivity::class.java)
