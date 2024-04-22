@@ -57,11 +57,13 @@
             android:layout_height="match_parent"
             android:visibility="invisible" />
 
-        <ImageView
-            android:id="@+id/dairy"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/dairy_icon" />
+            <ImageView
+                android:id="@+id/dairy"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/dairy_icon"
+                tools:layout_editor_absoluteX="102dp"
+                tools:layout_editor_absoluteY="0dp" />
 
         <View
             android:id="@+id/spacer2"
