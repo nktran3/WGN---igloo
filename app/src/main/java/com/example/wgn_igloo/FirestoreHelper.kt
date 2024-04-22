@@ -197,10 +197,6 @@ class FirestoreHelper(private val context: Context) {
                         onFailure(e)
                     }
             }
-
-
-
-
         fun getCurrentUserEmail(onResult: (String) -> Unit) {
         val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
         onResult(email)
@@ -223,17 +219,54 @@ class FirestoreHelper(private val context: Context) {
         }
     }
 
-    // Function to update the username field in the user's document
     fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        // Step 1: Update the user's own document
         db.collection("users").document(uid).update("username", newUsername)
             .addOnSuccessListener {
-                Log.d(TAG, "Username updated successfully")
-                onSuccess()  // Call the success callback
+                Log.d(TAG, "User's username updated successfully.")
+                // Step 2: Update all references in friends' documents
+                updateFriendsWithNewUsername(uid, newUsername, onSuccess, onFailure)
             }
             .addOnFailureListener { exception ->
-                Log.e(TAG, "Error updating username", exception)
-                onFailure(exception)  // Call the failure callback
+                Log.e(TAG, "Error updating user's username: ", exception)
+                onFailure(exception)
             }
     }
 
+    private fun updateFriendsWithNewUsername(userId: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        // Log the operation to debug it
+        Log.d(TAG, "Attempting to update friends with new username for user ID: $userId")
+
+        db.collectionGroup("friends")
+            .whereEqualTo("uid", userId)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    Log.d(TAG, "No documents found to update.")
+                    onSuccess()  // If no documents need updating, call onSuccess immediately
+                    return@addOnSuccessListener
+                }
+
+                val batch = db.batch()
+                documents.forEach { documentSnapshot ->
+                    val friendRef = documentSnapshot.reference
+                    Log.d(TAG, "Updating username in document: ${friendRef.path}")
+                    batch.update(friendRef, "username", newUsername)
+                }
+
+                batch.commit()
+                    .addOnSuccessListener {
+                        Log.d(TAG, "All friend references updated successfully.")
+                        onSuccess()
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e(TAG, "Error updating friend references: ", exception)
+                        onFailure(exception)
+                    }
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Failed to find friends for username update: ", exception)
+                onFailure(exception)
+            }
+    }
 }
