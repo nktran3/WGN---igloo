@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.SetOptions
@@ -21,7 +22,8 @@ class FirestoreHelper(private val context: Context) {
     }
 
     fun addUser(user: User) {
-        db.collection("users").document(user.uid).set(user)
+        val userWithUsername = if (user.username.isEmpty()) user.copy(username = user.uid) else user
+        db.collection("users").document(user.uid).set(userWithUsername)
             .addOnSuccessListener { Log.d(TAG, "User added successfully") }
             .addOnFailureListener { e -> Log.w(TAG, "Error adding user", e) }
     }
@@ -124,17 +126,17 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("users").document(uid).update("uid", newUsername)
-            .addOnSuccessListener {
-                Log.d(TAG, "Username updated successfully")
-                onSuccess()
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error updating username", e)
-                onFailure(e)
-            }
-    }
+//    fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("users").document(uid).update("uid", newUsername)
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Username updated successfully")
+//                onSuccess()
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "Error updating username", e)
+//                onFailure(e)
+//            }
+//    }
 
 
     fun getUserByUid(uid: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
@@ -151,40 +153,87 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    fun addFriend(currentUserId: String, friendUserId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        // Prepare friend data for current user adding a friend
-        val friendDataForCurrentUser = mapOf(
-            "friendUid" to friendUserId,
-            "friendSince" to Timestamp.now()  // Current time as timestamp
-        )
+    fun addFriend(currentUserId: String, friendUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").whereEqualTo("username", friendUsername).limit(1).get()
+            .addOnSuccessListener { querySnapshot ->
+                val friendUser = querySnapshot.documents.firstOrNull()?.toObject(User::class.java)
+                if (friendUser != null) {
+                    getCurrentUserEmail { currentUserEmail ->
+                        getCurrentUsername { currentUsername ->
+                            val friendDataForCurrentUser = mapOf(
+                                "email" to friendUser.email,
+                                "uid" to friendUser.uid,
+                                "username" to friendUser.username,
+                                "friendSince" to Timestamp.now()
+                            )
 
-        // Prepare friend data for the friend adding the current user
-        val friendDataForFriendUser = mapOf(
-            "friendUid" to currentUserId,
-            "friendSince" to Timestamp.now()  // Current time as timestamp
-        )
+                            val currentUserDataForFriend = mapOf(
+                                "email" to currentUserEmail,
+                                "uid" to currentUserId,
+                                "username" to currentUsername,
+                                "friendSince" to Timestamp.now()
+                            )
 
-        // Reference to the current user's friends collection
-        val currentUserFriendRef = db.collection("users").document(currentUserId).collection("friends").document(friendUserId)
-        // Reference to the friend's friends collection
-        val friendUserFriendRef = db.collection("users").document(friendUserId).collection("friends").document(currentUserId)
+                            val batch = db.batch()
+                            batch.set(db.collection("users").document(currentUserId).collection("friends").document(friendUser.uid), friendDataForCurrentUser)
+                            batch.set(db.collection("users").document(friendUser.uid).collection("friends").document(currentUserId), currentUserDataForFriend)
 
-        // Start a batch to perform both operations together
-        val batch = db.batch()
-        batch.set(currentUserFriendRef, friendDataForCurrentUser)
-        batch.set(friendUserFriendRef, friendDataForFriendUser)
-
-        // Commit the batch
-        batch.commit()
-            .addOnSuccessListener {
-                Log.d(TAG, "Friendship established successfully")
-                onSuccess()
+                            batch.commit()
+                                .addOnSuccessListener {
+                                    Log.d(TAG, "Friendship established successfully")
+                                    onSuccess()
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.w(TAG, "Error establishing friendship", e)
+                                    onFailure(e)
+                                }
+                            }
+                        }
+                    } else {
+                        onFailure(Exception("Friend not found with username: $friendUsername"))
+                    }
+                }
+                    .addOnFailureListener { e ->
+                        onFailure(e)
+                    }
             }
-            .addOnFailureListener { e ->
-                Log.w(TAG, "Error establishing friendship", e)
-                onFailure(e)
-            }
+
+
+
+
+        fun getCurrentUserEmail(onResult: (String) -> Unit) {
+        val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
+        onResult(email)
     }
 
+    fun getCurrentUsername(onResult: (String) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            db.collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    val username = document.getString("username") ?: ""
+                    onResult(username)
+                }
+                .addOnFailureListener {
+                    Log.e(TAG, "Error fetching username")
+                    onResult("")  // Handle the error case by returning an empty string
+                }
+        } else {
+            onResult("")  // Return empty if uid is null
+        }
+    }
+
+    // Function to update the username field in the user's document
+    fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(uid).update("username", newUsername)
+            .addOnSuccessListener {
+                Log.d(TAG, "Username updated successfully")
+                onSuccess()  // Call the success callback
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error updating username", exception)
+                onFailure(exception)  // Call the failure callback
+            }
+    }
 
 }
