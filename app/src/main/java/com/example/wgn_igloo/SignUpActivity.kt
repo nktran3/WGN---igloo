@@ -108,7 +108,7 @@ class SignUpActivity : AppCompatActivity() {
                     val uid = auth.currentUser?.uid
                     if (uid != null) {
                         // Create a new User object with the email, uid, and an initialized empty list of friends
-                        val newUser = User(email = userEmail, uid = uid, friends = mutableListOf())
+                        val newUser = User(email = userEmail, uid = uid, username = uid)
                         // Use FirestoreHelper to add the user to Firestore
                         firestoreHelper.addUser(newUser)
                     }

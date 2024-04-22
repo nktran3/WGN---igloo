@@ -33,13 +33,16 @@ class ProfileFragment : Fragment() {
 
         val editTextUsername = view.findViewById<EditText>(R.id.usernameEditText)
         val textViewUid = view.findViewById<TextView>(R.id.uidTextView)
+        val usernameTextView = view.findViewById<TextView>(R.id.usernameTextView)
         val saveButton = view.findViewById<Button>(R.id.saveButton)
 
         saveButton.setOnClickListener {
             val newUsername = editTextUsername.text.toString()
             if (newUsername.isNotBlank()) {
                 updateUsername(newUsername)
-                textViewUid.text = newUsername // Update TextView immediately
+//                textViewUid.text = newUsername // Update TextView immediately
+                usernameTextView.text = newUsername // Update the displayed username immediately
+
             } else {
                 Toast.makeText(context, "Username cannot be empty", Toast.LENGTH_SHORT).show()
             }
@@ -50,16 +53,6 @@ class ProfileFragment : Fragment() {
         currentUserId?.let {
             fetchUserData(it)
         }
-    }
-
-    private fun fetchUserData(userId: String) {
-        firestoreHelper.getUser(userId, onSuccess = { user ->
-            view?.findViewById<TextView>(R.id.emailTextView)?.text = user.email
-            view?.findViewById<TextView>(R.id.uidTextView)?.text = user.uid
-        }, onFailure = { exception ->
-            Log.e(TAG, "Failed to fetch user data", exception)
-            Toast.makeText(context, "Failed to load user data", Toast.LENGTH_SHORT).show()
-        })
     }
 
     private fun updateUsername(newUsername: String) {
@@ -73,4 +66,17 @@ class ProfileFragment : Fragment() {
             })
         }
     }
+
+    private fun fetchUserData(userId: String) {
+        firestoreHelper.getUser(userId, onSuccess = { user ->
+            view?.findViewById<TextView>(R.id.emailTextView)?.text = user.email
+            view?.findViewById<TextView>(R.id.uidTextView)?.text = user.uid
+            view?.findViewById<TextView>(R.id.usernameTextView)?.text = user.username // Display username in the TextView
+            view?.findViewById<EditText>(R.id.usernameEditText)?.setText(user.username)
+        }, onFailure = { exception ->
+            Log.e(TAG, "Failed to fetch user data", exception)
+            Toast.makeText(context, "Failed to load user data", Toast.LENGTH_SHORT).show()
+        })
+    }
+
 }

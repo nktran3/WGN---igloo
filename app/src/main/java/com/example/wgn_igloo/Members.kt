@@ -54,34 +54,49 @@ class Members : Fragment() {
         return view
     }
 
-
-    private fun handleFriendRequest(friendUid: String) {
+//
+//    private fun handleFriendRequest(friendUid: String) {
+//        val currentUserId = getCurrentUserId()
+//        if (currentUserId == null) {
+//            Toast.makeText(context, "No user logged in", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        firestoreHelper.getUserByUid(friendUid,
+//            onSuccess = { user ->
+//                firestoreHelper.addFriend(currentUserId, friendUid,
+//                    onSuccess = {
+//                        Toast.makeText(context, "Friend added successfully", Toast.LENGTH_SHORT).show()
+//                    },
+//                    onFailure = { exception ->
+//                        Toast.makeText(context, "Failed to add friend: ${exception.message}", Toast.LENGTH_SHORT).show()
+//                    }
+//                )
+//            },
+//            onFailure = { exception ->
+//                Toast.makeText(context, "User not found: ${exception.message}", Toast.LENGTH_SHORT).show()
+//            }
+//        )
+//    }
+    private fun handleFriendRequest(friendUsername: String) {
         val currentUserId = getCurrentUserId()
         if (currentUserId == null) {
             Toast.makeText(context, "No user logged in", Toast.LENGTH_SHORT).show()
             return
         }
 
-        firestoreHelper.getUserByUid(friendUid,
-            onSuccess = { user ->
-                firestoreHelper.addFriend(currentUserId, friendUid,
-                    onSuccess = {
-                        Toast.makeText(context, "Friend added successfully", Toast.LENGTH_SHORT).show()
-                    },
-                    onFailure = { exception ->
-                        Toast.makeText(context, "Failed to add friend: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    }
-                )
+        firestoreHelper.addFriend(currentUserId, friendUsername,
+            onSuccess = {
+                Toast.makeText(context, "Friend added successfully", Toast.LENGTH_SHORT).show()
             },
             onFailure = { exception ->
-                Toast.makeText(context, "User not found: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Failed to add friend: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
         )
     }
 
-
     private fun fetchMembers() {
-        val currentUserId = getCurrentUserId() ?: return // Ensure current user ID is not null
+        val currentUserId = getCurrentUserId() ?: return  // Return early if no user ID
         val db = FirebaseFirestore.getInstance()
         db.collection("users").document(currentUserId).collection("friends")
             .addSnapshotListener { snapshot, e ->
@@ -89,16 +104,18 @@ class Members : Fragment() {
                     Toast.makeText(context, "Error fetching data: ${e.message}", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
-
                 val friendsList = mutableListOf<Member>()
                 snapshot?.documents?.forEach { document ->
-                    val friendUid = document.getString("friendUid") ?: return@forEach  // handle null UID
+                    val username = document.getString("username") ?: return@forEach
+                    val uid = document.getString("uid") ?: return@forEach
                     val friendSince = document.getDate("friendSince")
-                    friendsList.add(Member(friendUid, friendSince))
+                    friendsList.add(Member(username, uid, friendSince))
                 }
                 memberAdapter.updateMembers(friendsList)
             }
     }
+
+
 
 
     // Inside your Members fragment class
@@ -117,14 +134,13 @@ class MemberAdapter(private var members: MutableList<Member>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.members_item_layout, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.members_item_layout, parent, false)
         return MemberViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
         val member = members[position]
-        holder.textView.text = member.uid
+        holder.textView.text = member.username  // Use username to display in TextView
     }
 
     override fun getItemCount() = members.size
@@ -135,3 +151,5 @@ class MemberAdapter(private var members: MutableList<Member>) :
         notifyDataSetChanged()
     }
 }
+
+
