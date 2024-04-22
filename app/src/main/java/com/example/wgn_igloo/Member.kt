@@ -1,7 +1,12 @@
 package com.example.wgn_igloo
+import java.util.Date
 
-import java.lang.reflect.Member
+//data class Member(
+//    val name: String
+//)
 
 data class Member(
-    val name: String
+    val uid: String = "",
+    val friendSince: Date? = null
 )
+

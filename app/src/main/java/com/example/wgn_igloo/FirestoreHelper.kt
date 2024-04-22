@@ -7,6 +7,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.DocumentReference
+
 
 class FirestoreHelper(private val context: Context) {
     private val db = FirebaseFirestore.getInstance()
@@ -44,18 +49,6 @@ class FirestoreHelper(private val context: Context) {
                 Log.w(TAG, "Error adding saved recipe", e)
             }
     }
-
-//    fun addShoppingListItem(uid: String, item: ShoppingListItem) {
-//        db.collection("users").document(uid).collection("shoppingList").add(item)
-////        db.collection("users").document(uid)
-////            .collection("shoppingList").document(item.name).add(item)
-//            .addOnSuccessListener {
-//                Log.d(TAG, "Shopping list item added successfully")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.w(TAG, "Error adding shopping list item", e)
-//            }
-//    }
 
     fun addShoppingListItem(uid: String, item: ShoppingListItem) {
         db.collection("users").document(uid).collection("shoppingList").document(item.name).set(item)
@@ -118,44 +111,73 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+    fun getUserByEmailOrUid(identifier: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
+        val query = if (identifier.contains("@")) {
+            db.collection("users").whereEqualTo("email", identifier)
+        } else {
+            db.collection("users").whereEqualTo("uid", identifier)
+        }
 
-    fun addFriend(currentUserId: String, friendUserId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val friendRef = db.collection("users").document(currentUserId).collection("friendList").document(friendUserId)
-        friendRef.set(mapOf("uid" to friendUserId))
-            .addOnSuccessListener {
-                Log.d(TAG, "Friend added successfully")
-                onSuccess()
+        query.get().addOnSuccessListener { documents ->
+            if (!documents.isEmpty) {
+                val user = documents.first().toObject(User::class.java)
+                onSuccess(user)
+            } else {
+                onFailure(Exception("No user found with that identifier."))
+            }
+        }.addOnFailureListener { e ->
+            onFailure(e)
+        }
+    }
+
+    fun getUserByUid(uid: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    onSuccess(documentSnapshot.toObject(User::class.java)!!)
+                } else {
+                    onFailure(Exception("No user found with UID: $uid"))
+                }
             }
             .addOnFailureListener { exception ->
-                Log.w(TAG, "Error adding friend", exception)
                 onFailure(exception)
             }
     }
 
+    fun addFriend(currentUserId: String, friendUserId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        // Prepare friend data for current user adding a friend
+        val friendDataForCurrentUser = mapOf(
+            "friendUid" to friendUserId,
+            "friendSince" to Timestamp.now()  // Current time as timestamp
+        )
 
-    fun getUser(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("users").document(userId).get()
-            .addOnSuccessListener { document ->
-                val user = document.toObject(User::class.java)
-                user?.let { onSuccess(it) }
+        // Prepare friend data for the friend adding the current user
+        val friendDataForFriendUser = mapOf(
+            "friendUid" to currentUserId,
+            "friendSince" to Timestamp.now()  // Current time as timestamp
+        )
+
+        // Reference to the current user's friends collection
+        val currentUserFriendRef = db.collection("users").document(currentUserId).collection("friends").document(friendUserId)
+        // Reference to the friend's friends collection
+        val friendUserFriendRef = db.collection("users").document(friendUserId).collection("friends").document(currentUserId)
+
+        // Start a batch to perform both operations together
+        val batch = db.batch()
+        batch.set(currentUserFriendRef, friendDataForCurrentUser)
+        batch.set(friendUserFriendRef, friendDataForFriendUser)
+
+        // Commit the batch
+        batch.commit()
+            .addOnSuccessListener {
+                Log.d(TAG, "Friendship established successfully")
+                onSuccess()
             }
             .addOnFailureListener { e ->
+                Log.w(TAG, "Error establishing friendship", e)
                 onFailure(e)
-                Log.w("FirestoreHelper", "Error getting user", e)
             }
     }
 
-    fun fetchGroceryItems(uid: String, onSuccess: (List<GroceryItem>) -> Unit, onFailure: (Exception) -> Unit) {
-        db.collection("users").document(uid).collection("groceryItems")
-            .get()
-            .addOnSuccessListener { result ->
-                val items = result.toObjects(GroceryItem::class.java)
-                onSuccess(items)
-            }
-            .addOnFailureListener { e ->
-                onFailure(e)
-                Log.w(TAG, "Error fetching grocery items", e)
-            }
-    }
 
 }

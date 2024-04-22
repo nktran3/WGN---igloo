@@ -76,6 +76,7 @@ dependencies {
 
     // Firestore dependency
     implementation("com.google.firebase:firebase-firestore-ktx:24.1.0")
+    implementation("com.google.firebase:firebase-messaging")
 
     // Firebase UI Library
     implementation("com.firebaseui:firebase-ui-auth:8.0.2")
