@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/profile_image"
@@ -37,31 +36,26 @@
         android:id="@+id/emailLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16sp"
-        android:fontFamily="@font/judson"
+        android:layout_marginStart="168dp"
+        android:layout_marginTop="16dp"
         android:text="Email"
-        android:textSize="25sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.044"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/account_name" />
 
-
     <TextView
         android:id="@+id/emailTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:padding="10dp"
         android:text="example@example.com"
-        android:textSize="20sp"
-        android:fontFamily="@font/judson"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.08"
+        android:textSize="18sp"
+        android:padding="10dp"
+        android:background="@drawable/rounded_background"
+        app:layout_constraintTop_toBottomOf="@id/emailLabel"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/emailLabel" />
-
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- UID Label -->
 
@@ -71,28 +65,24 @@
         android:id="@+id/uidLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/judson"
-        android:text="Username"
-        android:textSize="25sp"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="8dp"
+        android:text="UID"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.052"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/emailTextView" />
 
     <TextView
         android:id="@+id/uidTextView"
-
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/judson"
-        android:padding="10dp"
         android:text="1234567890"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.058"
+        android:textSize="18sp"
+        android:padding="10dp"
+        android:background="@drawable/rounded_background"
+        app:layout_constraintTop_toBottomOf="@id/uidLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -123,46 +113,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- New Username Label -->
+
+    <!-- New Username Input -->
     <TextView
         android:id="@+id/newUsernameLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/judson"
+        android:layout_marginStart="132dp"
+        android:layout_marginTop="12dp"
         android:text="New username"
-        android:textSize="24sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/usernameTextView" />
 
     <EditText
         android:id="@+id/usernameEditText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="8dp"
         android:hint="Enter new username"
-        android:inputType="textPersonName"
-        android:padding="10dp"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.07"
+        android:padding="10dp"
+        android:background="@drawable/rounded_background"
+        android:inputType="textPersonName"
+        app:layout_constraintTop_toBottomOf="@id/newUsernameLabel"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/newUsernameLabel" />
-
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Save Changes Button -->
-
     <Button
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:backgroundTint="@color/primary_color"
         android:text="Save Changes"
+        android:layout_marginTop="24dp"
+        android:background="@color/primary_color"
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/usernameEditText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/usernameEditText" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
