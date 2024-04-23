@@ -69,7 +69,7 @@ class HomePage : Fragment() {
             }
         })
 
-        val addButton: Button = view.findViewById(R.id.add_button)
+            val addButton: Button = view.findViewById(R.id.add_button)
             addButton.bringToFront();
             addButton.setOnClickListener { v ->
                 // Note: Use requireContext() to get the context for the PopupMenu

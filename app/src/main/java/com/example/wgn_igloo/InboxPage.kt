@@ -36,7 +36,12 @@ class InboxPage : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_inbox_page, container, false)
         recyclerView = view.findViewById(R.id.notifications_recycler_view)
-        fetchFriendRequests()
+
+//         fetchFriendRequests()
+//         notificationList = listOf(
+//              Notification("Roommate 1 requested to borrow eggs"),
+//             Notification("Roommate 2 requested to borrow milk"),
+//         )
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         notificationAdapter = NotificationsAdapter(notificationList)
