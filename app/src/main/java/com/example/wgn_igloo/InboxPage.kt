@@ -14,16 +14,17 @@ import androidx.recyclerview.widget.RecyclerView
 data class Notification(
     val notification: String
 )
+
 class InboxPage : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var notificationAdapter: NotificationsAdapter
-    private lateinit var notificationList: List<Notification>
+    private var notificationList: MutableList<Notification> = mutableListOf() // Ensure this is mutable
 
-//    private val db = FirebaseFirestore.getInstance()
-//
-//    companion object {
-//        const val TAG = "FirestoreHelper"
-//    }
+    private val db = FirebaseFirestore.getInstance()
+
+    companion object {
+        const val TAG = "FirestoreHelper"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,20 +34,43 @@ class InboxPage : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_inbox_page, container, false)
-
         recyclerView = view.findViewById(R.id.notifications_recycler_view)
 
-        notificationList = listOf(
-             Notification("Roommate 1 requested to borrow eggs"),
-            Notification("Roommate 2 requested to borrow milk"),
-        )
+//         fetchFriendRequests()
+//         notificationList = listOf(
+//              Notification("Roommate 1 requested to borrow eggs"),
+//             Notification("Roommate 2 requested to borrow milk"),
+//         )
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         notificationAdapter = NotificationsAdapter(notificationList)
         recyclerView.adapter = notificationAdapter
         return view
+    }
+
+    private fun fetchFriendRequests() {
+        db.collection("friendRequests")
+            .whereEqualTo("to", "currentUserId")  // Ensure to replace "currentUserId" with the actual user ID
+            .get()
+            .addOnSuccessListener { documents ->
+                notificationList.clear()  // Clear existing data
+                if (documents.isEmpty) {
+                    notificationList.add(Notification("No friend requests"))
+                } else {
+                    documents.forEach { doc ->
+                        doc.getString("from")?.let { from ->
+                            notificationList.add(Notification("You have a friend request from $from"))
+                        }
+                    }
+                }
+                notificationAdapter.notifyDataSetChanged()  // Notify the adapter of data change
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error fetching friend requests: ", exception)
+                notificationList.add(Notification("Failed to fetch friend requests"))
+                notificationAdapter.notifyDataSetChanged()
+            }
     }
 
     class NotificationsAdapter(private val notifications: List<Notification>) :
@@ -70,9 +94,4 @@ class InboxPage : Fragment() {
             }
         }
     }
-
-
-
-
-
 }
