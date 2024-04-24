@@ -48,4 +48,5 @@
     <string name="scan_button">Scan</string>
     <string name="see_fridge"><u>See in Your Fridge</u></string>
     <string name="recipes_query">Recipes containing </string>
+    <string name="shopping_add_item">Add shopping item</string>
 </resources>
