@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.text.ParseException
 import com.example.wgn_igloo.databinding.FragmentNewItemsFormBinding
+import com.google.firebase.firestore.FirebaseFirestore
 
 private const val TAG = "NewItemsForm"
 
@@ -27,9 +28,11 @@ class NewItemsFormFragment : Fragment() {
     private var _binding: FragmentNewItemsFormBinding? = null
     private val binding get() = _binding!!
     var message: String? = null
-    private lateinit var auth: FirebaseAuth
     private lateinit var firestoreHelper: FirestoreHelper
-
+    private lateinit var auth: FirebaseAuth
+//    private lateinit var firestore: FirebaseFirestore
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
+//    private val auth by lazy { FirebaseAuth.getInstance() }
     private lateinit var submitButton: Button
     // input item for the form
     private lateinit var itemInput: EditText
@@ -39,8 +42,10 @@ class NewItemsFormFragment : Fragment() {
     private lateinit var sharedWithInput: Spinner
     // Hard coded list
     private val categoryList = arrayOf("choose an option", "Meat", "Vegetable", "Dairy", "Fruits", "Carbohydrate")
-    private val sharedWithList = arrayOf("choose an option", "Wilbert", "Gary", "Nicole", "Rhett")
+//    private val sharedWithList = arrayOf("choose an option", "Wilbert", "Gary", "Nicole", "Rhett")
 
+    // Default list with a placeholder for choosing an option
+    private var sharedWithList = arrayOf("No one")
 
     companion object {
         private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
@@ -62,8 +67,41 @@ class NewItemsFormFragment : Fragment() {
             message = it.getString(EXTRA_MESSAGE)
             Log.d(TAG, "Testing to see if the data went through: $message")
         }
+        fetchFriendsAndUpdateSpinner()
+    }
+    private fun fetchFriendsAndUpdateSpinner() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            firestore.collection("users").document(userId).collection("friends")
+                .get()
+                .addOnSuccessListener { documents ->
+                    val friendsUsernames = mutableListOf("choose an option")
+                    for (document in documents) {
+                        document.getString("username")?.let {
+                            friendsUsernames.add(it)
+                        }
+                    }
+                    sharedWithList = friendsUsernames.toTypedArray()
+                    updateSharedWithSpinner()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "Error fetching friends", exception)
+                }
+        } else {
+            Toast.makeText(context, "User not logged in", Toast.LENGTH_SHORT).show()
+        }
     }
 
+    private fun updateSharedWithSpinner() {
+        val roommateAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            sharedWithList
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        sharedWithInput.adapter = roommateAdapter
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -75,6 +113,7 @@ class NewItemsFormFragment : Fragment() {
         setupDatePicker()
         setupSpinnerCategory()
         setupSpinnerRoomate()
+//        fetchFriendsAndUpdateSpinner()
 
 
         submitButton.setOnClickListener {

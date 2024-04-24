@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.example.wgn_igloo.databinding.FragmentShoppingNewItemsFormBinding
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
 
@@ -20,6 +21,8 @@ class NewShoppingItemFormFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firestoreHelper: FirestoreHelper
+//    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
 
     companion object {
         fun newInstance(): NewShoppingItemFormFragment {
@@ -55,11 +58,37 @@ class NewShoppingItemFormFragment : Fragment() {
 
     private fun setupSpinners() {
         val categories = arrayOf("Choose an option", "Meat", "Vegetables", "Dairy", "Fruits", "Carbohydrates")
-        val sharedWith = arrayOf("Choose an option", "Wilbert", "Gary", "Nicole", "Rhett")
+        val defaultSharedWith = arrayOf("No one")
 
         binding.categoryInput.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categories)
-        binding.sharedWithInput.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, sharedWith)
+        binding.sharedWithInput.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, defaultSharedWith)
+        // Fetch and update the sharedWith spinner with dynamic data
+        fetchFriendsAndUpdateSpinner()
     }
+
+    private fun fetchFriendsAndUpdateSpinner() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            firestore.collection("users").document(userId).collection("friends")
+                .get()
+                .addOnSuccessListener { documents ->
+                    val friendsUsernames = mutableListOf("Choose an option")
+                    for (document in documents) {
+                        document.getString("username")?.let { username ->
+                            friendsUsernames.add(username)
+                        }
+                    }
+                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, friendsUsernames)
+                    binding.sharedWithInput.adapter = adapter
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(context, "Failed to fetch friends: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun setupSubmitButton() {
         binding.submitButton.setOnClickListener {
