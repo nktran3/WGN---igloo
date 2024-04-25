@@ -17,6 +17,7 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
     fun updateData(newRecipes: List<RecipeSearch?>) {
         recipeList = newRecipes as List<RecipeSearch>
         notifyDataSetChanged()
+        Log.d(TAG, "${recipeList.size}")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
