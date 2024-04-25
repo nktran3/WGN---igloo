@@ -5,7 +5,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
+import com.example.wgn_igloo.auth.LoginActivity
+import com.example.wgn_igloo.auth.SignUpActivity
+import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.ActivityMainBinding
+import com.example.wgn_igloo.grocery.ShoppingListPage
+import com.example.wgn_igloo.home.HomePage
+import com.example.wgn_igloo.inbox.InboxPage
+import com.example.wgn_igloo.profile.ProfilePage
+import com.example.wgn_igloo.recipe.RecipesPage
 import com.firebase.ui.auth.AuthUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
