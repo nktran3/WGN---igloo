@@ -29,7 +29,7 @@
                 android:background="@color/secondary_color"
                 android:fontFamily="@font/judson"
                 android:padding="5dp"
-                android:text="@string/add_item"
+                android:text="@string/shopping_add_item"
                 android:textColor="@color/black"
                 android:textSize="32dp"
                 android:textStyle="bold" />
@@ -110,65 +110,17 @@
             app:layout_constraintTop_toBottomOf="@+id/category_form" />
 
         <TextView
-            android:id="@+id/expiration_form"
+            android:id="@+id/shareWith_form"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:fontFamily="@font/judson"
-            android:text="@string/expiration_date"
+            android:text="Share item with: "
             android:textSize="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/category_input" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/expiration_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="hint"
-            android:inputType="date"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/expiration_form" />
-<!-- 
-        <TextView
-            android:id="@+id/owner_form"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/judson"
-            android:text="@string/owner"
-            android:textSize="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/expiration_input" />
-
-        <Spinner
-            android:id="@+id/owner_input"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/owner_form" /> -->
-      
-        <TextView
-          android:id="@+id/shareWith_form"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="8dp"
-          android:fontFamily="@font/judson"
-          android:text="Share item with: "
-          android:textSize="20dp"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintHorizontal_bias="0.0"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/expiration_input" />
 
         <Spinner
             android:id="@+id/sharedWithInput"
@@ -180,34 +132,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/shareWith_form" />
 
-        <TextView
-            android:id="@+id/image_form"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/judson"
-            android:text="@string/add_image"
-            android:textSize="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.003"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sharedWithInput" />
-
-        <ImageView
-            android:id="@+id/image_input"
-            android:layout_width="129dp"
-            android:layout_height="124dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/image_border"
-            android:src="@android:drawable/ic_menu_camera"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.86"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_form"
-            app:layout_constraintVertical_bias="0.47000003" />
-
         <Button
             android:id="@+id/submit_button"
             android:layout_width="wrap_content"
@@ -217,10 +141,9 @@
             android:text="@string/new_item"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.173"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_form"
-            app:layout_constraintVertical_bias="0.34" />
+            app:layout_constraintTop_toBottomOf="@+id/sharedWithInput"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -20,11 +20,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.text.ParseException
 import com.example.wgn_igloo.databinding.FragmentNewItemsFormBinding
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 private const val TAG = "NewItemsForm"
 private const val API_KEY = "LLIyBbVQ7WJgTsWITh4TwWNHDBojLnJG2ypcXWAg"
@@ -33,8 +30,25 @@ class NewItemsFormFragment : Fragment() {
   
     private var _binding: FragmentNewItemsFormBinding? = null
     private val binding get() = _binding!!
-  
     var message: String? = null
+    private lateinit var firestoreHelper: FirestoreHelper
+    private lateinit var auth: FirebaseAuth
+//    private lateinit var firestore: FirebaseFirestore
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
+//    private val auth by lazy { FirebaseAuth.getInstance() }
+    private lateinit var submitButton: Button
+    // input item for the form
+    private lateinit var itemInput: EditText
+    private lateinit var expirationDateInput: EditText
+    private lateinit var quantityInput: EditText
+    private lateinit var categoryInput: Spinner
+    private lateinit var sharedWithInput: Spinner
+    // Hard coded list
+    private val categoryList = arrayOf("choose an option", "Meat", "Vegetable", "Dairy", "Fruits", "Carbohydrate")
+//    private val sharedWithList = arrayOf("choose an option", "Wilbert", "Gary", "Nicole", "Rhett")
+
+    // Default list with a placeholder for choosing an option
+    private var sharedWithList = arrayOf("No one")
 
     companion object {
         private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
@@ -48,18 +62,6 @@ class NewItemsFormFragment : Fragment() {
         }
     }
 
-
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firestoreHelper: FirestoreHelper
-    private lateinit var submitButton: Button
-    private lateinit var itemInput: EditText
-    private lateinit var categoryInput: Spinner
-    private lateinit var expirationDateInput: EditText
-    private lateinit var quantityInput: EditText
-    private lateinit var sharedWithInput: EditText
-
-    private val categoryList = arrayOf("choose an option", "Meat", "Vegetable", "Dairy", "Fruits", "Carbohydrate", "Miscellaneous")
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
@@ -68,110 +70,107 @@ class NewItemsFormFragment : Fragment() {
             message = it.getString(EXTRA_MESSAGE)
             Log.d(TAG, "Testing to see if the data went through: $message")
         }
+        fetchFriendsAndUpdateSpinner()
+    }
+    private fun fetchFriendsAndUpdateSpinner() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            firestore.collection("users").document(userId).collection("friends")
+                .get()
+                .addOnSuccessListener { documents ->
+                    val friendsUsernames = mutableListOf("choose an option")
+                    for (document in documents) {
+                        document.getString("username")?.let {
+                            friendsUsernames.add(it)
+                        }
+                    }
+                    sharedWithList = friendsUsernames.toTypedArray()
+                    updateSharedWithSpinner()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "Error fetching friends", exception)
+                }
+        } else {
+            Toast.makeText(context, "User not logged in", Toast.LENGTH_SHORT).show()
+        }
     }
 
+    private fun updateSharedWithSpinner() {
+        val roommateAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            sharedWithList
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        sharedWithInput.adapter = roommateAdapter
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_new_items_form, container, false)
-//        val navigateButton: Button = view.findViewById(R.id.submit_button) // Assuming you have a button to navigate
-        // Initialize your views here, similar to how you've done before
-        categoryInput = view.findViewById(R.id.category_input)
-        submitButton = view.findViewById(R.id.submit_button)
-        itemInput = view.findViewById(R.id.item_input)
-        expirationDateInput = view.findViewById(R.id.expiration_input)
+        _binding = FragmentNewItemsFormBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        setupViews()
         setupDatePicker()
+        setupSpinnerCategory()
+        setupSpinnerRoomate()
+//        fetchFriendsAndUpdateSpinner()
 
-        // Set item input to what barcode scanned
-        itemInput.setText(message)
 
         submitButton.setOnClickListener {
-            val fragmentManager = requireActivity().supportFragmentManager
-            fragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, NewItemsFormFragment()) // Ensure you have a container in your activity's layout where fragments are swapped
-                .addToBackStack(null) // This line ensures you can navigate back to InventoryDisplayFragment
-                .commit()
-            navigateBack()
-        }
-
-        // Setup the ArrayAdapter for the Spinner
-        val categoryAdapter = ArrayAdapter(
-            requireContext(), // Context
-            android.R.layout.simple_spinner_item, // Layout for the spinner's row
-            categoryList // Data array
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-
-        categoryInput.adapter = categoryAdapter
-
-        categoryInput.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // Skip the default prompt
-                if (position == 0) {
-                    // "choose an option" is selected, do nothing or prompt the user to select a valid option
-                    Toast.makeText(context, "Please select a valid option", Toast.LENGTH_SHORT).show()
-                } else {
-                    // A valid category is selected, proceed with your logic
-                    val selectedCategory = categoryList[position]
-                    Toast.makeText(context, "Selected: $selectedCategory", Toast.LENGTH_SHORT).show()
-                    // Implement your logic here based on the selected category
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Optionally handle the scenario when nothing is selected
-                navigateBack()
+            if (validateInputs()) {
+                submitGroceryItem()
+//                navigateBack()
+            } else {
+                Toast.makeText(context, "Please fill all fields correctly", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Initialize other inputs (ownerInput, imageInput, etc.) here as well
-        submitButton.setOnClickListener {
-            // blocker in submitGroceryItem to add to the database - under review
-//            submitGroceryItem()
-            navigateBack()
-        }
         return view
     }
 
-    private fun imageLookup(query: String) {
-
-        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-
-        val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("https://api.nal.usda.gov/")
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-        val foodDatabaseApi: USDAFoodDatabaseAPI =
-            retrofit.create<USDAFoodDatabaseAPI>(USDAFoodDatabaseAPI::class.java)
-        lifecycleScope.launch {
-            try {
-                val response = foodDatabaseApi.fetchFoodInfoByUPC(API_KEY, query, "Branded")
-                if (response.foods.isNotEmpty()) {
-                    // Safely access the first item in the list
-                    val foodFDCId = response.foods[0].fdcId
-                    val foodDetailResponse =
-                        foodDatabaseApi.fetchFoodInfoByFDCID(foodFDCId, API_KEY,)
-                    val foodDescription = foodDetailResponse.description
-                    val foodBrand = foodDetailResponse.brandOwner
-                    val testMessage = "$foodDescription"
-                    val formFragment = NewItemsFormFragment.newInstance(testMessage)
-                    requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
-                    Toast.makeText(requireContext(), "Adding manually", Toast.LENGTH_SHORT).show()
-                    true
-
-
-                    Log.d(TAG, "$foodDescription")
-                } else {
-                    // Handle the case where no foods were returned
-                    Log.d(TAG, "No foods found for the given UPC.")
-                }
-            } catch (ex: Exception) {
-                Log.e(TAG, "Failed to fetch: $ex")
-            }
-        }
+    private fun setupViews() {
+        submitButton = binding.submitButton
+        itemInput = binding.itemInput
+        categoryInput = binding.categoryInput
+        expirationDateInput = binding.expirationInput
+        quantityInput = binding.quantityInput
+        sharedWithInput = binding.sharedWithInput
     }
+
+    private fun validateInputs(): Boolean {
+        return itemInput.text.isNotEmpty() &&
+                quantityInput.text.isNotEmpty() &&
+                expirationDateInput.text.isNotEmpty() &&
+                categoryInput.selectedItemPosition != 0
+    }
+
+    private fun setupSpinnerRoomate() {
+        val roommateAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            sharedWithList  // Correct list for roommates
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        sharedWithInput.adapter = roommateAdapter  // Use the correct Spinner
+    }
+
+
+    private fun setupSpinnerCategory() {
+        val categoryAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categoryList  // Use the correct list here
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        categoryInput.adapter = categoryAdapter  // Correct Spinner
+    }
+
+  
 
     private fun submitGroceryItem() {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid
@@ -182,18 +181,18 @@ class NewItemsFormFragment : Fragment() {
 
         val category = categoryInput.selectedItem.toString().takeIf { it != "choose an option" } ?: return
         val name = itemInput.text.toString()
+        val sharedWithInput = sharedWithInput.selectedItem.toString().takeIf { it != "choose an option" } ?: return
         val quantity = quantityInput.text.toString().toIntOrNull() ?: return
         val expirationDate = convertStringToTimestamp(expirationDateInput.text.toString())
         // Collect other inputs similarly
-        // Assume convertStringToTimestamp is a method you'll implement to parse the date string to Timestamp
 
         val groceryItem = GroceryItem(
             category = category,
             expirationDate = expirationDate,
             dateBought = Timestamp.now(), // Assuming the current timestamp as dateBought
             name = name,
-            quantity = quantityInput.text.toString().toInt(),
-            sharedWith = sharedWithInput.text.toString(),
+            quantity = quantity,
+            sharedWith = sharedWithInput,
             status = true // Assuming a new item is always active, adjust based on your logic
         )
 
@@ -205,19 +204,23 @@ class NewItemsFormFragment : Fragment() {
     private fun addGroceryItemForUser(uid: String, groceryItem: GroceryItem) {
         firestoreHelper.addGroceryItem(uid, groceryItem, onSuccess = {
             // Navigate back to InventoryDisplayFragment upon success
-            requireActivity().supportFragmentManager.popBackStack()
-            navigateBack()
+            Toast.makeText(context, "Item added successfully", Toast.LENGTH_SHORT).show()
+//            requireActivity().supportFragmentManager.popBackStack()
+//            navigateBack()
         }, onFailure = { e ->
             Log.e("NewItemsFormFragment", "Failed to add item: ", e)
             Toast.makeText(context, "Failed to add item", Toast.LENGTH_SHORT).show()
         })
     }
 
-    private fun navigateBack() {
-        if (isAdded) {
-            requireActivity().supportFragmentManager.popBackStack()
-        }
-    }
+//    private fun navigateBack() {
+//        Log.d(TAG, "Back stack entry count: ${requireActivity().supportFragmentManager.backStackEntryCount}")
+//        if (requireActivity().supportFragmentManager.backStackEntryCount > 0) {
+//            requireActivity().supportFragmentManager.popBackStack()
+//        } else {
+//            Log.w(TAG, "No back stack entry to pop.")
+//        }
+//    }
 
     private fun setupDatePicker() {
         val calendar = Calendar.getInstance()
@@ -265,4 +268,5 @@ class NewItemsFormFragment : Fragment() {
             Timestamp.now() // Return current time if parsing fails
         }
     }
+    
 }

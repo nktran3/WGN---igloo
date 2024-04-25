@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".ProfilePage"
     android:backgroundTint="@color/white">
+    android:background="@color/white">
+
 
     <ImageView
         android:id="@+id/profile_image"
