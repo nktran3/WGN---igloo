@@ -5,31 +5,78 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class RecipeSearchResponse(
-    @Json(name = "q") val query: String,
-    @Json(name = "from") val from: Int,
-    @Json(name = "to") val to: Int,
-    @Json(name = "more") val more: Boolean,
-    @Json(name = "count") val count: Int,
-    @Json(name = "hits") val hits: List<RecipeHit>
+    @Json(name = "offset") val offset: Int,
+    @Json(name = "number") val number: Int,
+    @Json(name = "totalResults") val totalResults: Int,
+    @Json(name = "results") val results: List<RecipeResult>
 )
 
 @JsonClass(generateAdapter = true)
-data class RecipeHit(
-    @Json(name = "recipe") val recipe: RecipeDetail
+data class RecipeResult(
+    @Json(name = "id") val id: Int,
+    @Json(name = "title") val title: String,
+    @Json(name = "image") val image: String,
+    @Json(name = "imageType") val imageType: String,
+    @Json(name = "servings") val servings: Int?,
+    @Json(name = "readyInMinutes") val readyInMinutes: Int?,
+    @Json(name = "license") val license: String?,
+    @Json(name = "sourceName") val sourceName: String?,
+    @Json(name = "sourceUrl") val sourceUrl: String?,
+    @Json(name = "spoonacularScore") val spoonacularScore: Double?,
+    @Json(name = "healthScore") val healthScore: Double?,
+    @Json(name = "pricePerServing") val pricePerServing: Double?,
+    @Json(name = "analyzedInstructions") val analyzedInstructions: List<RecipeInstruction>?,
+    @Json(name = "ingredients") val ingredients: List<Ingredient>?,
+    @Json(name = "diets") val diets: List<String>?,
+    @Json(name = "dishTypes") val dishTypes: List<String>?,
+    @Json(name = "cuisines") val cuisines: List<String>?,
+    @Json(name = "nutrition") val nutrition: Nutrition?
 )
 
 @JsonClass(generateAdapter = true)
-data class RecipeDetail(
-    @Json(name = "uri") val uri: String,
-    @Json(name = "label") val label: String,
-    @Json(name = "image") val image: String?,
-    @Json(name = "source") val source: String?,
-    @Json(name = "url") val url: String?,
-    @Json(name = "yield") val yield: Int?,
-    @Json(name = "dietLabels") val dietLabels: List<String>?,
-    @Json(name = "healthLabels") val healthLabels: List<String>?,
-    @Json(name = "ingredientLines") val ingredientLines: List<String>?,
-    @Json(name = "calories") val calories: Double?,
-    @Json(name = "totalWeight") val totalWeight: Double?,
-    @Json(name = "totalTime") val totalTime: Double?
+data class RecipeInstruction(
+    @Json(name = "name") val name: String?,
+    @Json(name = "steps") val steps: List<InstructionStep>
+)
+
+@JsonClass(generateAdapter = true)
+data class InstructionStep(
+    @Json(name = "number") val number: Int,
+    @Json(name = "step") val step: String,
+    @Json(name = "ingredients") val ingredients: List<Ingredient>,
+    @Json(name = "equipment") val equipment: List<Equipment>,
+    @Json(name = "length") val length: CookingLength?
+)
+
+@JsonClass(generateAdapter = true)
+data class Ingredient(
+    @Json(name = "id") val id: Int?,
+    @Json(name = "name") val name: String,
+    @Json(name = "localizedName") val localizedName: String?,
+    @Json(name = "image") val image: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class Equipment(
+    @Json(name = "id") val id: Int?,
+    @Json(name = "name") val name: String,
+    @Json(name = "image") val image: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class CookingLength(
+    @Json(name = "number") val number: Int,
+    @Json(name = "unit") val unit: String
+)
+
+@JsonClass(generateAdapter = true)
+data class Nutrition(
+    @Json(name = "nutrients") val nutrients: List<Nutrient>
+)
+
+@JsonClass(generateAdapter = true)
+data class Nutrient(
+    @Json(name = "name") val name: String,
+    @Json(name = "amount") val amount: Double,
+    @Json(name = "unit") val unit: String
 )

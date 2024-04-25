@@ -13,14 +13,21 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
 import java.text.ParseException
 import com.example.wgn_igloo.databinding.FragmentNewItemsFormBinding
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 private const val TAG = "NewItemsForm"
+private const val API_KEY = "LLIyBbVQ7WJgTsWITh4TwWNHDBojLnJG2ypcXWAg"
 
 class NewItemsFormFragment : Fragment() {
   
@@ -125,6 +132,45 @@ class NewItemsFormFragment : Fragment() {
             navigateBack()
         }
         return view
+    }
+
+    private fun imageLookup(query: String) {
+
+        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl("https://api.nal.usda.gov/")
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+
+        val foodDatabaseApi: USDAFoodDatabaseAPI =
+            retrofit.create<USDAFoodDatabaseAPI>(USDAFoodDatabaseAPI::class.java)
+        lifecycleScope.launch {
+            try {
+                val response = foodDatabaseApi.fetchFoodInfoByUPC(API_KEY, query, "Branded")
+                if (response.foods.isNotEmpty()) {
+                    // Safely access the first item in the list
+                    val foodFDCId = response.foods[0].fdcId
+                    val foodDetailResponse =
+                        foodDatabaseApi.fetchFoodInfoByFDCID(foodFDCId, API_KEY,)
+                    val foodDescription = foodDetailResponse.description
+                    val foodBrand = foodDetailResponse.brandOwner
+                    val testMessage = "$foodDescription"
+                    val formFragment = NewItemsFormFragment.newInstance(testMessage)
+                    requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
+                    Toast.makeText(requireContext(), "Adding manually", Toast.LENGTH_SHORT).show()
+                    true
+
+
+                    Log.d(TAG, "$foodDescription")
+                } else {
+                    // Handle the case where no foods were returned
+                    Log.d(TAG, "No foods found for the given UPC.")
+                }
+            } catch (ex: Exception) {
+                Log.e(TAG, "Failed to fetch: $ex")
+            }
+        }
     }
 
     private fun submitGroceryItem() {

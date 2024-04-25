@@ -6,19 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.wgn_igloo.EdamamAPI
-import com.example.wgn_igloo.R
 import com.example.wgn_igloo.RecipeQueryAdapter
 import com.example.wgn_igloo.databinding.FragmentRecipeSearchBinding
 import com.example.wgn_igloo.RecipeSearch
+import com.example.wgn_igloo.SpoonacularAPI
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-private const val APP_ID = "7410b65a"
-private const val API_KEY = "0699c8a3fc7e2db0b4607eb7dfacb5fc"
+private const val API_KEY = "54c26ca72c5c46f9ac43b5bee9886fca"
 private const val TAG = "RecipeSearchPage"
 class RecipeSearchFragment : Fragment() {
 
@@ -51,6 +49,7 @@ class RecipeSearchFragment : Fragment() {
         super.onCreate(savedInstanceState)
         query = arguments?.getString(EXTRA_MESSAGE)
         Log.d(TAG, "onCreate: Received message = $query")
+        binding.recipeQuery.setText("Recipes containing: $query")
         query?.let { recipeSearch(it) }
 
     }
@@ -76,29 +75,33 @@ class RecipeSearchFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
     private fun recipeSearch(query: String) {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
         val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("https://api.edamam.com/")
+            .baseUrl("https://api.spoonacular.com/")
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
 
-        val edamamRecipeApi: EdamamAPI = retrofit.create(EdamamAPI::class.java)
+        val spoonacularAPI: SpoonacularAPI = retrofit.create(SpoonacularAPI::class.java)
         lifecycleScope.launch {
             try {
                 Log.d(TAG, "Query: $query")
-                val response = edamamRecipeApi.searchRecipes(query, APP_ID, API_KEY)
-                val newRecipes = response.hits.map { hit ->
+                val response = spoonacularAPI.searchRecipes(query, true,true, true,10, 0, API_KEY)
+                val newRecipes = response.results.map { recipe ->
                     RecipeSearch(
-                        imageId = hit.recipe.image, // Replace with actual image logic
-                        recipeName = hit.recipe.label,
-                        totalTime = hit.recipe.totalTime.toString(),
-                        servingSize = hit.recipe.yield.toString() + " servings"
+                        imageId = recipe.image, // Replace with actual image logic
+                        recipeName = recipe.title,
+                        totalTime = recipe.readyInMinutes.toString(),
+                        servingSize = recipe.servings.toString() + " servings"
                     )
                 }
                 activity?.runOnUiThread {
                     recipeQueryAdapter.updateData(newRecipes)
                 }
+                Log.d(TAG, "Response: $response")
+
             } catch (ex: Exception) {
                 Log.e(TAG, "Failed to fetch recipes: $ex")
             }
