@@ -11,6 +11,7 @@ private const val TAG = "RecipeQueryAdapter"
 class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
     RecyclerView.Adapter<RecipeQueryAdapter.RecipeViewHolder>() {
 
+    // Updates the adapter's data with the parsed API response and prompts for a refresh of the RecyclerView
     fun updateData(newRecipes: List<RecipeSearch?>) {
         recipeList = newRecipes as List<RecipeSearch>
         notifyDataSetChanged()
@@ -35,8 +36,6 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
             servingSize.text = "Serving Size: " + recipe.servingSize
         }
     }
-
     override fun getItemCount() = recipeList.size
-
     class RecipeViewHolder(val binding: RecipeItemLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 }

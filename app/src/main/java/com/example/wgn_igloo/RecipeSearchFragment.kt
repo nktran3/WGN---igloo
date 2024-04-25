@@ -16,19 +16,20 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-private const val API_KEY = "54c26ca72c5c46f9ac43b5bee9886fca"
+
+private const val API_KEY = "54c26ca72c5c46f9ac43b5bee9886fca" // We have to change the API key when we're completely done
 private const val TAG = "RecipeSearchPage"
 class RecipeSearchFragment : Fragment() {
 
     private var _binding: FragmentRecipeSearchBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var recipeQueryAdapter: RecipeQueryAdapter
-    var query: String? = null
+    var query: String? = null // Used to hold the user's query
 
+
+    // Static function used to create a new instance of fragment with bundled argument
     companion object {
         private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
-
         fun newInstance(message: String): RecipeSearchFragment {
             val fragment = RecipeSearchFragment()
             val args = Bundle()
@@ -41,10 +42,9 @@ class RecipeSearchFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         recipeQueryAdapter = RecipeQueryAdapter(mutableListOf())
-        query = arguments?.getString(EXTRA_MESSAGE)
+        query = arguments?.getString(EXTRA_MESSAGE) // Extract argument and set it to query
         Log.d(TAG, "onCreate: Received message = $query")
-
-        query?.let { recipeSearch(it) }
+        query?.let { recipeSearch(it) } // Make a GET call using the query
     }
 
     override fun onCreateView(
@@ -67,7 +67,7 @@ class RecipeSearchFragment : Fragment() {
         _binding = null
     }
 
-
+    // Function used to make API call to Spoonacular
     private fun recipeSearch(query: String) {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
         val retrofit: Retrofit = Retrofit.Builder()
@@ -80,6 +80,7 @@ class RecipeSearchFragment : Fragment() {
             try {
                 Log.d(TAG, "Query: $query")
                 val response = spoonacularAPI.searchRecipes(query, true,true, true,10, 0, API_KEY)
+                // Response is a list of recipes, so we need to map each recipe accordingly and pass to adapter
                 val newRecipes = response.results.map { recipe ->
                     Log.d(TAG, "$recipe")
                             RecipeSearch(
