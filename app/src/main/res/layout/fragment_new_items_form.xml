@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    android:background="@color/white">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -27,7 +28,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/secondary_color"
-                android:fontFamily="@font/judson"
                 android:padding="5dp"
                 android:text="@string/add_item"
                 android:textColor="@color/black"
@@ -41,7 +41,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/judson"
             android:text="@string/item_name_form"
             android:textSize="20dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,9 +51,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/item_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48sp"
             android:layout_marginTop="8dp"
-            android:hint="hint"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -66,7 +64,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/judson"
             android:text="@string/quantity_form"
             android:textSize="20dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -77,9 +74,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/quantity_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48sp"
             android:layout_marginTop="8dp"
-            android:hint="hint"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -90,8 +86,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/judson"
-            android:text="category"
+            android:text="Category"
             android:textSize="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.003"
@@ -114,7 +109,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/judson"
             android:text="@string/expiration_date"
             android:textSize="20dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -125,9 +119,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/expiration_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48sp"
             android:layout_marginTop="8dp"
-            android:hint="hint"
             android:inputType="date"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -162,7 +155,6 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginTop="8dp"
-          android:fontFamily="@font/judson"
           android:text="Share item with: "
           android:textSize="20dp"
           app:layout_constraintEnd_toEndOf="parent"
@@ -180,47 +172,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/shareWith_form" />
 
-        <TextView
-            android:id="@+id/image_form"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/judson"
-            android:text="@string/add_image"
-            android:textSize="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.003"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sharedWithInput" />
-
-        <ImageView
-            android:id="@+id/image_input"
-            android:layout_width="129dp"
-            android:layout_height="124dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/image_border"
-            android:src="@android:drawable/ic_menu_camera"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.86"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_form"
-            app:layout_constraintVertical_bias="0.47000003" />
-
         <Button
             android:id="@+id/submit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:backgroundTint="@color/primary_color"
             android:text="@string/new_item"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.173"
+            app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_form"
-            app:layout_constraintVertical_bias="0.34" />
+            app:layout_constraintTop_toBottomOf="@+id/sharedWithInput"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
