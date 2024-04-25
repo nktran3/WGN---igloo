@@ -139,7 +139,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/product_image"
-        app:layout_constraintWidth_percent="0.8"
+        app:layout_constraintWidth_percent="0.5"
         android:backgroundTint="@color/primary_color"/>
 
     <Button
@@ -147,13 +147,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:backgroundTint="@color/primary_color"
+        android:backgroundTint="@color/secondary_color"
         android:text="@string/add_shopping"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/request_button"
-        app:layout_constraintWidth_percent="0.8" />
+        app:layout_constraintWidth_percent="0.5" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,7 +21,7 @@
         android:layout_marginTop="4dp"
         android:fontFamily="@font/judson"
         android:text="@string/app_name"
-        android:textColor="@color/primary_color"
+        android:textColor="@color/title"
         android:textSize="50dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/add_button"

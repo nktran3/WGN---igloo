@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.*
 import androidx.recyclerview.widget.*
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -80,23 +81,24 @@ class RecipesPage : Fragment() {
     }
 }
 
-//class RecipeAdapter(recipeData: List<SavedRecipe>) : RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
 class RecipeAdapter(private val recipeData: List<SavedRecipe>, private val firestoreHelper: FirestoreHelper, private val userId: String) : RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
 
-//    val recipeData = listOf(
-//        SavedRecipe(R.drawable.lobster, "Lobster Thermidor", "30 mins", "45 mins", "1 hr 15 mins", "2 servings"),
-//        SavedRecipe(R.drawable.salmon, "Garlic Butter Salmon", "20 mins", "30 mins", "50 mins", "4 servings"),
-//        SavedRecipe(R.drawable.salad, "Caesar Salad", "15 mins", "0 mins", "15 mins", "3 servings")
-//    )
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.recipe_item_layout, parent, false)
-//        return RecipeViewHolder(view)
         return RecipeViewHolder(view, firestoreHelper, userId)
     }
 
     override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
         val recipe = recipeData[position]
         holder.bind(recipe)
+        holder.itemView.setOnClickListener {
+            // Use the fragment manager to replace the container with the RecipeDetailsFragment
+            val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
+            val recipeDetailsFragment = RecipeDetails()
+            fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
+            .addToBackStack(null)
+            .commit()
+        }
     }
 
     override fun getItemCount(): Int = recipeData.size
