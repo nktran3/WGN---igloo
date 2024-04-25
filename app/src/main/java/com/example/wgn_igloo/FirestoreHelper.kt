@@ -62,6 +62,7 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+
     fun moveItemToInventory(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         // Remove from shopping list
         db.collection("users").document(uid).collection("shoppingList").document(item.name).delete()
@@ -269,4 +270,5 @@ class FirestoreHelper(private val context: Context) {
                 onFailure(exception)
             }
     }
+
 }

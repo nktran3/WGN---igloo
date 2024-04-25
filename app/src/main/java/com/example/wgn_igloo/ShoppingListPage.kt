@@ -71,8 +71,22 @@ class ShoppingListPage : Fragment() {
         }
         // Add a dummy shopping list item for testing purposes
         // adding the item -- how to call to add the item
+        // Set up the button (Replace 'R.id.add_button' with your actual button ID)
+        view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
+            navigateToAddNewItemForm()
+        }
 //        addDummyShoppingListItem()
     }
+
+    private fun navigateToAddNewItemForm() {
+        // Ensure you are creating the correct fragment instance here.
+        val newShoppingItemFormFragment = NewShoppingItemFormFragment()
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, newShoppingItemFormFragment)
+            .addToBackStack(null) // This is crucial for the back navigation to work
+            .commit()
+    }
+
 
     private fun fetchShoppingListItems(
         uid: String,
