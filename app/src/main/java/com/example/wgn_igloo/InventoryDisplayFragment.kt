@@ -33,7 +33,9 @@ class InventoryDisplayFragment : Fragment() {
         // Setup RecyclerView and Adapter
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = MyItemAdapter(emptyList())
+        adapter = MyItemAdapter(emptyList()) { groceryItem ->
+            navigateToDetailFragment(groceryItem)
+        }
         recyclerView.adapter = adapter
 
         // Initialize FirestoreHelper with the fragment's context
@@ -64,6 +66,13 @@ class InventoryDisplayFragment : Fragment() {
 //        }
     }
 
+    private fun navigateToDetailFragment(groceryItem: GroceryItem) {
+        val itemDetailsFragment = HomeItemDetail()
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, itemDetailsFragment)
+            .addToBackStack(null)
+            .commit()
+    }
     private fun navigateToAddNewItemForm() {
         val newItemsFormFragment = NewItemsFormFragment.newInstance("Your message here") // Use appropriate message or data
         requireActivity().supportFragmentManager.beginTransaction()
@@ -144,7 +153,7 @@ class InventoryDisplayFragment : Fragment() {
 }
 
 
-class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
+class MyItemAdapter(private var items: List<GroceryItem>, private val onClick: (GroceryItem) -> Unit) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
 
     fun updateItems(newItems: List<GroceryItem>) {
         items = newItems
@@ -159,6 +168,7 @@ class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
         holder.textView.text = "${item.name} - Qty: ${item.quantity}"
+        holder.itemView.setOnClickListener { onClick(item) }
     }
 
     override fun getItemCount() = items.size

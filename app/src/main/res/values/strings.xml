@@ -49,5 +49,5 @@
     <string name="recipes_query">Recipes containing </string>
     <string name="ingredients">Ingredients</string>
     <string name="instructions">Instructions</string>
-
+    <string name="shopping_add_item">Add shopping item</string>
 </resources>
