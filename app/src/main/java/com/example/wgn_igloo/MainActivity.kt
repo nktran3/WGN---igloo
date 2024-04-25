@@ -4,7 +4,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.example.wgn_igloo.auth.LoginActivity
 import com.example.wgn_igloo.auth.SignUpActivity
 import com.example.wgn_igloo.database.FirestoreHelper
@@ -13,6 +17,8 @@ import com.example.wgn_igloo.grocery.ShoppingListPage
 import com.example.wgn_igloo.home.HomePage
 import com.example.wgn_igloo.inbox.InboxPage
 import com.example.wgn_igloo.profile.ProfilePage
+import com.example.wgn_igloo.recipe.RecipeSearchFragment
+import com.example.wgn_igloo.recipe.RecipeViewModel
 import com.example.wgn_igloo.recipe.RecipesPage
 import com.firebase.ui.auth.AuthUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -24,72 +30,149 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bottomNavigation: BottomNavigationView
-    private lateinit var selectedFragment: Fragment
     private lateinit var firestoreHelper: FirestoreHelper
+    private lateinit var viewModel: RecipeViewModel
 
-    //Firebase Instance Variables
+    // Fragments
+    private val recipesPage by lazy { RecipesPage() }
+    private val shoppingListPage by lazy { ShoppingListPage() }
+    private val homePage by lazy { HomePage() }
+    private val inboxPage by lazy { InboxPage() }
+    private val profilePage by lazy { ProfilePage() }
+
+
+    // Current active fragment
+    private var activeFragment: Fragment = homePage
+
+    // Feature fragments
+    private var recipeSearchFragment: RecipeSearchFragment? = null
+
+    // Firebase Authentication
     private lateinit var auth: FirebaseAuth
+
+    // Tag of the active fragment
+    private var activeFragmentTag: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        bottomNavigation = findViewById(R.id.bottom_navigation)
+        val callback = object : OnBackPressedCallback(true ) {
+            override fun handleOnBackPressed() {
+                val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                // If current frag is recipe search set it to null and
+                // make sure to set the viewModel data to null to prevent zombie
+                if (currentFragment is RecipeSearchFragment) {
+                    recipeSearchFragment = null
+                    viewModel.currentFragment.value = null
+                    switchFragments(recipesPage)
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, callback)
 
-        bottomNavigation.selectedItemId= R.id.home_nav
 
-        // Initialize FirestoreHelper
+
+        bottomNavigation = binding.bottomNavigation
+        bottomNavigation.selectedItemId = R.id.home_nav
         firestoreHelper = FirestoreHelper(this)
 
-        bottomNavigation.setOnItemSelectedListener{
-            if (it.itemId == R.id.recipe_nav) {
-                selectedFragment = RecipesPage()
-            } else if (it.itemId == R.id.shopping_list_nav) {
-                selectedFragment = ShoppingListPage()
-            } else if (it.itemId == R.id.home_nav) {
-                selectedFragment = HomePage()
-            } else if (it.itemId == R.id.inbox_nav) {
-                selectedFragment = InboxPage()
-            } else if (it.itemId == R.id.profile_nav) {
-                selectedFragment = ProfilePage()
-            }
-            supportFragmentManager.beginTransaction().replace(R.id.fragment_container, selectedFragment).commit()
+        // Initialize Firebase Auth
+        auth = Firebase.auth
 
+        viewModel = ViewModelProvider(this).get(RecipeViewModel::class.java)
+        viewModel.currentFragment.observe(this, Observer { fragment ->
+            recipeSearchFragment = fragment as RecipeSearchFragment?
+        })
+
+        setupFragments()
+        setupBottomNavigation()
+
+        // Restore the active fragment in the case of config change
+        if (savedInstanceState != null) {
+            activeFragmentTag = savedInstanceState.getString("activeFragmentTag", "")
+            Log.d(TAG, activeFragmentTag)
+
+            // Restore the active fragment based on the saved tag
+            val restoredFragment = supportFragmentManager.findFragmentByTag(activeFragmentTag)
+            Log.d(TAG, "$restoredFragment")
+            if (restoredFragment != null) {
+                switchFragments(restoredFragment)
+            }
+        }
+    }
+
+    // Function used to set up all fragments with tags and hide all except for the home page fragment
+    private fun setupFragments() {
+        supportFragmentManager.beginTransaction().apply {
+            add(R.id.fragment_container, recipesPage, "recipes").hide(recipesPage)
+            add(R.id.fragment_container, shoppingListPage, "shoppingList").hide(shoppingListPage)
+            add(R.id.fragment_container, inboxPage, "inbox").hide(inboxPage)
+            add(R.id.fragment_container, profilePage, "profile").hide(profilePage)
+            add(R.id.fragment_container, homePage, "home").hide(homePage)
+        }.commit()
+    }
+
+
+    // Function used to set up the bottom navigation bar to switch between fragments
+    private fun setupBottomNavigation() {
+        bottomNavigation.setOnItemSelectedListener { item ->
+            val fragmentToShow = when (item.itemId) {
+                R.id.recipe_nav -> recipeSearchFragment ?: recipesPage
+                R.id.shopping_list_nav -> shoppingListPage
+                R.id.home_nav -> homePage
+                R.id.inbox_nav -> inboxPage
+                R.id.profile_nav -> profilePage
+                else -> return@setOnItemSelectedListener false
+            }
+
+            switchFragments(fragmentToShow)
             true
         }
+    }
 
+    // Function used to peform fragment transactions
+    private fun switchFragments(fragment: Fragment) {
+        supportFragmentManager.beginTransaction().apply {
+            // Hide all fragments
+            supportFragmentManager.fragments.forEach {
+                if (it is RecipeSearchFragment) {
+                    remove(it)
+                } else {
+                    hide(it)
+                }
+            }
 
-
-        // Initialize Firebase Auth and check if the user is signed in
-        auth = Firebase.auth
-        if (auth.currentUser == null) {
-            // Not signed in, launch the Sign In activity
-            startActivity(Intent(this, SignUpActivity::class.java))
-            finish()
-            return
+            if (!fragment.isAdded) {
+                // If the fragment is not added, add it now
+                add(R.id.fragment_container, fragment)
+            }
+            // Show the desired fragment
+            show(fragment)
+            commit()
         }
+        Log.d(TAG, "Fragment switched")
+        activeFragment = fragment  // Update the active fragment reference
+        activeFragmentTag = fragment.tag ?: "" // Update the active fragment tag
 
     }
 
-    // We want to check to see if user is signed in even onStart()
-    public override fun onStart() {
+
+
+    override fun onStart() {
         super.onStart()
-        // Check if user is signed in.
-        Log.d(TAG, "${auth.currentUser}")
         if (auth.currentUser == null) {
-            // Not signed in, launch the Sign In activity
-            Log.d(TAG, "User is not signed in")
             startActivity(Intent(this, SignUpActivity::class.java))
             finish()
-            return
         }
     }
-
-
-    private fun signOut() {
-        AuthUI.getInstance().signOut(this)
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
-        Log.d(TAG, "Successfully signed out")
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("activeFragmentTag", activeFragmentTag)
     }
+
 }
