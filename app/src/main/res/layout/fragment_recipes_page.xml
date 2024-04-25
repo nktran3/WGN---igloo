@@ -19,7 +19,9 @@
         android:layout_width="292dp"
         android:layout_height="43dp"
         android:layout_marginTop="16dp"
-        android:queryHint="@string/search_recipes"
+        app:queryHint="@string/search_recipes"
+        app:defaultQueryHint="@string/search_recipes"
+        app:iconifiedByDefault="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -91,10 +93,11 @@
 
     <Button
         android:id="@+id/recipe_search_button"
-        android:layout_width="96dp"
+        android:layout_width="91dp"
         android:layout_height="43dp"
         android:layout_marginBottom="24dp"
         android:text="@string/search_recipe_button"
+        android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/suggested_recipes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"

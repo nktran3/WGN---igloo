@@ -26,12 +26,6 @@ class RecipeSearchFragment : Fragment() {
     private lateinit var recipeQueryAdapter: RecipeQueryAdapter
     var query: String? = null
 
-    private val recipeSearchList = listOf(
-        RecipeSearch("", "Lobster Thermidor", "1 hr 15 mins", "2 servings"),
-        RecipeSearch("", "Garlic Butter Salmon",  "50 mins", "4 servings"),
-        RecipeSearch("", "Caesar Salad",  "15 mins", "3 servings")
-    )
-
     companion object {
         private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
 
@@ -44,29 +38,26 @@ class RecipeSearchFragment : Fragment() {
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        recipeQueryAdapter = RecipeQueryAdapter(mutableListOf())
         query = arguments?.getString(EXTRA_MESSAGE)
         Log.d(TAG, "onCreate: Received message = $query")
-        binding.recipeQuery.setText("Recipes containing: $query")
+
         query?.let { recipeSearch(it) }
-
     }
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentRecipeSearchBinding.inflate(inflater, container, false)
+        binding.recipeQuery.text = "Recipes Containing: $query"
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recipeQueryAdapter = RecipeQueryAdapter(recipeSearchList)
         binding.recipesQueryRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.recipesQueryRecyclerView.adapter = recipeQueryAdapter
     }
@@ -90,12 +81,16 @@ class RecipeSearchFragment : Fragment() {
                 Log.d(TAG, "Query: $query")
                 val response = spoonacularAPI.searchRecipes(query, true,true, true,10, 0, API_KEY)
                 val newRecipes = response.results.map { recipe ->
-                    RecipeSearch(
-                        imageId = recipe.image, // Replace with actual image logic
-                        recipeName = recipe.title,
-                        totalTime = recipe.readyInMinutes.toString(),
-                        servingSize = recipe.servings.toString() + " servings"
-                    )
+                    Log.d(TAG, "$recipe")
+                            RecipeSearch(
+                                imageId = recipe.image,
+                                recipeName = recipe.title,
+                                cuisineType = recipe.cuisines,
+                                dietType = recipe.diets,
+                                totalTime = recipe.readyInMinutes.toString(),
+                                servingSize = recipe.servings.toString() + " servings"
+                            )
+
                 }
                 activity?.runOnUiThread {
                     recipeQueryAdapter.updateData(newRecipes)

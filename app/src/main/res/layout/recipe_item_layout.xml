@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
+    android:layout_height="wrap_content"
     android:layout_margin="10dp"
     android:padding="10dp"
     app:cardElevation="6dp"
@@ -19,68 +19,85 @@
             android:id="@+id/recipe_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:layout_marginStart="4dp"
             android:scaleType="centerCrop"
             android:src="@drawable/lobster"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/recipe_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
             android:fontFamily="@font/judson"
             android:text="@string/recipe_name"
-            android:textSize="18dp"
+            android:textSize="18sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/total_time"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/recipe_image"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/total_time"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="4dp"
             android:fontFamily="@font/judson"
             android:text="@string/total_time"
-            android:textSize="16dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/serving_size"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/recipe_image"
-            app:layout_constraintTop_toBottomOf="@+id/recipe_title" />
-
-        <TextView
-            android:id="@+id/total_time_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:fontFamily="@font/judson"
-            android:text="60 mins"
-            android:textSize="16dp"
-            app:layout_constraintStart_toEndOf="@+id/total_time"
             app:layout_constraintTop_toBottomOf="@+id/recipe_title" />
 
         <TextView
             android:id="@+id/serving_size"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:fontFamily="@font/judson"
             android:text="@string/serving_size"
-            android:textSize="16dp"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/diet_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/recipe_image"
             app:layout_constraintTop_toBottomOf="@+id/total_time" />
 
         <TextView
-            android:id="@+id/serving_size_info"
-            android:layout_width="wrap_content"
+            android:id="@+id/diet_type"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:fontFamily="@font/judson"
-            android:text="4 people"
-            android:textSize="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/total_time_info"
-            app:layout_constraintStart_toEndOf="@+id/serving_size" />
+            android:text="@string/diet_type"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/cuisine_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/recipe_image"
+            app:layout_constraintTop_toBottomOf="@+id/serving_size" />
+
+        <TextView
+            android:id="@+id/cuisine_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginBottom="14dp"
+            android:fontFamily="@font/judson"
+            android:text="@string/cuisine_type"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/recipe_image"
+            app:layout_constraintTop_toBottomOf="@+id/diet_type" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

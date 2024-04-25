@@ -11,11 +11,11 @@
     <string name="shopping_list">Shopping List</string>
     <string name="suggested_recipes">Suggested Recipes</string>
     <string name="saved_recipes">Saved Recipes</string>
-    <string name="search_recipes">Search for recipes...</string>
+    <string name="search_recipes">Search for recipes…</string>
     <string name="recipe_name">Recipe Name</string>
-    <string name="prep_time">Preparation time:</string>
-    <string name="cook_time">Cook time:</string>
     <string name="total_time">Total time:</string>
+    <string name="cuisine_type">Cuisine type:</string>
+    <string name="diet_type">Diet type:</string>
     <string name="serving_size">Serving size:</string>
     <string name="account">Account</string>
     <string name="settings">Settings</string>

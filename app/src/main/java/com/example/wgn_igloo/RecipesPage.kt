@@ -118,8 +118,8 @@ class RecipeAdapter(private val recipeData: List<SavedRecipe>, private val fires
     class RecipeViewHolder(itemView: View, private val firestoreHelper: FirestoreHelper, private val userId: String) : RecyclerView.ViewHolder(itemView) {
         private val recipeImage: ImageView = itemView.findViewById(R.id.recipe_image)
         private val recipeTitle: TextView = itemView.findViewById(R.id.recipe_title)
-        private val totalTimeInfo: TextView = itemView.findViewById(R.id.total_time_info)
-        private val servingSizeInfo: TextView = itemView.findViewById(R.id.serving_size_info)
+        private val totalTimeInfo: TextView = itemView.findViewById(R.id.total_time)
+        private val servingSizeInfo: TextView = itemView.findViewById(R.id.serving_size)
 
         fun bind(recipe: SavedRecipe) {
             recipeImage.setImageResource(recipe.imageId)
