@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
@@ -21,7 +22,9 @@ import java.text.ParseException
 import com.example.wgn_igloo.databinding.FragmentNewItemsFormBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
+
 private const val TAG = "NewItemsForm"
+private const val API_KEY = "LLIyBbVQ7WJgTsWITh4TwWNHDBojLnJG2ypcXWAg"
 
 class NewItemsFormFragment : Fragment() {
   
@@ -167,6 +170,7 @@ class NewItemsFormFragment : Fragment() {
         categoryInput.adapter = categoryAdapter  // Correct Spinner
     }
 
+  
 
     private fun submitGroceryItem() {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid

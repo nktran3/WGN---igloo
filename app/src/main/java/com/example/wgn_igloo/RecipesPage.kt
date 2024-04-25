@@ -6,14 +6,22 @@ import androidx.fragment.app.Fragment
 import android.view.*
 import androidx.recyclerview.widget.*
 import android.widget.*
+
+import com.example.wgn_igloo.databinding.FragmentRecipesPageBinding
+
 import androidx.appcompat.app.AppCompatActivity
+
 import com.google.firebase.auth.FirebaseAuth
 
+
+private const val TAG = "RecipePage"
 
 class RecipesPage : Fragment() {
     // private val adapter: RecipeAdapter
     private lateinit var firestoreHelper: FirestoreHelper
     private var userUid: String? = null
+    private lateinit var binding: FragmentRecipesPageBinding
+    private var query = ""
 
     companion object {
         private const val TAG = "FirestoreHelper"
@@ -31,7 +39,15 @@ class RecipesPage : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_recipes_page, container, false)
+        binding = FragmentRecipesPageBinding.inflate(inflater, container, false)
+
+        binding.recipeSearchButton.setOnClickListener(){
+            query = binding.recipesSearchView.query.toString()
+            Log.d(TAG, "Searching for recipe")
+            val recipeSearchFragment = RecipeSearchFragment.newInstance(query)
+            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, recipeSearchFragment).commit()
+        }
+        return binding.root
     }
 
     private fun addDummyRecipeListItem() {
@@ -107,16 +123,12 @@ class RecipeAdapter(private val recipeData: List<SavedRecipe>, private val fires
     class RecipeViewHolder(itemView: View, private val firestoreHelper: FirestoreHelper, private val userId: String) : RecyclerView.ViewHolder(itemView) {
         private val recipeImage: ImageView = itemView.findViewById(R.id.recipe_image)
         private val recipeTitle: TextView = itemView.findViewById(R.id.recipe_title)
-        private val prepTimeInfo: TextView = itemView.findViewById(R.id.prep_time_info)
-        private val cookTimeInfo: TextView = itemView.findViewById(R.id.cook_time_info)
-        private val totalTimeInfo: TextView = itemView.findViewById(R.id.total_time_info)
-        private val servingSizeInfo: TextView = itemView.findViewById(R.id.serving_size_info)
+        private val totalTimeInfo: TextView = itemView.findViewById(R.id.total_time)
+        private val servingSizeInfo: TextView = itemView.findViewById(R.id.serving_size)
 
         fun bind(recipe: SavedRecipe) {
             recipeImage.setImageResource(recipe.imageId)
             recipeTitle.text = recipe.recipeName
-            prepTimeInfo.text = recipe.preparationTime
-            cookTimeInfo.text = recipe.cookTime
             totalTimeInfo.text = recipe.totalTime
             servingSizeInfo.text = recipe.servingSize
         }

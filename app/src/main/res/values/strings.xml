@@ -11,11 +11,11 @@
     <string name="shopping_list">Shopping List</string>
     <string name="suggested_recipes">Suggested Recipes</string>
     <string name="saved_recipes">Saved Recipes</string>
-    <string name="search_recipes">Search for recipes...</string>
+    <string name="search_recipes">Search for recipes…</string>
     <string name="recipe_name">Recipe Name</string>
-    <string name="prep_time">Preparation time:</string>
-    <string name="cook_time">Cook time:</string>
     <string name="total_time">Total time:</string>
+    <string name="cuisine_type">Cuisine type:</string>
+    <string name="diet_type">Diet type:</string>
     <string name="serving_size">Serving size:</string>
     <string name="account">Account</string>
     <string name="settings">Settings</string>
@@ -46,8 +46,10 @@
     <string name="answer">Answer</string>
     <string name="scan_button">Scan</string>
     <string name="see_fridge"><u>See in Your Fridge</u></string>
-    <string name="recipes_query">Recipes containing </string>
+    <string name="recipes_query">Recipes containing:</string>
+    <string name="search_recipe_button">Search</string>
     <string name="ingredients">Ingredients</string>
     <string name="instructions">Instructions</string>
     <string name="shopping_add_item">Add shopping item</string>
+
 </resources>

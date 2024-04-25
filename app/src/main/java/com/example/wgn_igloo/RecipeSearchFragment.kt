@@ -1,26 +1,54 @@
+
 package com.example.wgn_igloo
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.wgn_igloo.RecipeQueryAdapter
+import com.example.wgn_igloo.databinding.FragmentRecipeSearchBinding
+import com.example.wgn_igloo.RecipeSearch
+import com.example.wgn_igloo.SpoonacularAPI
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+
+
+private const val API_KEY = "54c26ca72c5c46f9ac43b5bee9886fca" // We have to change the API key when we're completely done
+private const val TAG = "RecipeSearchPage"
 class RecipeSearchFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
+    private var _binding: FragmentRecipeSearchBinding? = null
+    private val binding get() = _binding!!
     private lateinit var recipeQueryAdapter: RecipeQueryAdapter
+    var query: String? = null // Used to hold the user's query
 
-    private val recipeSearchList = listOf(
-        SearchRecipe(R.drawable.lobster, "Lobster Thermidor", "30 mins", "45 mins", "1 hr 15 mins", "2 servings"),
-        SearchRecipe(R.drawable.salmon, "Garlic Butter Salmon", "20 mins", "30 mins", "50 mins", "4 servings"),
-        SearchRecipe(R.drawable.salad, "Caesar Salad", "15 mins", "0 mins", "15 mins", "3 servings")
-    )
+
+    // Static function used to create a new instance of fragment with bundled argument
+    companion object {
+        private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
+        fun newInstance(message: String): RecipeSearchFragment {
+            val fragment = RecipeSearchFragment()
+            val args = Bundle()
+            args.putString(EXTRA_MESSAGE, message)
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        recipeQueryAdapter = RecipeQueryAdapter(mutableListOf())
+        query = arguments?.getString(EXTRA_MESSAGE) // Extract argument and set it to query
+        Log.d(TAG, "onCreate: Received message = $query")
+        query?.let { recipeSearch(it) } // Make a GET call using the query
 
     }
 
@@ -28,38 +56,57 @@ class RecipeSearchFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_recipe_search, container, false)
-
-        recyclerView = view.findViewById(R.id.recipes_query_recycler_view)
-        recipeQueryAdapter = RecipeQueryAdapter(recipeSearchList)
-        recyclerView.adapter = recipeQueryAdapter
-        return view
+        _binding = FragmentRecipeSearchBinding.inflate(inflater, container, false)
+        binding.recipeQuery.text = "Recipes Containing: $query"
+        return binding.root
     }
 
-
-}
-
-class RecipeQueryAdapter(private val recipeList: List<SearchRecipe>) :
-    RecyclerView.Adapter<RecipeQueryAdapter.RecipeViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recipe_item_layout, parent, false)
-        return RecipeViewHolder(view)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.recipesQueryRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.recipesQueryRecyclerView.adapter = recipeQueryAdapter
     }
 
-    override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
-        val recipe = recipeList[position]
-        holder.itemView.findViewById<ImageView>(R.id.recipe_image).setImageResource(recipe.imageId)
-        holder.itemView.findViewById<TextView>(R.id.recipe_title).text = recipe.recipeName
-        holder.itemView.findViewById<TextView>(R.id.prep_time_info).text = recipe.preparationTime
-        holder.itemView.findViewById<TextView>(R.id.cook_time_info).text = recipe.cookTime
-        holder.itemView.findViewById<TextView>(R.id.total_time_info).text = recipe.totalTime
-        holder.itemView.findViewById<TextView>(R.id.serving_size_info).text = recipe.servingSize
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
-    override fun getItemCount() = recipeList.size
+    // Function used to make API call to Spoonacular
+    private fun recipeSearch(query: String) {
+        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl("https://api.spoonacular.com/")
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
 
-    class RecipeViewHolder(view: View) : RecyclerView.ViewHolder(view)
+        val spoonacularAPI: SpoonacularAPI = retrofit.create(SpoonacularAPI::class.java)
+        lifecycleScope.launch {
+            try {
+                Log.d(TAG, "Query: $query")
+                val response = spoonacularAPI.searchRecipes(query, true,true, true,10, 0, API_KEY)
+                // Response is a list of recipes, so we need to map each recipe accordingly and pass to adapter
+                val newRecipes = response.results.map { recipe ->
+                    Log.d(TAG, "$recipe")
+                            RecipeSearch(
+                                imageId = recipe.image,
+                                recipeName = recipe.title,
+                                cuisineType = recipe.cuisines,
+                                dietType = recipe.diets,
+                                totalTime = recipe.readyInMinutes.toString(),
+                                servingSize = recipe.servings.toString() + " servings"
+                            )
+
+                }
+                activity?.runOnUiThread {
+                    recipeQueryAdapter.updateData(newRecipes)
+                }
+                Log.d(TAG, "Response: $response")
+
+            } catch (ex: Exception) {
+                Log.e(TAG, "Failed to fetch recipes: $ex")
+            }
+        }
+    }
 }
 
