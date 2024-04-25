@@ -3,6 +3,7 @@ package com.example.wgn_igloo
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.databinding.RecipeItemLayoutBinding
 import com.bumptech.glide.Glide
@@ -34,6 +35,14 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
             cuisineType.text = "Cuisine: " + cuisineTypeList
             dietType.text = "Diet: " + dietTypeList
             servingSize.text = "Serving Size: " + recipe.servingSize
+        }
+        holder.itemView.setOnClickListener {
+            // Use the fragment manager to replace the container with the RecipeDetailsFragment
+            val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
+            val recipeDetailsFragment = RecipeDetails()
+            fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
     override fun getItemCount() = recipeList.size
