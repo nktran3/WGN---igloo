@@ -6,21 +6,20 @@ import androidx.fragment.app.Fragment
 import android.view.*
 import androidx.recyclerview.widget.*
 import android.widget.*
-
 import com.example.wgn_igloo.databinding.FragmentRecipesPageBinding
-
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.home.InventoryDisplayFragment
 import com.example.wgn_igloo.R
-
 import com.google.firebase.auth.FirebaseAuth
+import com.example.wgn_igloo.recipe.RecipeViewModel
 
 
 private const val TAG = "RecipePage"
 
 class RecipesPage : Fragment() {
-    // private val adapter: RecipeAdapter
+    private lateinit var viewModel: RecipeViewModel // Used to hold the reference to a recipeSearch fragment
     private lateinit var firestoreHelper: FirestoreHelper
     private var userUid: String? = null
     private lateinit var binding: FragmentRecipesPageBinding
@@ -37,6 +36,7 @@ class RecipesPage : Fragment() {
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(requireActivity()).get(RecipeViewModel::class.java)
         firestoreHelper = FirestoreHelper(requireContext())
         userUid = FirebaseAuth.getInstance().currentUser?.uid
     }
@@ -44,14 +44,20 @@ class RecipesPage : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentRecipesPageBinding.inflate(inflater, container, false)
 
-        binding.recipeSearchButton.setOnClickListener(){
+        binding.recipeSearchButton.setOnClickListener {
             query = binding.recipesSearchView.query.toString()
-            Log.d(TAG, "Searching for recipe")
             val recipeSearchFragment = RecipeSearchFragment.newInstance(query)
-            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, recipeSearchFragment).commit()
+            viewModel.currentFragment.value = recipeSearchFragment
+            requireActivity().supportFragmentManager.beginTransaction()
+                .hide(this@RecipesPage) // Hide the current instance of RecipesPage
+                .add(R.id.fragment_container, recipeSearchFragment, "recipeSearchFragment")
+                .show(recipeSearchFragment)
+                .commit()
         }
         return binding.root
     }
+
+
 
     private fun addDummyRecipeListItem() {
         userUid?.let { uid ->
