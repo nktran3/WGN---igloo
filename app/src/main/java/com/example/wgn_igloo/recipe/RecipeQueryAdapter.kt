@@ -21,8 +21,7 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
-        val binding =
-            RecipeItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = RecipeItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return RecipeViewHolder(binding)
     }
 
@@ -39,10 +38,30 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
             dietType.text = "Diet: " + dietTypeList
             servingSize.text = "Serving Size: " + recipe.servingSize
         }
+        // Parse the recipe instructions
+        var totalSteps: MutableList<String> = mutableListOf()
+        for (instruction in recipe.instructions!!) {
+           for (step in instruction.steps) {
+               totalSteps.add(step.step)
+           }
+        }
+
+        // Total the recipe ingredients
+        var totalIngredients: MutableList<String> = mutableListOf()
+        for (ingredient in recipe.usedIngredients!!){
+            totalIngredients.add(ingredient.name)
+        }
+        for (ingredient in recipe.unusedIngredients!!){
+            totalIngredients.add(ingredient.name)
+        }
+        for (ingredient in recipe.missedIngredients!!){
+            totalIngredients.add(ingredient.name)
+        }
+
         holder.itemView.setOnClickListener {
             // Use the fragment manager to replace the container with the RecipeDetailsFragment
             val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
-            val recipeDetailsFragment = RecipeDetails()
+            val recipeDetailsFragment = RecipeDetailsFragment.newInstance(totalSteps, totalIngredients)
             fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
                 .addToBackStack(null)
                 .commit()

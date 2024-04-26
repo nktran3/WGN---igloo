@@ -119,7 +119,7 @@ class RecipeAdapter(private val recipeData: List<SavedRecipe>, private val fires
         holder.itemView.setOnClickListener {
             // Use the fragment manager to replace the container with the RecipeDetailsFragment
             val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
-            val recipeDetailsFragment = RecipeDetails()
+            val recipeDetailsFragment = RecipeDetailsFragment()
             fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
             .addToBackStack(null)
             .commit()

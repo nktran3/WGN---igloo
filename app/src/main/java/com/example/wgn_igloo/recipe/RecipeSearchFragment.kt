@@ -78,24 +78,28 @@ class RecipeSearchFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 Log.d(TAG, "Query: $query")
-                val response = spoonacularAPI.searchRecipes(query, true,true, true,10, 0, API_KEY)
+                val response = spoonacularAPI.searchRecipes(query, query,true,true, true,true, 10, 0, API_KEY)
+                Log.d(TAG, "Reponse: $response")
                 // Response is a list of recipes, so we need to map each recipe accordingly and pass to adapter
                 val newRecipes = response.results.map { recipe ->
                     Log.d(TAG, "$recipe")
+                    Log.d(TAG, "Ingredients:${recipe.usedIngredients}")
                     RecipeSearch(
                         imageId = recipe.image,
                         recipeName = recipe.title,
                         cuisineType = recipe.cuisines,
                         dietType = recipe.diets,
                         totalTime = recipe.readyInMinutes.toString(),
-                        servingSize = recipe.servings.toString() + " servings"
+                        servingSize = recipe.servings.toString() + " servings",
+                        instructions = recipe.analyzedInstructions,
+                        usedIngredients = recipe.usedIngredients,
+                        unusedIngredients = recipe.unusedIngredients,
+                        missedIngredients = recipe.missedIngredients
                     )
-
                 }
                 activity?.runOnUiThread {
                     recipeQueryAdapter.updateData(newRecipes)
                 }
-                Log.d(TAG, "Response: $response")
 
             } catch (ex: Exception) {
                 Log.e(TAG, "Failed to fetch recipes: $ex")

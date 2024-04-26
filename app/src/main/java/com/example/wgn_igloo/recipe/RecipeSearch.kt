@@ -6,5 +6,9 @@ data class RecipeSearch (
     var totalTime: String,
     var cuisineType: List<String>?,
     var dietType: List<String>?,
-    var servingSize: String
+    var servingSize: String,
+    var instructions: List<RecipeInstruction>?,
+    var usedIngredients: List<Ingredient>?,
+    var unusedIngredients: List<Ingredient>?,
+    var missedIngredients: List<Ingredient>?
 )
