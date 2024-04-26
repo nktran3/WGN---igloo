@@ -20,15 +20,13 @@ class RecipeDetailsFragment : Fragment() {
     companion object {
         private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
         private const val EXTRA_MESSAGE_2 = "EXTRA_MESSAGE_2"
+        private const val EXTRA_MESSAGE_3 = "EXTRA_MESSAGE_3"
 
         fun newInstance(message: List<String>?, message2: List<String>?): RecipeDetailsFragment {
             val fragment = RecipeDetailsFragment()
             val args = Bundle()
 
-            // Add the first message list to the Bundle
             args.putStringArrayList(EXTRA_MESSAGE, message as ArrayList<String>?)
-
-            // Add the second message list to the Bundle
             args.putStringArrayList(EXTRA_MESSAGE_2, message2 as ArrayList<String>?)
 
             // Set the Bundle as the fragment's arguments
@@ -42,8 +40,10 @@ class RecipeDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentRecipeDetailsBinding.inflate(inflater, container, false)
+
         val instructions = arguments?.getStringArrayList(EXTRA_MESSAGE)!!
         parsed_ingredients = arguments?.getStringArrayList(EXTRA_MESSAGE_2)!!
+
         Log.d(TAG, "$parsed_ingredients")
         for (lines in instructions){
             val steps = lines.split(".").filter{it.isNotEmpty()}
