@@ -9,7 +9,7 @@
 
 
     <EditText
-        android:id="@+id/editTextEmailAddress"
+        android:id="@+id/editTextName"
         android:layout_width="237dp"
         android:layout_height="49dp"
         android:layout_marginTop="104dp"
@@ -19,14 +19,14 @@
         android:inputType="textEmailAddress"
         android:padding="10dp"
         android:textColor="@color/black"
-        app:layout_constraintBottom_toTopOf="@+id/editTextPassword"
+        app:layout_constraintBottom_toTopOf="@+id/editTextConfirmPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextPassword"
+        android:id="@+id/editTextConfirmPassword"
         android:layout_width="237dp"
         android:layout_height="49dp"
         android:layout_marginTop="10dp"
@@ -37,8 +37,8 @@
         android:padding="10dp"
         android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/buttonLogin"
-        app:layout_constraintStart_toStartOf="@+id/editTextEmailAddress"
-        app:layout_constraintTop_toBottomOf="@+id/editTextEmailAddress" />
+        app:layout_constraintStart_toStartOf="@+id/editTextName"
+        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
 
     <Button
         android:id="@+id/buttonLogin"
@@ -53,7 +53,7 @@
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextConfirmPassword" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
