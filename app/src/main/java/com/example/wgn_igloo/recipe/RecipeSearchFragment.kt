@@ -87,6 +87,7 @@ class RecipeSearchFragment : Fragment() {
                     RecipeSearch(
                         imageId = recipe.image,
                         recipeName = recipe.title,
+                        dishType = recipe.dishTypes,
                         cuisineType = recipe.cuisines,
                         dietType = recipe.diets,
                         totalTime = recipe.readyInMinutes.toString(),
