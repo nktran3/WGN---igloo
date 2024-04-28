@@ -50,6 +50,11 @@
     <string name="search_recipe_button">Search</string>
     <string name="ingredients">Ingredients</string>
     <string name="instructions">Instructions</string>
-    <string name="shopping_add_item">Add shopping item</string>
+    <string name="shopping_add_item">Add shopping list item</string>
+    <string name="share_with">Share Item With: </string>
+    <string name="category">Category</string>
+    <string name="enter_item">Enter tem name</string>
+    <string name="enter_quantity">Enter quantity amount</string>
+    <string name="date_format">MM/DD/YYYY</string>
 
 </resources>

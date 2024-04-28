@@ -1,6 +1,5 @@
 package com.example.wgn_igloo.home
 
-import android.R
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +11,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.grocery.GroceryItem
@@ -24,6 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import com.example.wgn_igloo.R
 
 
 private const val TAG = "NewItemsForm"
@@ -47,12 +49,13 @@ class NewItemsFormFragment : Fragment() {
     private lateinit var categoryInput: Spinner
     private lateinit var sharedWithInput: Spinner
     // Hard coded list
-    private val categoryList = arrayOf("choose an option", "Meat", "Vegetable", "Dairy", "Fruits", "Carbohydrate")
+    private val categoryList = arrayOf("Choose an option", "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Miscellaneous" )
 //    private val sharedWithList = arrayOf("choose an option", "Wilbert", "Gary", "Nicole", "Rhett")
 
     // Default list with a placeholder for choosing an option
     private var sharedWithList = arrayOf("No one")
 
+    private lateinit var toolbarAddItem: Toolbar
     companion object {
         private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
 
@@ -81,7 +84,7 @@ class NewItemsFormFragment : Fragment() {
             firestore.collection("users").document(userId).collection("friends")
                 .get()
                 .addOnSuccessListener { documents ->
-                    val friendsUsernames = mutableListOf("choose an option")
+                    val friendsUsernames = mutableListOf("Choose an option")
                     for (document in documents) {
                         document.getString("username")?.let {
                             friendsUsernames.add(it)
@@ -101,10 +104,10 @@ class NewItemsFormFragment : Fragment() {
     private fun updateSharedWithSpinner() {
         val roommateAdapter = ArrayAdapter(
             requireContext(),
-            R.layout.simple_spinner_item,
+            R.layout.spinner_item,
             sharedWithList
         ).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            setDropDownViewResource(R.layout.spinner_item)
         }
         sharedWithInput.adapter = roommateAdapter
     }
@@ -119,6 +122,8 @@ class NewItemsFormFragment : Fragment() {
         setupDatePicker()
         setupSpinnerCategory()
         setupSpinnerRoomate()
+        toolbarAddItem = binding.toolbarAddItem
+        updateToolbar()
 //        fetchFriendsAndUpdateSpinner()
 
 
@@ -134,6 +139,11 @@ class NewItemsFormFragment : Fragment() {
         return view
     }
 
+    private fun updateToolbar() {
+        toolbarAddItem.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
+        toolbarAddItem.setNavigationOnClickListener { activity?.onBackPressed() }
+
+    }
     private fun setupViews() {
         submitButton = binding.submitButton
         itemInput = binding.itemInput
@@ -153,10 +163,10 @@ class NewItemsFormFragment : Fragment() {
     private fun setupSpinnerRoomate() {
         val roommateAdapter = ArrayAdapter(
             requireContext(),
-            R.layout.simple_spinner_item,
+            R.layout.spinner_item,
             sharedWithList  // Correct list for roommates
         ).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            setDropDownViewResource(R.layout.spinner_item)
         }
         sharedWithInput.adapter = roommateAdapter  // Use the correct Spinner
     }
@@ -165,10 +175,10 @@ class NewItemsFormFragment : Fragment() {
     private fun setupSpinnerCategory() {
         val categoryAdapter = ArrayAdapter(
             requireContext(),
-            R.layout.simple_spinner_item,
+            R.layout.spinner_item,
             categoryList  // Use the correct list here
         ).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            setDropDownViewResource(R.layout.spinner_item)
         }
         categoryInput.adapter = categoryAdapter  // Correct Spinner
     }
@@ -182,9 +192,9 @@ class NewItemsFormFragment : Fragment() {
             return
         }
 
-        val category = categoryInput.selectedItem.toString().takeIf { it != "choose an option" } ?: return
+        val category = categoryInput.selectedItem.toString().takeIf { it != "Choose an option" } ?: return
         val name = itemInput.text.toString()
-        val sharedWithInput = sharedWithInput.selectedItem.toString().takeIf { it != "choose an option" } ?: return
+        val sharedWithInput = sharedWithInput.selectedItem.toString().takeIf { it != "Choose an option" } ?: return
         val quantity = quantityInput.text.toString().toIntOrNull() ?: return
         val expirationDate = convertStringToTimestamp(expirationDateInput.text.toString())
         // Collect other inputs similarly
