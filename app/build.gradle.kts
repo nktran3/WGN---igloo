@@ -61,6 +61,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation ("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("androidx.compose.ui:ui:latest_version")
+    implementation("androidx.activity:activity-compose:latest_version")
+
 
     // Nav Bar
     implementation("androidx.navigation:navigation-fragment-ktx:2.3.5")
@@ -83,7 +86,7 @@ dependencies {
     // Firestore dependency
     implementation("com.google.firebase:firebase-firestore-ktx:24.1.0")
     implementation("com.google.firebase:firebase-messaging")
-
+    implementation("com.google.firebase:firebase-analytics")
     // Firebase UI Library
     implementation("com.firebaseui:firebase-ui-auth:8.0.2")
     implementation("com.firebaseui:firebase-ui-database:8.0.2")
