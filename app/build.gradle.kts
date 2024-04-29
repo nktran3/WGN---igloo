@@ -81,7 +81,10 @@ dependencies {
 
     // Firestore dependency
     implementation("com.google.firebase:firebase-firestore-ktx:24.1.0")
+    // Add the dependencies for the Firebase Cloud Messaging and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
 
     // Firebase UI Library
     implementation("com.firebaseui:firebase-ui-auth:8.0.2")
