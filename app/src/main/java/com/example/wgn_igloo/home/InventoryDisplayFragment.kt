@@ -64,13 +64,6 @@ class InventoryDisplayFragment : Fragment() {
 //        }
     }
 
-//    private fun navigateToDetailFragment(groceryItem: GroceryItem) {
-//        val itemDetailsFragment = HomeItemDetail()
-//        requireActivity().supportFragmentManager.beginTransaction()
-//            .replace(R.id.fragment_container, itemDetailsFragment)
-//            .addToBackStack(null)
-//            .commit()
-//    }
     private fun navigateToAddNewItemForm() {
         val newItemsFormFragment =
             NewItemsFormFragment.newInstance("Your message here") // Use appropriate message or data

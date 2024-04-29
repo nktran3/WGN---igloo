@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.wgn_igloo.R
@@ -25,6 +27,8 @@ class RecipeDetailsFragment : Fragment() {
     private var parsed_time: String = ""
     private var parsed_servings: String = ""
     private var parsed_image: String = ""
+
+    private lateinit var toolbarRecipeDetails: Toolbar
 
     companion object {
         private const val INSTRUCTIONS = "INSTRUCTIONS"
@@ -100,6 +104,15 @@ class RecipeDetailsFragment : Fragment() {
             parsed_instructions, parsed_ingredients,
             parsed_title, parsed_dish, parsed_cuisine,
             parsed_diet, parsed_time, parsed_servings, parsed_image)
+
+        toolbarRecipeDetails = binding.toolbarRecipeDetails
+        updateToolbar()
+    }
+
+    private fun updateToolbar() {
+        toolbarRecipeDetails.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
+        toolbarRecipeDetails.setNavigationOnClickListener { activity?.onBackPressed() }
+
     }
 
     private fun setupRecyclerViews(
@@ -123,7 +136,7 @@ class RecipeDetailsFragment : Fragment() {
             binding.recipeDiet.text = diet
         }
 
-        binding.recipeTotalTimeInfo.text = time + "mins"
+        binding.recipeTotalTimeInfo.text = time + " mins"
         binding.recipeServingSize.text = servings
         Log.d(TAG,"Image: $imageURL")
         Glide.with(this)

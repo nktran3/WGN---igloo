@@ -51,6 +51,7 @@ class RecipesPage : Fragment() {
             requireActivity().supportFragmentManager.beginTransaction()
                 .hide(this@RecipesPage) // Hide the current instance of RecipesPage
                 .add(R.id.fragment_container, recipeSearchFragment, "recipeSearchFragment")
+                .addToBackStack(null)
                 .show(recipeSearchFragment)
                 .commit()
         }
