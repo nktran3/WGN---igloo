@@ -33,13 +33,15 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import android.Manifest
+import com.example.wgn_igloo.notifications.RequestViewModel
 
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bottomNavigation: BottomNavigationView
     private lateinit var firestoreHelper: FirestoreHelper
-    private lateinit var viewModel: RecipeViewModel
+    private lateinit var recipeViewModel: RecipeViewModel
+    private lateinit var requestViewModel: RequestViewModel
 
     // Fragments
     private val recipesPage by lazy { RecipesPage() }
@@ -78,6 +80,9 @@ class MainActivity : AppCompatActivity() {
 
         askNotificationPermission()
 
+        recipeViewModel = ViewModelProvider(this)[RecipeViewModel::class.java]
+        requestViewModel = ViewModelProvider(this)[RequestViewModel::class.java]
+
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
@@ -87,6 +92,7 @@ class MainActivity : AppCompatActivity() {
 
             // Get new FCM registration token
             val token = task.result
+            requestViewModel.onSenderTokenChange(token)
 
             // Log and toast
             val msg = token.toString()
@@ -102,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                 // make sure to set the viewModel data to null to prevent zombie
                 if (currentFragment is RecipeSearchFragment) {
                     recipeSearchFragment = null
-                    viewModel.currentFragment.value = null
+                    recipeViewModel.currentFragment.value = null
                     switchFragments(recipesPage)
                 } else {
                     isEnabled = false
@@ -121,8 +127,8 @@ class MainActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = Firebase.auth
 
-        viewModel = ViewModelProvider(this).get(RecipeViewModel::class.java)
-        viewModel.currentFragment.observe(this, Observer { fragment ->
+
+        recipeViewModel.currentFragment.observe(this, Observer { fragment ->
             recipeSearchFragment = fragment as RecipeSearchFragment?
         })
 

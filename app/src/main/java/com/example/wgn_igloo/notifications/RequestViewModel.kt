@@ -1,5 +1,6 @@
 package com.example.wgn_igloo.notifications
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import retrofit2.Retrofit
@@ -12,7 +13,7 @@ import retrofit2.HttpException
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
 
-
+private const val TAG = "RequestViewModel"
 class RequestViewModel: ViewModel() {
 
     var state by mutableStateOf(RequestState())
@@ -28,18 +29,21 @@ class RequestViewModel: ViewModel() {
         state = state.copy(
             receiverToken = newToken
         )
+        Log.d(TAG, "Receiver: $newToken")
     }
 
     fun onSenderTokenChange(newToken: String) {
         state = state.copy(
             senderToken = newToken
         )
+        Log.d(TAG, "Sender: $newToken")
     }
 
     fun onItemNameChange(item: String) {
         state = state.copy(
             itemName = item
         )
+        Log.d(TAG, "Item Name: $item")
     }
 
     fun sendRequest(){

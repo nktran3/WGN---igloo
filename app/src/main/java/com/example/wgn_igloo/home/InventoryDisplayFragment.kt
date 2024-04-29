@@ -5,19 +5,25 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.*
 import android.widget.*
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.*
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.grocery.GroceryItem
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.notifications.RequestViewModel
+import com.example.wgn_igloo.recipe.RecipeViewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.*
 
 class InventoryDisplayFragment : Fragment() {
 
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var adapter: MyItemAdapter
+    private lateinit var viewModel: RequestViewModel
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -32,10 +38,12 @@ class InventoryDisplayFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel = ViewModelProvider(this)[RequestViewModel::class.java]
+
         // Setup RecyclerView and Adapter
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = MyItemAdapter(emptyList())
+        adapter = MyItemAdapter(emptyList(), viewModel)
 
         recyclerView.adapter = adapter
 
@@ -152,7 +160,7 @@ class InventoryDisplayFragment : Fragment() {
 }
 
 
-class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
+class MyItemAdapter(private var items: List<GroceryItem>, val viewModel: RequestViewModel) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemTextView: TextView = view.findViewById(R.id.itemTextView)
@@ -174,10 +182,12 @@ class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.inventory_item_layout, parent, false)
+
         return ItemViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+
         val item = items[position]
         holder.itemTextView.text = "${item.name}"
         holder.quantityTextView.visibility = View.GONE
@@ -220,6 +230,9 @@ class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter
 
             holder.deleteButton.visibility =
                 if (holder.deleteButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        }
+        holder.requestToBorrow.setOnClickListener(){
+            viewModel.onReceiverTokenChange("fy_tQ6lJRPOFbKGCH2-MXg:APA91bFCo4IXjPn2qja5i8pR4mRnjNGdgz7O__YhgJcnlRhw56XPq1o0lNj8LR-X2QNznJsSIKWrpM7-hOndC0_r9Si1CRK_iDN_0disEsRdG7a0N5-sz1YApUHFONILloUD62ddNMDk")
         }
     }
 
