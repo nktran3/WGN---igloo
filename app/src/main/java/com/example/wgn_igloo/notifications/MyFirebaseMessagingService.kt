@@ -1,4 +1,4 @@
-package com.example.wgn_igloo.services
+package com.example.wgn_igloo.notifications
 
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
