@@ -60,6 +60,7 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation ("androidx.viewpager2:viewpager2:1.0.0")
 
     // Nav Bar
     implementation("androidx.navigation:navigation-fragment-ktx:2.3.5")

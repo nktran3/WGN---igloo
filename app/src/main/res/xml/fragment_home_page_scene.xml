@@ -261,13 +261,4 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
 
     </ConstraintSet>
-
-<!--    <Transition-->
-<!--        motion:constraintSetStart="@+id/start"-->
-<!--        motion:constraintSetEnd="@+id/end"-->
-<!--        android:id="@+id/backward">-->
-<!--        <OnSwipe-->
-<!--            motion:dragDirection="dragRight"-->
-<!--            motion:touchAnchorSide="end" />-->
-<!--    </Transition>-->
 </MotionScene>
