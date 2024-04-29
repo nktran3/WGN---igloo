@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
-
+private const val TAG = "MyFirebaseMsgService"
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
 
@@ -38,7 +38,4 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Implement this method to send token to your app server.
     }
 
-    companion object {
-        private const val TAG = "MyFirebaseMsgService"
-    }
 }
