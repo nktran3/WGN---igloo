@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +26,7 @@ class RecipeSearchFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var recipeQueryAdapter: RecipeQueryAdapter
     var query: String? = null // Used to hold the user's query
+    private lateinit var toolbarRecipeSearch: Toolbar
 
 
     // Static function used to create a new instance of fragment with bundled argument
@@ -59,6 +62,9 @@ class RecipeSearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.recipesQueryRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.recipesQueryRecyclerView.adapter = recipeQueryAdapter
+
+        toolbarRecipeSearch = binding.toolbarRecipeSearch
+        updateToolbar()
     }
 
     override fun onDestroyView() {
@@ -66,6 +72,11 @@ class RecipeSearchFragment : Fragment() {
         _binding = null
     }
 
+    private fun updateToolbar() {
+        toolbarRecipeSearch.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
+        toolbarRecipeSearch.setNavigationOnClickListener { activity?.onBackPressed() }
+
+    }
     // Function used to make API call to Spoonacular
     private fun recipeSearch(query: String) {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
