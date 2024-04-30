@@ -11,9 +11,9 @@ import com.bumptech.glide.Glide
 import com.example.wgn_igloo.R
 
 class CarouselAdapter(
-    private val mData: MutableList<ItemData>, private val context: Context, private val listener: OnItemClickListener) : RecyclerView.Adapter<CarouselAdapter.ViewHolder>() {
+    private val mData: MutableList<ItemData>, private val context: Context, private val listener: OnItemClickListener, initialSelectedPosition: Int = 0) : RecyclerView.Adapter<CarouselAdapter.ViewHolder>() {
 
-    var selectedItemPosition = RecyclerView.NO_POSITION
+    var selectedItemPosition = initialSelectedPosition
 
     interface OnItemClickListener {
         fun onItemClicked(position: Int)

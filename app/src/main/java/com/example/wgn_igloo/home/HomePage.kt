@@ -5,10 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.constraintlayout.helper.widget.Carousel
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -46,30 +43,35 @@ class HomePage : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         itemList = listOf(
-            CarouselAdapter.ItemData(R.drawable.condiments_icon, "Condiments"),
-            CarouselAdapter.ItemData(R.drawable.dairy_icon, "Dairy"),
-            CarouselAdapter.ItemData(R.drawable.drinks_icon, "Drinks"),
-            CarouselAdapter.ItemData(R.drawable.freezer_icon, "Freezer"),
-            CarouselAdapter.ItemData(R.drawable.meats_icon, "Meats"),
-            CarouselAdapter.ItemData(R.drawable.produce_icon, "Produce")
+            CarouselAdapter.ItemData(R.drawable.all, "All"),
+            CarouselAdapter.ItemData(R.drawable.condiments, "Condiments"),
+            CarouselAdapter.ItemData(R.drawable.dairy, "Dairy"),
+            CarouselAdapter.ItemData(R.drawable.drinks, "Drinks"),
+            CarouselAdapter.ItemData(R.drawable.freezer, "Freezer"),
+            CarouselAdapter.ItemData(R.drawable.meat, "Meats"),
+            CarouselAdapter.ItemData(R.drawable.produce, "Produce"),
+            CarouselAdapter.ItemData(R.drawable.other, "Other")
         ).toMutableList()
+
+        val initialSelectedPosition = itemList.indexOfFirst { it.text == "All" }
 
         carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int) {
                 recyclerView.smoothScrollToPosition(position)
             }
-        })
+        }, initialSelectedPosition)
         recyclerView.adapter = carouselAdapter
 
         val snapHelper = LinearSnapHelper()
         snapHelper.attachToRecyclerView(recyclerView)
 
-        val middlePosition = Integer.MAX_VALUE / 2
-        if (middlePosition % itemList.size != 0) {
-            recyclerView.scrollToPosition(middlePosition - middlePosition % itemList.size)
-        } else {
-            recyclerView.scrollToPosition(middlePosition)
+        recyclerView.post {
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(initialSelectedPosition, recyclerView.width / 2 - view.width / 2)
         }
+//
+//        val middlePosition = Integer.MAX_VALUE / 2
+//        val startScrollPosition = middlePosition - (middlePosition % itemList.size) + initialSelectedPosition
+//        recyclerView.scrollToPosition(startScrollPosition)
     }
 
     private fun setupAddButton(view: View) {
