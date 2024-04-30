@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.*
 import android.widget.*
 import androidx.recyclerview.widget.*
+import androidx.viewpager.widget.ViewPager
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.grocery.GroceryItem
 import com.example.wgn_igloo.R
@@ -19,6 +20,10 @@ class InventoryDisplayFragment : Fragment() {
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var adapter: MyItemAdapter
 
+    private lateinit var viewPager: ViewPager
+    private lateinit var itemsRecyclerView: RecyclerView
+    private lateinit var leftArrow: ImageButton
+    private lateinit var rightArrow: ImageButton
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -31,6 +36,28 @@ class InventoryDisplayFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewPager = view.findViewById(R.id.view_pager)
+        // Assume a list of user identifiers or some user-specific data
+        val users = listOf("User1", "User2", "User3")
+        viewPager.adapter = UserProfileAdapter(users)
+
+        leftArrow = view.findViewById(R.id.left_arrow)
+        rightArrow = view.findViewById(R.id.right_arrow)
+
+        leftArrow.setOnClickListener {
+            val currentItem = viewPager.currentItem
+            if (currentItem > 0) {
+                viewPager.currentItem = currentItem - 1
+            }
+        }
+
+        rightArrow.setOnClickListener {
+            val currentItem = viewPager.currentItem
+            if (currentItem < users.size - 1) {
+                viewPager.currentItem = currentItem + 1
+            }
+        }
 
         // Setup RecyclerView and Adapter
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
