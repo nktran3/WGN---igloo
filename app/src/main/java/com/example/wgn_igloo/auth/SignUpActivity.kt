@@ -95,8 +95,8 @@ class SignUpActivity : AppCompatActivity() {
 //    }
 
     private fun registerUser() {
-        val userEmail = binding.editTextEmailAddress.text.toString()
-        val userPassword = binding.editTextPassword.text.toString()
+        val userEmail = binding.emailSignup.text.toString()
+        val userPassword = binding.passwordSignup.text.toString()
 
         if (userEmail.isNotEmpty() && userPassword.isNotEmpty()) {
             auth.createUserWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(this) { task ->
