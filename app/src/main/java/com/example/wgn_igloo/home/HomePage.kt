@@ -10,11 +10,16 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.helper.widget.Carousel
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
 
 
 class HomePage : Fragment() {
-
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var carouselAdapter: CarouselAdapter
+    private lateinit var itemList: MutableList<CarouselAdapter.ItemData>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,74 +36,65 @@ class HomePage : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val carousel: Carousel = view.findViewById(R.id.carousel)
+        setupCarousel(view)
+        setupAddButton(view)
+    }
 
-        val carouselItems = listOf(
-            R.drawable.condiments_icon,
-            R.id.spacer1,
-            R.drawable.dairy_icon,
-            R.id.spacer2,
-            R.drawable.drinks_icon,
-            R.id.spacer3,
-            R.drawable.freezer_icon,
-            R.id.spacer4,
-            R.drawable.meats_icon,
-            R.id.spacer5,
-            R.drawable.produce_icon,
-            R.id.spacer6,
-            R.drawable.miscellaneous_icon
-        )
+    private fun setupCarousel(view: View) {
+        recyclerView = view.findViewById(R.id.carousel)
+        recyclerView.setHasFixedSize(true)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
-        carousel.setAdapter(object : Carousel.Adapter {
-            override fun count(): Int {
-                return carouselItems.size
-            }
+        itemList = listOf(
+            CarouselAdapter.ItemData(R.drawable.condiments_icon, "Condiments"),
+            CarouselAdapter.ItemData(R.drawable.dairy_icon, "Dairy"),
+            CarouselAdapter.ItemData(R.drawable.drinks_icon, "Drinks"),
+            CarouselAdapter.ItemData(R.drawable.freezer_icon, "Freezer"),
+            CarouselAdapter.ItemData(R.drawable.meats_icon, "Meats"),
+            CarouselAdapter.ItemData(R.drawable.produce_icon, "Produce")
+        ).toMutableList()
 
-            override fun populate(view: View?, index: Int) {
-                if (view is ImageView) {
-                    view.setImageResource(carouselItems[index])
-                    view.setOnClickListener {
-                        Toast.makeText(context, "Item at index $index clicked", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-
-            override fun onNewItem(index: Int) {
-                // complete
+        carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
+            override fun onItemClicked(position: Int) {
+                recyclerView.smoothScrollToPosition(position)
             }
         })
+        recyclerView.adapter = carouselAdapter
 
-            val addButton: Button = view.findViewById(R.id.add_button)
-            addButton.bringToFront();
-            addButton.setOnClickListener { v ->
-                // Note: Use requireContext() to get the context for the PopupMenu
-                val popup = PopupMenu(requireContext(), v, 0, 0, R.style.CustomPopupMenu)
-                // Inflating the Popup using the menu resource
-                popup.menuInflater.inflate(R.menu.add_popup_menu, popup.menu)
+        val snapHelper = LinearSnapHelper()
+        snapHelper.attachToRecyclerView(recyclerView)
 
-                // Setting up a click listener for the menu items
-                popup.setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        R.id.add_manually -> {
-                            val formFragment = NewItemsFormFragment()
-                            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
-                            Toast.makeText(requireContext(), "Adding manually", Toast.LENGTH_SHORT).show()
-                            true
+        val middlePosition = Integer.MAX_VALUE / 2
+        if (middlePosition % itemList.size != 0) {
+            recyclerView.scrollToPosition(middlePosition - middlePosition % itemList.size)
+        } else {
+            recyclerView.scrollToPosition(middlePosition)
+        }
+    }
 
-                        }
-                        R.id.add_barcode -> {
-                            val barcodeFragment = BarcodeScannerFragment()
-                            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, barcodeFragment).commit()
-                            Toast.makeText(requireContext(), "Adding by barcode", Toast.LENGTH_SHORT).show()
-                            true
-                        }
-                        else -> false
+    private fun setupAddButton(view: View) {
+        val addButton: Button = view.findViewById(R.id.add_button)
+        addButton.bringToFront()
+        addButton.setOnClickListener { v ->
+            val popup = PopupMenu(requireContext(), v, 0, 0, R.style.CustomPopupMenu)
+            popup.menuInflater.inflate(R.menu.add_popup_menu, popup.menu)
+
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.add_manually -> {
+                        val formFragment = NewItemsFormFragment()
+                        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
+                        true
                     }
+                    R.id.add_barcode -> {
+                        val barcodeFragment = BarcodeScannerFragment()
+                        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, barcodeFragment).commit()
+                        true
+                    }
+                    else -> false
                 }
-                // Showing the popup menu
-                popup.show()
             }
-
-
+            popup.show()
+        }
     }
 }
