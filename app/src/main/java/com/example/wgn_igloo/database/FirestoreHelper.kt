@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.grocery.GroceryItem
 import com.example.wgn_igloo.grocery.ShoppingListItem
-import com.example.wgn_igloo.notifications.Notifications
+import com.example.wgn_igloo.inbox.Notifications
 import com.example.wgn_igloo.recipe.SavedRecipe
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp

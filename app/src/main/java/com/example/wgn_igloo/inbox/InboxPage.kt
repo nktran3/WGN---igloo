@@ -7,25 +7,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.grocery.GroceryItem
 import com.example.wgn_igloo.home.InventoryDisplayFragment
-import com.example.wgn_igloo.notifications.Notifications
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import java.util.Calendar
-import java.util.Locale
 
 private const val TAG = "InboxPage"
 class InboxPage : Fragment() {
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var recyclerView: RecyclerView
     private lateinit var notificationAdapter: NotificationsAdapter
+    private lateinit var viewModel: NotificationsViewModel
     private var notificationList: MutableList<Notifications> = mutableListOf(
         Notifications(title = "Item Request", message = "Gary borrowed coconut")
     ) // Ensure this is mutable
@@ -34,6 +35,7 @@ class InboxPage : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
     }
 
     override fun onCreateView(
@@ -48,6 +50,14 @@ class InboxPage : Fragment() {
         firestoreHelper = FirestoreHelper(requireContext())
         checkExpiring()
         fetchNotifications()
+        viewModel = ViewModelProvider(requireActivity()).get(NotificationsViewModel::class.java)
+
+        viewModel.refreshNotifications.observe(viewLifecycleOwner) { refresh ->
+            if (refresh) {
+                fetchNotifications()
+                viewModel.setRefreshNotifications(false)
+            }
+        }
         return view
     }
 
@@ -72,12 +82,12 @@ class InboxPage : Fragment() {
                             Log.d(TAG, "${item.name} expires on $date. Days until expiration: $diffDays")
                             // Check if notification needs to be sent
                             if (diffDays < 3 && !item.expireNotified) {
+                                //TODO: Capitalize the item name and make post-expiration red
                                 val notif = Notifications(
                                     title = "Item Expiring Soon",
-                                    message = "$userUid's ${item.name} is expiring in $diffDays days"
+                                    message = "${item.name} is expiring in $diffDays days"
                                 )
                                 if (userUid != null) {
-                                    // Assuming firestoreHelper is already initialized and addNotifications method is appropriately defined
                                     firestoreHelper.addNotifications(userUid, notif)
                                     // Update expireNotified to true to avoid multiple notifications
                                     FirebaseFirestore.getInstance().collection("users")
@@ -93,7 +103,7 @@ class InboxPage : Fragment() {
                             }
                         }
                     }
-                    fetchNotifications()  // Assuming this method is defined elsewhere to handle notification fetching
+                    fetchNotifications()
                 } else {
                     Log.d(TAG, "No grocery items found")
                 }
@@ -108,7 +118,7 @@ class InboxPage : Fragment() {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         FirebaseFirestore.getInstance().collection("users")
-            .document(userUid).collection("notificationItems")
+            .document(userUid).collection("notificationItems").orderBy("timeCreated", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { snapshot ->
                 val notifs = snapshot.toObjects(Notifications::class.java)

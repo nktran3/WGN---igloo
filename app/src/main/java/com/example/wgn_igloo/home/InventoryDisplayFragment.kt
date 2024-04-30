@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.*
 import android.widget.*
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.*
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.grocery.GroceryItem
@@ -12,14 +13,16 @@ import com.example.wgn_igloo.R
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.wgn_igloo.notifications.Notifications
+import com.example.wgn_igloo.inbox.Notifications
+import com.example.wgn_igloo.inbox.NotificationsViewModel
+import com.example.wgn_igloo.recipe.RecipeViewModel
 
 class InventoryDisplayFragment : Fragment() {
 
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var adapter: MyItemAdapter
-
+    private lateinit var viewModel: NotificationsViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -33,10 +36,12 @@ class InventoryDisplayFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel = ViewModelProvider(requireActivity()).get(NotificationsViewModel::class.java)
+
         // Setup RecyclerView and Adapter
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = MyItemAdapter(emptyList(), firestoreHelper)
+        adapter = MyItemAdapter(emptyList(), firestoreHelper, viewModel)
 
         recyclerView.adapter = adapter
 
@@ -153,7 +158,7 @@ class InventoryDisplayFragment : Fragment() {
 }
 
 
-class MyItemAdapter(private var items: List<GroceryItem>, private val firestoreHelper: FirestoreHelper) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
+class MyItemAdapter(private var items: List<GroceryItem>, private val firestoreHelper: FirestoreHelper, private val viewModel: NotificationsViewModel) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemTextView: TextView = view.findViewById(R.id.itemTextView)
@@ -228,9 +233,9 @@ class MyItemAdapter(private var items: List<GroceryItem>, private val firestoreH
                 title = "Item Request",
                 message = "$uid borrowed ${item.name}"
             )
-            // TODO: Add in a interface to automically refresh and fetchNotifications after adding
             if (uid != null) {
                 firestoreHelper.addNotifications(uid, notif)
+                viewModel.setRefreshNotifications(true)
 
             }
             Toast.makeText(holder.itemView.context, "User notified!", Toast.LENGTH_SHORT).show()
