@@ -72,7 +72,7 @@ class HomePage : Fragment() {
             addButton.bringToFront();
             addButton.setOnClickListener { v ->
                 // Note: Use requireContext() to get the context for the PopupMenu
-                val popup = PopupMenu(requireContext(), v)
+                val popup = PopupMenu(requireContext(), v, 0, 0, R.style.CustomPopupMenu)
                 // Inflating the Popup using the menu resource
                 popup.menuInflater.inflate(R.menu.add_popup_menu, popup.menu)
 

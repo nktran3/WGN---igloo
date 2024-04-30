@@ -2,9 +2,11 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.WGNigloo" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:fontFamily">@font/modernera</item>
-<!--        <item name="android:background">@color/white</item>-->
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorSecondary">@color/secondary_color</item>
     </style>
 
     <style name="Theme.WGNigloo" parent="Base.Theme.WGNigloo" />
+
 
 </resources>

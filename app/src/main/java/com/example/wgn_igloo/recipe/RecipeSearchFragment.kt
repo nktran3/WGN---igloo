@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +26,7 @@ class RecipeSearchFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var recipeQueryAdapter: RecipeQueryAdapter
     var query: String? = null // Used to hold the user's query
+    private lateinit var toolbarRecipeSearch: Toolbar
 
 
     // Static function used to create a new instance of fragment with bundled argument
@@ -59,6 +62,9 @@ class RecipeSearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.recipesQueryRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.recipesQueryRecyclerView.adapter = recipeQueryAdapter
+
+        toolbarRecipeSearch = binding.toolbarRecipeSearch
+        updateToolbar()
     }
 
     override fun onDestroyView() {
@@ -66,6 +72,11 @@ class RecipeSearchFragment : Fragment() {
         _binding = null
     }
 
+    private fun updateToolbar() {
+        toolbarRecipeSearch.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
+        toolbarRecipeSearch.setNavigationOnClickListener { activity?.onBackPressed() }
+
+    }
     // Function used to make API call to Spoonacular
     private fun recipeSearch(query: String) {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
@@ -78,24 +89,29 @@ class RecipeSearchFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 Log.d(TAG, "Query: $query")
-                val response = spoonacularAPI.searchRecipes(query, true,true, true,10, 0, API_KEY)
+                val response = spoonacularAPI.searchRecipes(query, true,true, true,true, 10, 0, API_KEY)
+                Log.d(TAG, "Response: ${response.results}")
                 // Response is a list of recipes, so we need to map each recipe accordingly and pass to adapter
                 val newRecipes = response.results.map { recipe ->
                     Log.d(TAG, "$recipe")
+                    Log.d(TAG, "Ingredients:${recipe.missedIngredients}")
                     RecipeSearch(
                         imageId = recipe.image,
                         recipeName = recipe.title,
+                        dishType = recipe.dishTypes,
                         cuisineType = recipe.cuisines,
                         dietType = recipe.diets,
                         totalTime = recipe.readyInMinutes.toString(),
-                        servingSize = recipe.servings.toString() + " servings"
+                        servingSize = recipe.servings.toString() + " servings",
+                        instructions = recipe.analyzedInstructions,
+                        usedIngredients = recipe.usedIngredients,
+                        unusedIngredients = recipe.unusedIngredients,
+                        missedIngredients = recipe.missedIngredients
                     )
-
                 }
                 activity?.runOnUiThread {
                     recipeQueryAdapter.updateData(newRecipes)
                 }
-                Log.d(TAG, "Response: $response")
 
             } catch (ex: Exception) {
                 Log.e(TAG, "Failed to fetch recipes: $ex")
