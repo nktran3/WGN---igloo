@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.grocery.GroceryItem
 import com.example.wgn_igloo.grocery.ShoppingListItem
+import com.example.wgn_igloo.notifications.Notifications
 import com.example.wgn_igloo.recipe.SavedRecipe
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
@@ -35,6 +36,17 @@ class FirestoreHelper(private val context: Context) {
                 onFailure(e)
             }
     }
+
+    fun addNotifications(uid: String, notif: Notifications) {
+        db.collection("users").document(uid).collection("notificationItems").add(notif)
+            .addOnSuccessListener {
+                Log.d(TAG, "Notification added successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error adding notification", e)
+            }
+    }
+
 
 
     fun addSavedRecipe(uid: String, recipe: SavedRecipe) {
@@ -193,7 +205,8 @@ class FirestoreHelper(private val context: Context) {
                     .addOnFailureListener { e ->
                         onFailure(e)
                     }
-            }
+    }
+
         fun getCurrentUserEmail(onResult: (String) -> Unit) {
         val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
         onResult(email)

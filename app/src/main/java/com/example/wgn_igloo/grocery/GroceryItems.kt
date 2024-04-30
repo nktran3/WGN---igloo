@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp
 data class GroceryItem(
     val category: String = "",
     val expirationDate: Timestamp = Timestamp.now(),
+    val expireNotified: Boolean = false,
     val dateBought: Timestamp = Timestamp.now(),
     val name: String = "",
     val quantity: Int = 0,

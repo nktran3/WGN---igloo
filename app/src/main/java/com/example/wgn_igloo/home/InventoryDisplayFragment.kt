@@ -12,6 +12,7 @@ import com.example.wgn_igloo.R
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.wgn_igloo.notifications.Notifications
 
 class InventoryDisplayFragment : Fragment() {
 
@@ -35,7 +36,7 @@ class InventoryDisplayFragment : Fragment() {
         // Setup RecyclerView and Adapter
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = MyItemAdapter(emptyList())
+        adapter = MyItemAdapter(emptyList(), firestoreHelper)
 
         recyclerView.adapter = adapter
 
@@ -152,7 +153,7 @@ class InventoryDisplayFragment : Fragment() {
 }
 
 
-class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
+class MyItemAdapter(private var items: List<GroceryItem>, private val firestoreHelper: FirestoreHelper) : RecyclerView.Adapter<MyItemAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemTextView: TextView = view.findViewById(R.id.itemTextView)
@@ -221,7 +222,22 @@ class MyItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter
             holder.deleteButton.visibility =
                 if (holder.deleteButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
+        holder.requestToBorrow.setOnClickListener(){
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            val notif = Notifications(
+                title = "Item Request",
+                message = "$uid borrowed ${item.name}"
+            )
+            // TODO: Add in a interface to automically refresh and fetchNotifications after adding
+            if (uid != null) {
+                firestoreHelper.addNotifications(uid, notif)
+
+            }
+            Toast.makeText(holder.itemView.context, "User notified!", Toast.LENGTH_SHORT).show()
+        }
     }
+
+
 
     override fun getItemCount() = items.size
 
