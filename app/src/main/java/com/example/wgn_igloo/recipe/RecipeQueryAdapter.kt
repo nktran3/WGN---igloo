@@ -7,11 +7,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.RecipeItemLayoutBinding
+import com.example.wgn_igloo.grocery.GroceryItem
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 private const val TAG = "RecipeQueryAdapter"
 class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
     RecyclerView.Adapter<RecipeQueryAdapter.RecipeViewHolder>() {
+
+    private lateinit var firestoreHelper: FirestoreHelper
+    private lateinit var firestoreDb: FirebaseFirestore
+    private var groceryItems: List<GroceryItem> = emptyList()
+
+
+    companion object {
+        const val TAG = "FirestoreHelper"
+    }
 
     // Updates the adapter's data with the parsed API response and prompts for a refresh of the RecyclerView
     fun updateData(newRecipes: List<RecipeSearch?>) {
@@ -69,7 +82,32 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
                 .addToBackStack(null)
                 .commit()
         }
+        fetchGroceryItems()
+
     }
-    override fun getItemCount() = recipeList.size
+
+    fun fetchGroceryItems() {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (userUid != null) {
+            firestoreHelper.getGroceryItems(userUid, this::updateGroceryItems, this::handleFetchError)
+        } else {
+            Log.e(TAG, "No user UID found")
+        }
+    }
+
+    private fun updateGroceryItems(items: List<GroceryItem>) {
+        groceryItems = items  // Update the local list with the fetched items
+        Log.d(TAG, "Fetched and updated grocery items: ${groceryItems.map { it.name }}")
+        notifyDataSetChanged()  // Notify the adapter that the data has changed
+    }
+
+    private fun handleFetchError(exception: Exception) {
+        Log.e(TAG, "Error fetching grocery items", exception)
+    }
+
+    // Gary's previous implementation
+//    override fun getItemCount() = recipeList.size
+    // changed to this
+    override fun getItemCount() = groceryItems.size
     class RecipeViewHolder(val binding: RecipeItemLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 }

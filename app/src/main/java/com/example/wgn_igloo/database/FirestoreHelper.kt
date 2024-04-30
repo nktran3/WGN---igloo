@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.grocery.GroceryItem
 import com.example.wgn_igloo.grocery.ShoppingListItem
+import com.example.wgn_igloo.home.InventoryDisplayFragment
 import com.example.wgn_igloo.recipe.SavedRecipe
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
@@ -83,6 +84,18 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+    fun getGroceryItems(userId: String, onSuccess: (List<GroceryItem>) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(userId).collection("groceryItems")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val items = snapshot.toObjects(GroceryItem::class.java)
+                onSuccess(items)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
     private fun mapShoppingListItemToGroceryItem(item: ShoppingListItem): GroceryItem {
         // Generate a unique identifier for the grocery item - not needed
         val uniqueName = "${item.name}_${System.currentTimeMillis()}"
@@ -134,7 +147,6 @@ class FirestoreHelper(private val context: Context) {
 //                onFailure(e)
 //            }
 //    }
-
 
     fun getUserByUid(uid: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(uid).get()
