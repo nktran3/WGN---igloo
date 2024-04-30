@@ -112,9 +112,10 @@ class RecipeDetailsFragment : Fragment() {
             parsed_diet, parsed_time, parsed_servings, parsed_image)
 
         toolbarRecipeDetails = binding.toolbarRecipeDetails
-        updateToolbar()
         (activity as AppCompatActivity).setSupportActionBar(toolbarRecipeDetails)
+        (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false) // Disable the title
         setHasOptionsMenu(true)
+        updateToolbar()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -125,12 +126,12 @@ class RecipeDetailsFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_save -> {
-                isRecipeSaved = !isRecipeSaved  // Toggle saved state
+                isRecipeSaved = !isRecipeSaved
                 updateSaveIcon(item)
                 if (isRecipeSaved) {
                     saveRecipe()
                 } else {
-                    unsaveRecipe()  // Implement this method to handle unsave if necessary
+                    unsaveRecipe()
                 }
                 true
             }
@@ -147,7 +148,6 @@ class RecipeDetailsFragment : Fragment() {
     }
 
     private fun saveRecipe() {
-        // Add your saving logic here
         Log.d(TAG, "Recipe saved")
     }
 
@@ -157,6 +157,7 @@ class RecipeDetailsFragment : Fragment() {
 
 
     private fun updateToolbar() {
+        toolbarRecipeDetails.title = ""
         toolbarRecipeDetails.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
         toolbarRecipeDetails.setNavigationOnClickListener { activity?.onBackPressed() }
 
