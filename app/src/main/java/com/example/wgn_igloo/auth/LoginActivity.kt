@@ -100,8 +100,8 @@ class LoginActivity : AppCompatActivity() {
 
 
     private fun loginUser() {
-        val userEmail = binding.editTextEmailAddress.text.toString()
-        val userPassword = binding.editTextPassword.text.toString()
+        val userEmail = binding.emailLogin.text.toString()
+        val userPassword = binding.passwordLogin.text.toString()
 
         auth.signInWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener { task ->
             if (task.isSuccessful) {
