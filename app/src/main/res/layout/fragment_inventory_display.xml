@@ -41,7 +41,8 @@
                 android:background="@color/secondary_color"
                 app:layout_constraintStart_toEndOf="@id/left_arrow"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:contentDescription="@string/viewpager"/>
 
             <ImageButton
                 android:id="@+id/right_arrow"
