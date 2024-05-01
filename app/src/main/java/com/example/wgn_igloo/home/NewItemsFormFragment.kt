@@ -15,7 +15,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.wgn_igloo.database.FirestoreHelper
-import com.example.wgn_igloo.grocery.GroceryItem
 import com.example.wgn_igloo.databinding.FragmentNewItemsFormBinding
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -84,7 +83,7 @@ class NewItemsFormFragment : Fragment() {
             firestore.collection("users").document(userId).collection("friends")
                 .get()
                 .addOnSuccessListener { documents ->
-                    val friendsUsernames = mutableListOf("Choose an option")
+                    val friendsUsernames = mutableListOf("Choose an option", "None")
                     for (document in documents) {
                         document.getString("username")?.let {
                             friendsUsernames.add(it)
@@ -194,9 +193,11 @@ class NewItemsFormFragment : Fragment() {
 
         val category = categoryInput.selectedItem.toString().takeIf { it != "Choose an option" } ?: return
         val name = itemInput.text.toString()
-        val sharedWithInput = sharedWithInput.selectedItem.toString().takeIf { it != "Choose an option" } ?: return
+        val sharedWithOption = sharedWithInput.selectedItem.toString()
+        val sharedWith = if (sharedWithOption == "None") "" else sharedWithOption.takeIf { it != "Choose an option" } ?: return
         val quantity = quantityInput.text.toString().toIntOrNull() ?: return
         val expirationDate = convertStringToTimestamp(expirationDateInput.text.toString())
+
         // Collect other inputs similarly
 
         val groceryItem = GroceryItem(
@@ -205,8 +206,9 @@ class NewItemsFormFragment : Fragment() {
             dateBought = Timestamp.now(), // Assuming the current timestamp as dateBought
             name = name,
             quantity = quantity,
-            sharedWith = sharedWithInput,
-            status = true // Assuming a new item is always active, adjust based on your logic
+            sharedWith = sharedWith,
+            status = true,
+            isOwnedByUser = true
         )
 
         // Now push this groceryItem to Firestore

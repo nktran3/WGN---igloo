@@ -70,5 +70,7 @@
     <string name="enter_quantity">Enter quantity amount</string>
     <string name="date_format">MM/DD/YYYY</string>
     <string name="none">None</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
   
 </resources>
