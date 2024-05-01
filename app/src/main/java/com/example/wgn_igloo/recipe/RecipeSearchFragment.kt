@@ -89,7 +89,7 @@ class RecipeSearchFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 Log.d(TAG, "Query: $query")
-                val response = spoonacularAPI.searchRecipes(query, true,true, true,true, 10, 0, API_KEY)
+                val response = spoonacularAPI.searchRecipes(query, true,true, true,true, "max-used-ingredients",10, 0, API_KEY)
                 Log.d(TAG, "Response: ${response.results}")
                 // Response is a list of recipes, so we need to map each recipe accordingly and pass to adapter
                 val newRecipes = response.results.map { recipe ->
