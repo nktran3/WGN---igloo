@@ -7,13 +7,16 @@ import android.widget.TextView
 import androidx.viewpager.widget.PagerAdapter
 import com.example.wgn_igloo.R
 
-class UserProfileAdapter(private val users: List<String>) : PagerAdapter() {
+class UserProfileAdapter(
+    private val users: List<User>,
+    private val userChangeListener: OnUserChangeListener
+) : PagerAdapter() {
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val inflater = LayoutInflater.from(container.context)
         val view = inflater.inflate(R.layout.item_user_profile, container, false)
         val textView: TextView = view.findViewById(R.id.user_text_view)
-        textView.text = users[position]
+        textView.text = users[position].username  // Displaying the username
         container.addView(view)
         return view
     }
@@ -22,15 +25,18 @@ class UserProfileAdapter(private val users: List<String>) : PagerAdapter() {
         container.removeView(`object` as View)
     }
 
-    override fun isViewFromObject(view: View, `object`: Any): Boolean {
-        return view === `object`
-    }
+    override fun isViewFromObject(view: View, `object`: Any): Boolean = view === `object`
 
-    override fun getCount(): Int {
-        return users.size
-    }
+    override fun getCount(): Int = users.size
 
     override fun getPageTitle(position: Int): CharSequence? {
-        return "Profile ${position + 1}" // Optionally set a title for each page
+        return users[position].username  // Optionally set a title for each page
+    }
+
+    override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
+        super.setPrimaryItem(container, position, `object`)
+        if (position >= 0 && position < users.size) {
+            userChangeListener.onUserChanged(users[position].uid)
+        }
     }
 }
