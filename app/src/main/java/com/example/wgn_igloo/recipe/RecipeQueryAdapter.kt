@@ -9,7 +9,7 @@ import com.bumptech.glide.Glide
 import com.example.wgn_igloo.R
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.RecipeItemLayoutBinding
-import com.example.wgn_igloo.grocery.GroceryItem
+import com.example.wgn_igloo.home.GroceryItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
