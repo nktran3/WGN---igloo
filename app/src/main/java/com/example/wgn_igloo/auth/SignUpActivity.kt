@@ -2,6 +2,7 @@ package com.example.wgn_igloo.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.wgn_igloo.database.FirestoreHelper
@@ -97,6 +98,21 @@ class SignUpActivity : AppCompatActivity() {
     private fun registerUser() {
         val userEmail = binding.emailSignup.text.toString()
         val userPassword = binding.passwordSignup.text.toString()
+        val confirmUserPassword = binding.confirmPasswordSignup.text.toString()
+        if (!checkUserEmail(userEmail)){
+            Toast.makeText(baseContext, "Email input invalid", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!checkPassword(userPassword)){
+            Toast.makeText(baseContext, "Password must contain an upper-case letter, numerical digit and be at least 6 characters", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (userPassword != confirmUserPassword) {
+            Log.d(TAG, "Password: $userPassword")
+            Log.d(TAG, "Confirm: $confirmUserPassword")
+            Toast.makeText(baseContext, "Password do not match, try again", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         if (userEmail.isNotEmpty() && userPassword.isNotEmpty()) {
             auth.createUserWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(this) { task ->
@@ -123,6 +139,18 @@ class SignUpActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "Please fill out all fields.", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun checkUserEmail(userEmail: String): Boolean {
+        val emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
+        return userEmail.matches(emailRegex.toRegex())
+    }
+    private fun checkPassword(password: String): Boolean {
+        val lengthRequirement = password.length >= 6
+        val uppercaseRequirement = password.any { it.isUpperCase() }
+        val numberRequirement = password.any { it.isDigit() }
+
+        return lengthRequirement && uppercaseRequirement && numberRequirement
     }
 
 
