@@ -7,7 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.RecipeItemLayoutBinding
+import com.example.wgn_igloo.grocery.GroceryItem
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 private const val TAG = "RecipeQueryAdapter"
 class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
@@ -69,7 +73,13 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
                 .addToBackStack(null)
                 .commit()
         }
+
+
     }
+
+
+
     override fun getItemCount() = recipeList.size
+
     class RecipeViewHolder(val binding: RecipeItemLayoutBinding) : RecyclerView.ViewHolder(binding.root)
 }
