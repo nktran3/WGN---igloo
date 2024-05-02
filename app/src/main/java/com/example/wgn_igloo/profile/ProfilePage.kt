@@ -105,19 +105,22 @@ class ProfilePage : Fragment() {
     }
     private fun fetchUsername() {
         val userId = auth.currentUser?.uid
-        Firebase.firestore.collection("users").document(userId ?: "")
-            .get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val username = document.getString("username")
-                    updateUsernameOnUI(username)
-                } else {
-                    Log.d(TAG, "No such document")
+        if (userId != null) {
+            Firebase.firestore.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        val username = document.getString("username")
+                        updateUsernameOnUI(username)
+                    } else {
+                        Log.d(TAG, "No such document")
+                    }
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.d(TAG, "Failed to fetch username", e)
-            }
+                .addOnFailureListener { e ->
+                    Log.d(TAG, "Failed to fetch username", e)
+                }
+        }
+
     }
 
     private fun updateUsernameOnUI(username: String?) {
