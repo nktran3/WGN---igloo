@@ -68,7 +68,7 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
             val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
             val recipeDetailsFragment = RecipeDetailsFragment.newInstance(
                 totalSteps, totalIngredients, recipe.recipeName,
-                dishTypeList, cuisineTypeList, dietTypeList, recipe.totalTime, recipe.servingSize, recipe.imageId)
+                dishTypeList, cuisineTypeList, dietTypeList, recipe.totalTime, recipe.servingSize, recipe.imageId, false)
             fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
                 .addToBackStack(null)
                 .commit()
