@@ -1,4 +1,4 @@
-package com.example.wgn_igloo.grocery
+package com.example.wgn_igloo.home
 import com.google.firebase.Timestamp
 
 data class GroceryItem(
@@ -8,5 +8,6 @@ data class GroceryItem(
     val name: String = "",
     val quantity: Int = 0,
     val sharedWith: String = "",
-    val status: Boolean = false
+    val status: Boolean = false,
+    val isOwnedByUser: Boolean = true
 )

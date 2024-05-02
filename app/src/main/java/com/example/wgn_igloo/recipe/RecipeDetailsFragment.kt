@@ -4,8 +4,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +33,8 @@ class RecipeDetailsFragment : Fragment() {
     private var parsed_image: String = ""
 
     private lateinit var toolbarRecipeDetails: Toolbar
+
+    private var isRecipeSaved = false
 
     companion object {
         private const val INSTRUCTIONS = "INSTRUCTIONS"
@@ -106,10 +112,52 @@ class RecipeDetailsFragment : Fragment() {
             parsed_diet, parsed_time, parsed_servings, parsed_image)
 
         toolbarRecipeDetails = binding.toolbarRecipeDetails
+        (activity as AppCompatActivity).setSupportActionBar(toolbarRecipeDetails)
+        (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false) // Disable the title
+        setHasOptionsMenu(true)
         updateToolbar()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.toolbar_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_save -> {
+                isRecipeSaved = !isRecipeSaved
+                updateSaveIcon(item)
+                if (isRecipeSaved) {
+                    saveRecipe()
+                } else {
+                    unsaveRecipe()
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun updateSaveIcon(item: MenuItem) {
+        if (isRecipeSaved) {
+            item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.saved_clicked)
+        } else {
+            item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.saved_icon)
+        }
+    }
+
+    private fun saveRecipe() {
+        Log.d(TAG, "Recipe saved")
+    }
+
+    private fun unsaveRecipe() {
+        Log.d(TAG, "Recipe unsaved")
+    }
+
+
     private fun updateToolbar() {
+        toolbarRecipeDetails.title = ""
         toolbarRecipeDetails.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
         toolbarRecipeDetails.setNavigationOnClickListener { activity?.onBackPressed() }
 

@@ -2,7 +2,7 @@ package com.example.wgn_igloo.database
 
 import android.content.Context
 import android.util.Log
-import com.example.wgn_igloo.grocery.GroceryItem
+import com.example.wgn_igloo.home.GroceryItem
 import com.example.wgn_igloo.grocery.ShoppingListItem
 import com.example.wgn_igloo.home.InventoryDisplayFragment
 import com.example.wgn_igloo.recipe.SavedRecipe
@@ -106,7 +106,8 @@ class FirestoreHelper(private val context: Context) {
             name = item.name,  // Use the generated unique name
             quantity = 1,  // Default quantity
             sharedWith = "",  // No shared user by default
-            status = true  // Assuming the item is active/available
+            status = true,  // Assuming the item is active/available
+            isOwnedByUser = true
         )
     }
 
