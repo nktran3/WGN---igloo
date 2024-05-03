@@ -10,6 +10,7 @@ import com.example.wgn_igloo.database.User
 import com.example.wgn_igloo.databinding.ActivitySignUpBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
@@ -94,34 +95,70 @@ class SignUpActivity : AppCompatActivity() {
 //        }
 //    }
 
+//    private fun registerUser() {
+//        val userEmail = binding.emailSignup.text.toString()
+//        val userPassword = binding.passwordSignup.text.toString()
+//
+//        if (userEmail.isNotEmpty() && userPassword.isNotEmpty()) {
+//            auth.createUserWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(this) { task ->
+//                if (task.isSuccessful) {
+//                    // Here we get the newly created user's UID
+//                    val uid = auth.currentUser?.uid
+//                    if (uid != null) {
+//                        // Create a new User object with the email, uid, and an initialized empty list of friends
+//                        val newUser = User(email = userEmail, uid = uid, username = uid)
+//                        // Use FirestoreHelper to add the user to Firestore
+//                        firestoreHelper.addUser(newUser)
+//                    }
+//                    // Proceed to MainActivity
+//                    val intent = Intent(this, MainActivity::class.java)
+//                    startActivity(intent)
+//                    finish()
+//                } else {
+//                    // If sign up fails, display a message to the user.
+//                    task.exception?.message?.let { message ->
+//                        Toast.makeText(baseContext, message, Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//            }
+//        } else {
+//            Toast.makeText(this, "Please fill out all fields.", Toast.LENGTH_SHORT).show()
+//        }
+//    }
     private fun registerUser() {
-        val userEmail = binding.emailSignup.text.toString()
-        val userPassword = binding.passwordSignup.text.toString()
+        val name = binding.nameSignup.text.toString().trim()
+        val username = binding.usernameSignup.text.toString().trim() // Assuming you have a usernameSignup EditText
+        val email = binding.emailSignup.text.toString().trim()
+        val password = binding.passwordSignup.text.toString().trim()
+        val confirmPassword = binding.confirmPasswordSignup.text.toString().trim()
 
-        if (userEmail.isNotEmpty() && userPassword.isNotEmpty()) {
-            auth.createUserWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(this) { task ->
+        if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword == password) {
+            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Here we get the newly created user's UID
-                    val uid = auth.currentUser?.uid
-                    if (uid != null) {
-                        // Create a new User object with the email, uid, and an initialized empty list of friends
-                        val newUser = User(email = userEmail, uid = uid, username = uid)
-                        // Use FirestoreHelper to add the user to Firestore
-                        firestoreHelper.addUser(newUser)
+                    val user = auth.currentUser
+                    user?.let {
+                        val newUser = User(email = email, uid = it.uid, username = username, name = name)
+                        Firebase.firestore.collection("users").document(it.uid)
+                            .set(newUser)
+                            .addOnSuccessListener {
+                                val intent = Intent(this, MainActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Failed to create user: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
                     }
-                    // Proceed to MainActivity
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
                 } else {
-                    // If sign up fails, display a message to the user.
-                    task.exception?.message?.let { message ->
-                        Toast.makeText(baseContext, message, Toast.LENGTH_SHORT).show()
-                    }
+                    Toast.makeText(this, "Authentication failed.", Toast.LENGTH_SHORT).show()
                 }
             }
         } else {
-            Toast.makeText(this, "Please fill out all fields.", Toast.LENGTH_SHORT).show()
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Email and Password cannot be empty.", Toast.LENGTH_SHORT).show()
+            } else if (confirmPassword != password) {
+                Toast.makeText(this, "Passwords do not match.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
