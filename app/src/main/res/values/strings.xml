@@ -73,5 +73,7 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="viewpager">This is used to display shared fridges</string>
+    <string name="my_friends">MY FRIENDS</string>
+    <string name="add_friend">ADD FRIEND</string>
   
 </resources>

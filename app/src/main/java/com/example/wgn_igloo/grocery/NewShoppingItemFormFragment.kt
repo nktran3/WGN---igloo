@@ -78,7 +78,7 @@ class NewShoppingItemFormFragment : Fragment() {
             firestore.collection("users").document(userId).collection("friends")
                 .get()
                 .addOnSuccessListener { documents ->
-                    val friendsUsernames = mutableListOf("Choose an option", "Gary")
+                    val friendsUsernames = mutableListOf("Choose an option", "None")
                     for (document in documents) {
                         document.getString("username")?.let { username ->
                             friendsUsernames.add(username)
