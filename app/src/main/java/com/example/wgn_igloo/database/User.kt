@@ -7,3 +7,4 @@ data class User(
     val uid: String = "",    // Provide default empty value
     val username: String = uid  // for username
 )
+
