@@ -126,11 +126,9 @@ class SignUpActivity : AppCompatActivity() {
 //        }
 //    }
     private fun registerUser() {
-//        val name = binding.nameSignup.text.toString().trim()
         val firstName = binding.firstNameSignup.text.toString().trim()
         val lastName = binding.lastNameSignup.text.toString().trim()
-        val name = "$firstName $lastName"
-        val username = binding.usernameSignup.text.toString().trim() // Assuming you have a usernameSignup EditText
+        val usernameInput = binding.usernameSignup.text.toString().trim()
         val email = binding.emailSignup.text.toString().trim()
         val password = binding.passwordSignup.text.toString().trim()
         val confirmPassword = binding.confirmPasswordSignup.text.toString().trim()
@@ -140,7 +138,10 @@ class SignUpActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     user?.let {
-                        val newUser = User(email = email, uid = it.uid, username = username, name = name)
+                        // Check if username is empty and default to uid if it is
+                        val username = if (usernameInput.isEmpty()) it.uid else usernameInput
+                        // Using the new User data class structure with givenName, familyName, and username
+                        val newUser = User(givenName = firstName, familyName = lastName, email = email, uid = it.uid, username = username)
                         Firebase.firestore.collection("users").document(it.uid)
                             .set(newUser)
                             .addOnSuccessListener {
@@ -164,7 +165,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun goToLogin(){
         val intent = Intent(this, LoginActivity::class.java)
