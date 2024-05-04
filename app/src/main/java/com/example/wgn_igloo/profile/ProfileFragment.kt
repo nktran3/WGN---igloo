@@ -19,7 +19,6 @@ class ProfileFragment : Fragment() {
     private lateinit var firestoreHelper: FirestoreHelper
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var toolbarProfile: Toolbar
 
     companion object {

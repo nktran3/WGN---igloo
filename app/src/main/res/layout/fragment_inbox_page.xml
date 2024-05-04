@@ -14,26 +14,18 @@
         android:background="@color/white"
         android:paddingBottom="10dp">
 
-        <androidx.cardview.widget.CardView
+
+        <TextView
             android:id="@+id/Notifications"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@string/notifications"
+            android:textSize="32dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
             android:padding="10dp"
-            app:cardElevation="5dp"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"/>
 
-            <TextView
-                android:id="@+id/Notifications_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/notifications"
-                android:textSize="32dp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:padding="10dp"
-                android:background="@color/secondary_color"/>
-
-        </androidx.cardview.widget.CardView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notifications_recycler_view"
