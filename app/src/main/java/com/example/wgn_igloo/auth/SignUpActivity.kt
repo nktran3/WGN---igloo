@@ -126,7 +126,10 @@ class SignUpActivity : AppCompatActivity() {
 //        }
 //    }
     private fun registerUser() {
-        val name = binding.nameSignup.text.toString().trim()
+//        val name = binding.nameSignup.text.toString().trim()
+        val firstName = binding.firstNameSignup.text.toString().trim()
+        val lastName = binding.lastNameSignup.text.toString().trim()
+        val name = "$firstName $lastName"
         val username = binding.usernameSignup.text.toString().trim() // Assuming you have a usernameSignup EditText
         val email = binding.emailSignup.text.toString().trim()
         val password = binding.passwordSignup.text.toString().trim()

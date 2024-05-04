@@ -401,4 +401,45 @@ class FirestoreHelper(private val context: Context) {
             onFailure(e)
         }
     }
+
+    fun moveItemToShoppingList(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val groceryItemRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName)
+
+        groceryItemRef.get().addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                Log.w(TAG, "No item found with name: $itemName")
+                onFailure(Exception("No item found with name: $itemName"))
+            } else {
+                val document = documents.documents.first()  // Assuming name is unique, so we take the first document.
+                val item = document.toObject(GroceryItem::class.java)
+                if (item != null) {
+                    // Add to shopping list
+                    db.collection("users").document(userId).collection("shoppingList").document(itemName).set(item)
+                        .addOnSuccessListener {
+                            // Delete from grocery items
+                            db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
+                                .addOnSuccessListener {
+                                    Log.d(TAG, "Item moved to shopping list successfully and removed from grocery items")
+                                    onSuccess()
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e(TAG, "Error deleting item from grocery items", e)
+                                    onFailure(e)
+                                }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error adding item to shopping list", e)
+                            onFailure(e)
+                        }
+                } else {
+                    Log.w(TAG, "Failed to parse the grocery item")
+                    onFailure(Exception("Failed to parse the grocery item"))
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "Error retrieving grocery item", e)
+            onFailure(e)
+        }
+    }
+
 }

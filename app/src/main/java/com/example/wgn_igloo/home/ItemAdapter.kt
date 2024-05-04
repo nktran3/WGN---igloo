@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -116,6 +117,31 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                 )
             }
         }
+
+        holder.addToShoppingList.setOnClickListener {
+            val userId = firestoreHelper.getCurrentUserId()
+            val position = holder.adapterPosition
+            if (userId != null && position != RecyclerView.NO_POSITION) {
+                val itemName = items[position].name
+                firestoreHelper.moveItemToShoppingList(userId, itemName,
+                    onSuccess = {
+                        // Remove the item from the adapter's data set
+                        val updatedList = items.toMutableList().apply {
+                            removeAt(position)
+                        }
+                        updateItems(updatedList)
+                        // Notify the user of success
+//                        Toast.makeText(context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
+                    },
+                    onFailure = { exception ->
+                        // Log error and notify user
+                        Log.e(TAG, "Failed to move item to shopping list", exception)
+//                        Toast.makeText(context, "Error moving item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
+        }
+
 
         holder.editButton.visibility = View.GONE
         holder.editButton.setOnClickListener {
