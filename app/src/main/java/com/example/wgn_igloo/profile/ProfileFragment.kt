@@ -34,9 +34,13 @@ class ProfileFragment : Fragment() {
         firestoreHelper = FirestoreHelper(requireContext())
 
         val editTextUsername = view.findViewById<EditText>(R.id.usernameEditText)
-        val textViewUid = view.findViewById<TextView>(R.id.uidTextView)
-        val usernameTextView = view.findViewById<TextView>(R.id.usernameTextView)
+        val nameTextView = view.findViewById<TextView>(R.id.nameTextView)
+        val emailTextView = view.findViewById<TextView>(R.id.emailTextView)
+        val uidTextView = view.findViewById<TextView>(R.id.uidTextView)
+        val usernameTextView = view.findViewById<TextView>(R.id.usernameTextView) // This should be a TextView
         val saveButton = view.findViewById<Button>(R.id.saveButton)
+
+
 
         saveButton.setOnClickListener {
             val newUsername = editTextUsername.text.toString()
@@ -75,6 +79,7 @@ class ProfileFragment : Fragment() {
             view?.findViewById<TextView>(R.id.uidTextView)?.text = user.uid
             view?.findViewById<TextView>(R.id.usernameTextView)?.text = user.username // Display username in the TextView
             view?.findViewById<EditText>(R.id.usernameEditText)?.setText(user.username)
+            view?.findViewById<TextView>(R.id.nameTextView)?.text = user.name
         }, onFailure = { exception ->
             Log.e(TAG, "Failed to fetch user data", exception)
             Toast.makeText(context, "Failed to load user data", Toast.LENGTH_SHORT).show()

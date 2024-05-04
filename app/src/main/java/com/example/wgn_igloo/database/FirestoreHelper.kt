@@ -4,15 +4,21 @@ import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.home.GroceryItem
 import com.example.wgn_igloo.grocery.ShoppingListItem
-import com.example.wgn_igloo.home.InventoryDisplayFragment
+//import com.example.wgn_igloo.home.GroceryIndividualItem
 import com.example.wgn_igloo.recipe.SavedRecipe
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestoreException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class FirestoreHelper(private val context: Context) {
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
 
     companion object {
         private const val TAG = "FirestoreHelper"
@@ -23,6 +29,10 @@ class FirestoreHelper(private val context: Context) {
         db.collection("users").document(user.uid).set(userWithUsername)
             .addOnSuccessListener { Log.d(TAG, "User added successfully") }
             .addOnFailureListener { e -> Log.w(TAG, "Error adding user", e) }
+    }
+
+    fun getCurrentUserId(): String? {
+        return auth.currentUser?.uid
     }
 
     fun addGroceryItem(uid: String, item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
@@ -126,7 +136,7 @@ class FirestoreHelper(private val context: Context) {
             expirationDate = Timestamp.now(),  // Assuming current time as expiration date
             dateBought = item.lastPurchased,
             name = item.name,  // Use the generated unique name
-            quantity = 1,  // Default quantity
+            quantity = item.quantity,  // Default quantity
             sharedWith = "",  // No shared user by default
             status = true,  // Assuming the item is active/available
             isOwnedByUser = true
@@ -251,38 +261,87 @@ class FirestoreHelper(private val context: Context) {
         }
     }
 
+//    fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        // Step 1: Update the user's own document
+//        db.collection("users").document(uid).update("username", newUsername)
+//            .addOnSuccessListener {
+//                Log.d(TAG, "User's username updated successfully.")
+//                // Step 2: Update all references in friends' documents
+//                updateFriendsWithNewUsername(uid, newUsername, onSuccess, onFailure)
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e(TAG, "Error updating user's username: ", exception)
+//                onFailure(exception)
+//            }
+//    }
+//
+//    private fun updateFriendsWithNewUsername(userId: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        // Log the operation to debug it
+//        Log.d(TAG, "Attempting to update friends with new username for user ID: $userId")
+//
+//        db.collectionGroup("friends")
+//            .whereEqualTo("uid", userId)
+//            .get()
+//            .addOnSuccessListener { documents ->
+//                if (documents.isEmpty) {
+//                    Log.d(TAG, "No documents found to update.")
+//                    onSuccess()  // If no documents need updating, call onSuccess immediately
+//                    return@addOnSuccessListener
+//                }
+//
+//                val batch = db.batch()
+//                documents.forEach { documentSnapshot ->
+//                    val friendRef = documentSnapshot.reference
+//                    Log.d(TAG, "Updating username in document: ${friendRef.path}")
+//                    batch.update(friendRef, "username", newUsername)
+//                }
+//
+//                batch.commit()
+//                    .addOnSuccessListener {
+//                        Log.d(TAG, "All friend references updated successfully.")
+//                        onSuccess()
+//                    }
+//                    .addOnFailureListener { exception ->
+//                        Log.e(TAG, "Error updating friend references: ", exception)
+//                        onFailure(exception)
+//                    }
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e(TAG, "Failed to find friends for username update: ", exception)
+//                onFailure(exception)
+//            }
+//    }
+
     fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        // Step 1: Update the user's own document
         db.collection("users").document(uid).update("username", newUsername)
             .addOnSuccessListener {
                 Log.d(TAG, "User's username updated successfully.")
-                // Step 2: Update all references in friends' documents
                 updateFriendsWithNewUsername(uid, newUsername, onSuccess, onFailure)
             }
             .addOnFailureListener { exception ->
                 Log.e(TAG, "Error updating user's username: ", exception)
+                if (exception is FirebaseFirestoreException && exception.code == FirebaseFirestoreException.Code.FAILED_PRECONDITION) {
+                    Log.e(TAG, "Missing index for query. Consider adding it via Firebase console.")
+                    // Provide the direct link to create the index if available or suggest checking Firestore documentation
+                }
                 onFailure(exception)
             }
     }
 
     private fun updateFriendsWithNewUsername(userId: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        // Log the operation to debug it
-        Log.d(TAG, "Attempting to update friends with new username for user ID: $userId")
-
         db.collectionGroup("friends")
             .whereEqualTo("uid", userId)
             .get()
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty) {
                     Log.d(TAG, "No documents found to update.")
-                    onSuccess()  // If no documents need updating, call onSuccess immediately
+                    onSuccess()
                     return@addOnSuccessListener
                 }
 
                 val batch = db.batch()
                 documents.forEach { documentSnapshot ->
                     val friendRef = documentSnapshot.reference
-                    Log.d(TAG, "Updating username in document: ${friendRef.path}")
                     batch.update(friendRef, "username", newUsername)
                 }
 
@@ -300,6 +359,109 @@ class FirestoreHelper(private val context: Context) {
                 Log.e(TAG, "Failed to find friends for username update: ", exception)
                 onFailure(exception)
             }
+    }
+
+    fun parseTimestamp(dateStr: String): Timestamp {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        return try {
+            val date = dateFormat.parse(dateStr) ?: Date()
+            Timestamp(date)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing date string: $dateStr", e)
+            Timestamp.now()  // Return current timestamp as fallback
+        }
+    }
+
+    fun updateGroceryItem(item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return onFailure(Exception("User not logged in"))
+
+        db.collection("users").document(userUid).collection("groceryItems").document(item.name)
+            .set(item)
+            .addOnSuccessListener {
+                Log.d(TAG, "Grocery item updated successfully")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error updating grocery item", e)
+                onFailure(e)
+            }
+    }
+
+//    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("users").document(userId).collection("groceryItems").document(itemName)
+//            .delete()
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Item deleted successfully")
+//                onSuccess()
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "Error deleting item", e)
+//                onFailure(e)
+//            }
+//    }
+    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        Log.d(TAG, "Attempting to delete item: $itemName for user: $userId")
+        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
+        docRef.addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                Log.w(TAG, "No item found with name: $itemName for deletion")
+            } else {
+                for (document in documents) {
+                    db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
+                        .addOnSuccessListener {
+                            Log.d(TAG, "Item deleted successfully: ${document.id}")
+                            onSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error deleting item: ${document.id}", e)
+                            onFailure(e)
+                        }
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "Failed to retrieve item for deletion: $itemName", e)
+            onFailure(e)
+        }
+    }
+
+    fun moveItemToShoppingList(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val groceryItemRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName)
+
+        groceryItemRef.get().addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                Log.w(TAG, "No item found with name: $itemName")
+                onFailure(Exception("No item found with name: $itemName"))
+            } else {
+                val document = documents.documents.first()  // Assuming name is unique, so we take the first document.
+                val item = document.toObject(GroceryItem::class.java)
+                if (item != null) {
+                    // Add to shopping list
+                    db.collection("users").document(userId).collection("shoppingList").document(itemName).set(item)
+                        .addOnSuccessListener {
+                            // Delete from grocery items
+                            db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
+                                .addOnSuccessListener {
+                                    Log.d(TAG, "Item moved to shopping list successfully and removed from grocery items")
+                                    onSuccess()
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e(TAG, "Error deleting item from grocery items", e)
+                                    onFailure(e)
+                                }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error adding item to shopping list", e)
+                            onFailure(e)
+                        }
+                } else {
+                    Log.w(TAG, "Failed to parse the grocery item")
+                    onFailure(Exception("Failed to parse the grocery item"))
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "Error retrieving grocery item", e)
+            onFailure(e)
+        }
     }
 
 }

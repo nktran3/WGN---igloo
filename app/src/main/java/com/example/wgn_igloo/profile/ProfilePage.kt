@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.auth.LoginActivity
 import com.example.wgn_igloo.database.Members
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.databinding.FragmentProfileBinding
 import com.example.wgn_igloo.databinding.FragmentProfilePageBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -30,6 +31,8 @@ class ProfilePage : Fragment() {
 
     private lateinit var profileAdapter: ProfileItemAdapter
     private lateinit var binding: FragmentProfilePageBinding
+//    private lateinit var binding: FragmentProfileBinding
+
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
@@ -100,34 +103,51 @@ class ProfilePage : Fragment() {
             }
         }
         recyclerView.adapter = profileAdapter
+        // PREVIOUS IMPLEMENTATION
         fetchUsername()
 
     }
     private fun fetchUsername() {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Firebase.firestore.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        val username = document.getString("username")
-                        updateUsernameOnUI(username)
-                    } else {
-                        Log.d(TAG, "No such document")
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Log.d(TAG, "Failed to fetch username", e)
-                }
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.d(TAG, "No user logged in")
+            // Possibly update the UI to reflect that no user is logged in
+            updateUsernameOnUI(null, null, null)  // Show "Unknown User" or prompt login
+            return
         }
 
+        val userDocRef = Firebase.firestore.collection("users").document(userId)
+        userDocRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val username = documentSnapshot.getString("username")
+                val email = documentSnapshot.getString("email")
+                val name = documentSnapshot.getString("name")
+                updateUsernameOnUI(username, email, name)
+            } else {
+                Log.d(TAG, "No such document")
+                updateUsernameOnUI(null, null, null)  // Handle case where document is missing
+            }
+        }.addOnFailureListener { exception ->
+            Log.d(TAG, "Error getting documents: ", exception)
+            updateUsernameOnUI(null, null, null)  // Handle error case
+        }
     }
 
-    private fun updateUsernameOnUI(username: String?) {
+    private fun updateUsernameOnUI(username: String?, email: String?, name: String?) {
         activity?.runOnUiThread {
-            binding.accountName.text = username ?: "Unknown User"
+            if (username == null) {
+                binding.accountName.text = "Unknown User"
+                // Optionally show a login button or a message prompting to log in
+                Toast.makeText(context, "Please log in to view profile.", Toast.LENGTH_LONG).show()
+            } else {
+//                binding.nameTextView.text = name ?: "Unknown"  // Correctly reference using View Binding
+//                binding.usernameTextView.text = username ?: "Unknown"
+//                binding.emailTextView.text = email ?: "Unknown"
+                binding.accountName.text = name ?: "Unknown User"
+            }
         }
     }
+
 
     private fun showFriends() {
         val membersFragment = Members()
