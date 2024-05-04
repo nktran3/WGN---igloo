@@ -90,6 +90,7 @@ dependencies {
     implementation("com.firebaseui:firebase-ui-database:8.0.2")
 
 
+
     // Retrofit, Moshi, Coil
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
@@ -100,6 +101,7 @@ dependencies {
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
     implementation ("io.coil-kt:coil:1.3.0")
     testImplementation("junit:junit:4.13.2")
+
 
     // Google ML Kit
     implementation ("com.google.mlkit:barcode-scanning:17.2.0")

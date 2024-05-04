@@ -1,8 +1,8 @@
 package com.example.wgn_igloo.database
 
 data class User(
-    val email: String = "",
-    val uid: String = "",
-    val username: String = "",
-    val name: String = ""
-)
+    val givenName: String = "",
+    val familyName: String = "",
+    val email: String = "",  // Provide default empty value
+    val uid: String = "",    // Provide default empty value
+    val username: String = uid  // for username
