@@ -106,6 +106,11 @@ class Members : Fragment() {
         val user = FirebaseAuth.getInstance().currentUser
         return user?.uid  // This will return the user ID or null if no user is logged in
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
 
 
