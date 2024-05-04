@@ -72,6 +72,7 @@
     <string name="none">None</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <string name="save_item">Save Item</string>
     <string name="viewpager">This is used to display shared fridges</string>
   
 </resources>

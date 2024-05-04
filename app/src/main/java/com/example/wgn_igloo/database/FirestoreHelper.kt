@@ -4,16 +4,21 @@ import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.home.GroceryItem
 import com.example.wgn_igloo.grocery.ShoppingListItem
-import com.example.wgn_igloo.home.InventoryDisplayFragment
+//import com.example.wgn_igloo.home.GroceryIndividualItem
 import com.example.wgn_igloo.recipe.SavedRecipe
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestoreException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class FirestoreHelper(private val context: Context) {
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
 
     companion object {
         private const val TAG = "FirestoreHelper"
@@ -24,6 +29,10 @@ class FirestoreHelper(private val context: Context) {
         db.collection("users").document(user.uid).set(userWithUsername)
             .addOnSuccessListener { Log.d(TAG, "User added successfully") }
             .addOnFailureListener { e -> Log.w(TAG, "Error adding user", e) }
+    }
+
+    fun getCurrentUserId(): String? {
+        return auth.currentUser?.uid
     }
 
     fun addGroceryItem(uid: String, item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
@@ -105,7 +114,7 @@ class FirestoreHelper(private val context: Context) {
             expirationDate = Timestamp.now(),  // Assuming current time as expiration date
             dateBought = item.lastPurchased,
             name = item.name,  // Use the generated unique name
-            quantity = 1,  // Default quantity
+            quantity = item.quantity,  // Default quantity
             sharedWith = "",  // No shared user by default
             status = true,  // Assuming the item is active/available
             isOwnedByUser = true
@@ -328,5 +337,68 @@ class FirestoreHelper(private val context: Context) {
                 Log.e(TAG, "Failed to find friends for username update: ", exception)
                 onFailure(exception)
             }
+    }
+
+    fun parseTimestamp(dateStr: String): Timestamp {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        return try {
+            val date = dateFormat.parse(dateStr) ?: Date()
+            Timestamp(date)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing date string: $dateStr", e)
+            Timestamp.now()  // Return current timestamp as fallback
+        }
+    }
+
+    fun updateGroceryItem(item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return onFailure(Exception("User not logged in"))
+
+        db.collection("users").document(userUid).collection("groceryItems").document(item.name)
+            .set(item)
+            .addOnSuccessListener {
+                Log.d(TAG, "Grocery item updated successfully")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error updating grocery item", e)
+                onFailure(e)
+            }
+    }
+
+//    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("users").document(userId).collection("groceryItems").document(itemName)
+//            .delete()
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Item deleted successfully")
+//                onSuccess()
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "Error deleting item", e)
+//                onFailure(e)
+//            }
+//    }
+    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        Log.d(TAG, "Attempting to delete item: $itemName for user: $userId")
+        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
+        docRef.addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                Log.w(TAG, "No item found with name: $itemName for deletion")
+            } else {
+                for (document in documents) {
+                    db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
+                        .addOnSuccessListener {
+                            Log.d(TAG, "Item deleted successfully: ${document.id}")
+                            onSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error deleting item: ${document.id}", e)
+                            onFailure(e)
+                        }
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "Failed to retrieve item for deletion: $itemName", e)
+            onFailure(e)
+        }
     }
 }

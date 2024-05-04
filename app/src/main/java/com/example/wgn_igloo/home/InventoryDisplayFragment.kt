@@ -19,7 +19,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
-    private lateinit var firestoreHelper: FirestoreHelper
+    private val firestoreHelper: FirestoreHelper by lazy {
+        FirestoreHelper(requireContext())
+    }
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var groceryItemAdapter: ItemAdapter
     private lateinit var viewPager: ViewPager
@@ -45,10 +47,11 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        groceryItemAdapter = ItemAdapter(emptyList())
-        recyclerView.adapter = groceryItemAdapter
+//        groceryItemAdapter = ItemAdapter(emptyList())
+        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper)
 
-        firestoreHelper = FirestoreHelper(requireContext())
+        recyclerView.adapter = groceryItemAdapter
+//        firestoreHelper = FirestoreHelper(requireContext())
         firestoreDb = FirebaseFirestore.getInstance()
 
         fetchCurrentUserAndFriends()
