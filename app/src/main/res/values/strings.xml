@@ -59,6 +59,8 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="name">Name</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
     <string name="username">Username</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="or">or</string>
@@ -72,6 +74,7 @@
     <string name="none">None</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <string name="save_item">Save Item</string>
     <string name="viewpager">This is used to display shared fridges</string>
     <string name="my_friends">MY FRIENDS</string>
     <string name="add_friend">ADD FRIEND</string>

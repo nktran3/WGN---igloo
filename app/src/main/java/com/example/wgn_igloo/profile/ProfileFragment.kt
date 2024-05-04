@@ -38,6 +38,7 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         firestoreHelper = FirestoreHelper(requireContext())
 
+
         binding.saveButton.setOnClickListener {
             val newUsername = binding.usernameEditText.text.toString()
             if (newUsername.isNotBlank()) {
@@ -76,10 +77,12 @@ class ProfileFragment : Fragment() {
 
     private fun fetchUserData(userId: String) {
         firestoreHelper.getUser(userId, onSuccess = { user ->
+
             binding.emailTextView.text = user.email
             binding.uidTextView.text = user.uid
             binding.usernameTextView.text = user.username // Display username in the TextView
             binding.usernameEditText.setText(user.username)
+
         }, onFailure = { exception ->
             Log.e(TAG, "Failed to fetch user data", exception)
             Toast.makeText(context, "Failed to load user data", Toast.LENGTH_SHORT).show()

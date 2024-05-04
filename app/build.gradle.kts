@@ -5,6 +5,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -108,7 +109,6 @@ dependencies {
     implementation ("androidx.camera:camera-camera2:1.3.2")
     implementation ("androidx.camera:camera-lifecycle:1.3.2")
     implementation ("androidx.camera:camera-view:1.3.2")
-
     implementation ("androidx.camera:camera-video:1.3.2")
     implementation ("androidx.camera:camera-extensions:1.3.2")
 
@@ -116,6 +116,9 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // Gson dependency
+    implementation("com.google.code.gson:gson:2.8.8")
 
 
 }
