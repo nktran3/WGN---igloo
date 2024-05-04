@@ -48,7 +48,7 @@ class NewItemsFormFragment : Fragment() {
     private lateinit var categoryInput: Spinner
     private lateinit var sharedWithInput: Spinner
     // Hard coded list
-    private val categoryList = arrayOf("Choose an option", "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Miscellaneous" )
+    private val categoryList = arrayOf("Choose an option", "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Other" )
 //    private val sharedWithList = arrayOf("choose an option", "Wilbert", "Gary", "Nicole", "Rhett")
 
     // Default list with a placeholder for choosing an option

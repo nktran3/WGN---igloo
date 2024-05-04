@@ -9,9 +9,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.databinding.FragmentMembersBinding
+import com.example.wgn_igloo.databinding.FragmentShoppingNewItemsFormBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -22,28 +26,31 @@ class Members : Fragment() {
     private lateinit var friendUidInput: EditText
     private lateinit var submitButton: Button
     private lateinit var firestoreHelper: FirestoreHelper
-
+    private lateinit var toolbarFriends: Toolbar
+    private var _binding: FragmentMembersBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_members, container, false)
+        _binding = FragmentMembersBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        recyclerView = view.findViewById(R.id.fridge_members_recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(context)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        toolbarFriends = binding.toolbarFriends
+        updateToolbar()
+
+        binding.fridgeMembersRecyclerView.layoutManager = LinearLayoutManager(context)
         memberAdapter = MemberAdapter(memberList)
-        recyclerView.adapter = memberAdapter
+        binding.fridgeMembersRecyclerView.adapter = memberAdapter
 
-        // Initialize EditText and Button
-        friendUidInput = view.findViewById(R.id.friendUidInput)
-        submitButton = view.findViewById(R.id.submitFriendRequestButton)
+        firestoreHelper = FirestoreHelper(requireContext())  // Initialize FirestoreHelper
 
-        // Initialize FirestoreHelper
-        firestoreHelper = FirestoreHelper(requireContext())  // Ensure this line is added
-
-        submitButton.setOnClickListener {
-            val friendUid = friendUidInput.text.toString()
+        binding.submitFriendRequestButton.setOnClickListener {
+            val friendUid = binding.friendUidInput.text.toString()
             if (friendUid.isNotEmpty()) {
                 handleFriendRequest(friendUid)
             } else {
@@ -52,33 +59,12 @@ class Members : Fragment() {
         }
 
         fetchMembers()
-        return view
     }
+    private fun updateToolbar() {
+        toolbarFriends.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
+        toolbarFriends.setNavigationOnClickListener { activity?.onBackPressed() }
 
-//
-//    private fun handleFriendRequest(friendUid: String) {
-//        val currentUserId = getCurrentUserId()
-//        if (currentUserId == null) {
-//            Toast.makeText(context, "No user logged in", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        firestoreHelper.getUserByUid(friendUid,
-//            onSuccess = { user ->
-//                firestoreHelper.addFriend(currentUserId, friendUid,
-//                    onSuccess = {
-//                        Toast.makeText(context, "Friend added successfully", Toast.LENGTH_SHORT).show()
-//                    },
-//                    onFailure = { exception ->
-//                        Toast.makeText(context, "Failed to add friend: ${exception.message}", Toast.LENGTH_SHORT).show()
-//                    }
-//                )
-//            },
-//            onFailure = { exception ->
-//                Toast.makeText(context, "User not found: ${exception.message}", Toast.LENGTH_SHORT).show()
-//            }
-//        )
-//    }
+    }
     private fun handleFriendRequest(friendUsername: String) {
         val currentUserId = getCurrentUserId()
         if (currentUserId == null) {
@@ -116,41 +102,18 @@ class Members : Fragment() {
             }
     }
 
-
-
-
-    // Inside your Members fragment class
     private fun getCurrentUserId(): String? {
         val user = FirebaseAuth.getInstance().currentUser
         return user?.uid  // This will return the user ID or null if no user is logged in
     }
-}
 
-
-class MemberAdapter(private var members: MutableList<Member>) :
-    RecyclerView.Adapter<MemberAdapter.MemberViewHolder>() {
-
-    class MemberViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.fridge_members)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.members_item_layout, parent, false)
-        return MemberViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
-        val member = members[position]
-        holder.textView.text = member.username  // Use username to display in TextView
-    }
-
-    override fun getItemCount() = members.size
-
-    fun updateMembers(newMembers: List<Member>) {
-        members.clear()
-        members.addAll(newMembers)
-        notifyDataSetChanged()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
+
+
+
 
 

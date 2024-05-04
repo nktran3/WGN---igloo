@@ -39,7 +39,6 @@ class ProfilePage : Fragment() {
     private val myDataset: List<ProfileItem> = listOf(
         ProfileItem(R.drawable.profile_icon, "Profile"),
         ProfileItem(R.drawable.friends_icon, "Friends"),
-        ProfileItem(R.drawable.manage_account_icon, "Manage Account"),
         ProfileItem(R.drawable.support_icon, "Support"),
         ProfileItem(R.drawable.faq_icon, "FAQ"),
         ProfileItem(R.drawable.setting_icon, "Settings"),
@@ -82,8 +81,6 @@ class ProfilePage : Fragment() {
                 "Profile" -> showProfileDetails()
 
                 "Friends" -> showFriends()
-
-                "Manage Account" -> showManageAccount()
 
                 "Support" -> openGoogleApp()
 
@@ -154,19 +151,27 @@ class ProfilePage : Fragment() {
         requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, membersFragment).commit()
     }
 
-    private fun showManageAccount(){
-        Toast.makeText(context, "Manage Account clicked!", Toast.LENGTH_SHORT).show()
-    }
     private fun showSettings(){
-        Toast.makeText(context, "Settings clicked!", Toast.LENGTH_SHORT).show()
+        val settingsFragment = SettingsFragment()
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, settingsFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun showAbout(){
-        Toast.makeText(context, "Abouts clicked!", Toast.LENGTH_SHORT).show()
+        val aboutFragment = AboutFragment()
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, aboutFragment)
+            .addToBackStack(null)
+            .commit()
     }
     private fun showFAQpage(){
         val faqFragment = FaqFragment()
-        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, faqFragment).commit()
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, faqFragment)
+            .addToBackStack(null)
+            .commit()
 
     }
 

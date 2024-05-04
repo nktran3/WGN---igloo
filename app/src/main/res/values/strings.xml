@@ -8,7 +8,7 @@
     <string name="meats">Meats</string>
     <string name="produce">Produce</string>
     <string name="miscellaneous">Miscellaneous</string>
-    <string name="shopping_list">Shopping List</string>
+    <string name="grocery_list">Grocery List</string>
     <string name="suggested_recipes">Suggested Recipes</string>
     <string name="saved_recipes">Saved Recipes</string>
     <string name="search_recipes">Search for recipes…</string>
@@ -76,5 +76,7 @@
     <string name="next">Next</string>
     <string name="save_item">Save Item</string>
     <string name="viewpager">This is used to display shared fridges</string>
-  
+    <string name="my_friends">MY FRIENDS</string>
+    <string name="add_friend">ADD FRIEND</string>
+
 </resources>
