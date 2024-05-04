@@ -75,5 +75,7 @@
     <string name="viewpager">This is used to display shared fridges</string>
     <string name="my_friends">MY FRIENDS</string>
     <string name="add_friend">ADD FRIEND</string>
-  
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
