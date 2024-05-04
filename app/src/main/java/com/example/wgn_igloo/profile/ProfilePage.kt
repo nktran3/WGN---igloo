@@ -116,9 +116,11 @@ class ProfilePage : Fragment() {
         val userDocRef = Firebase.firestore.collection("users").document(userId)
         userDocRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
+                val givenName = documentSnapshot.getString("givenName")
+                val familyName = documentSnapshot.getString("familyName")
+                val name = "$givenName $familyName"
                 val username = documentSnapshot.getString("username")
                 val email = documentSnapshot.getString("email")
-                val name = documentSnapshot.getString("name")
                 updateUsernameOnUI(username, email, name)
             } else {
                 Log.d(TAG, "No such document")

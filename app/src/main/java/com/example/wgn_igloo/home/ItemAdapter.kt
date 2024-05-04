@@ -142,7 +142,6 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             }
         }
 
-
         holder.editButton.visibility = View.GONE
         holder.editButton.setOnClickListener {
             it.context?.let { context ->
