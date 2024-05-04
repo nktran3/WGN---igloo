@@ -13,15 +13,20 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
 import com.example.wgn_igloo.database.FirestoreHelper
+import com.example.wgn_igloo.inbox.Notifications
+import com.example.wgn_igloo.inbox.NotificationsViewModel
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHelper: FirestoreHelper) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHelper: FirestoreHelper, private val viewModel: NotificationsViewModel) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     companion object {
-        private const val TAG = "FirestoreHelper"
+        private const val TAG = "ItemAdapter"
     }
+
+    private var friendsUID = ""
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemTextView: TextView = view.findViewById(R.id.itemTextView)
@@ -41,7 +46,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
 //        notifyDataSetChanged()
 //    }
 
-    fun updateItems(newItems: List<GroceryItem>) {
+    fun updateItems(newItems: List<GroceryItem>, newUID: String?) {
         val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun getOldListSize() = items.size
             override fun getNewListSize() = newItems.size
@@ -50,7 +55,12 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
                 items[oldItemPosition] == newItems[newItemPosition]
         })
+        Log.d(TAG, "Friends UID: $newUID")
+        if (newUID != null) {
+            friendsUID = newUID
+            Log.d(TAG, "Set Friends UID to $newUID")
 
+        }
         items = newItems
         diffResult.dispatchUpdatesTo(this)
     }
@@ -108,7 +118,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                         // If deletion is successful, remove the item from the list safely
                         val newList = items.toMutableList()
                         newList.removeAt(position)
-                        updateItems(newList)
+                        updateItems(newList, null)
                     },
                     onFailure = { exception ->
                         // Handle failure, e.g., show an error message
@@ -129,7 +139,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                         val updatedList = items.toMutableList().apply {
                             removeAt(position)
                         }
-                        updateItems(updatedList)
+                        updateItems(updatedList, null)
                         // Notify the user of success
 //                        Toast.makeText(context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
                     },
@@ -170,6 +180,38 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                     holder.requestToBorrow.visibility =
                         if (holder.requestToBorrow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
+                    holder.requestToBorrow.setOnClickListener {
+                        val uid = FirebaseAuth.getInstance().currentUser?.uid
+                        if (uid == null) {
+                            Toast.makeText(holder.itemView.context, "User not logged in!", Toast.LENGTH_SHORT).show()
+                            return@setOnClickListener
+                        }
+
+                        // Assuming friendsUID and uid are not empty
+                        var friendName = ""
+                        var userName = ""
+
+                        firestoreHelper.getUser(uid,
+                            onSuccess = { user ->
+                                userName = user.givenName
+                                // Nested call inside first onSuccess
+                                firestoreHelper.getUser(friendsUID,
+                                    onSuccess = { friend ->
+                                        friendName = friend.givenName
+                                        sendNotification(friendName, userName, uid, friendsUID, item.name, holder)
+                                    },
+                                    onFailure = { exception ->
+                                        Log.d(TAG, "Error getting friend", exception)
+                                        Toast.makeText(holder.itemView.context, "Failed to find friend.", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            },
+                            onFailure = { exception ->
+                                Log.d(TAG, "Error getting user", exception)
+                                Toast.makeText(holder.itemView.context, "Failed to notify user.", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
                     holder.addToShoppingList.visibility =
                         if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
                 }
@@ -194,6 +236,23 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                         if (holder.sharedWithValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
                 }
 
+        }
+    }
+
+    private fun sendNotification(friendName: String, userName: String, uid: String, friendsUID: String, itemName: String, holder: RecyclerView.ViewHolder) {
+        if (friendName.isNotEmpty() && userName.isNotEmpty()) {
+            val notif = Notifications(
+                title = "Item Request",
+                message = "$userName wants to borrow $itemName from $friendName"
+            )
+            val notifToFriend = Notifications(
+                title = "Item Request",
+                message = "$userName wants to borrow $itemName from you"
+            )
+            firestoreHelper.addNotifications(uid, notif)
+            firestoreHelper.addNotifications(friendsUID, notifToFriend)
+            viewModel.setRefreshNotifications(true)
+            Toast.makeText(holder.itemView.context, "Notification sent!", Toast.LENGTH_SHORT).show()
         }
     }
 
