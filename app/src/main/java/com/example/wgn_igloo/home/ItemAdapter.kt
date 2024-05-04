@@ -23,6 +23,9 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
         private const val TAG = "FirestoreHelper"
     }
 
+    // State to track items moved to shopping list
+    private var movedToShoppingList = mutableSetOf<Int>()
+
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemTextView: TextView = view.findViewById(R.id.itemTextView)
         val quantityTextView: TextView = view.findViewById(R.id.quantityTextView)
@@ -125,23 +128,43 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                 val itemName = items[position].name
                 firestoreHelper.moveItemToShoppingList(userId, itemName,
                     onSuccess = {
-                        // Remove the item from the adapter's data set
-                        val updatedList = items.toMutableList().apply {
-                            removeAt(position)
-                        }
-                        updateItems(updatedList)
-                        // Notify the user of success
-//                        Toast.makeText(context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
+                        // Log success
+                        Log.d(TAG, "Successfully moved item to shopping list")
+                        // Assuming `context` is available or use holder.itemView.context
+                        Toast.makeText(holder.itemView.context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
                     },
                     onFailure = { exception ->
                         // Log error and notify user
                         Log.e(TAG, "Failed to move item to shopping list", exception)
-//                        Toast.makeText(context, "Error moving item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
+                        // Assuming `context` is available or use holder.itemView.context
+                        Toast.makeText(holder.itemView.context, "Error moving item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
                     }
                 )
             }
         }
 
+
+        if (movedToShoppingList.contains(position)) {
+            holder.addToShoppingList.isEnabled = false
+            holder.addToShoppingList.text = "Added"
+        } else {
+            holder.addToShoppingList.isEnabled = true
+            holder.addToShoppingList.text = "Add to List"
+        }
+
+//        holder.addToShoppingList.setOnClickListener {
+//            val userId = firestoreHelper.getCurrentUserId()
+//            if (userId != null) {
+//                firestoreHelper.moveItemToShoppingList(userId, item.name, onSuccess = {
+//                    movedToShoppingList.add(position)
+//                    notifyItemChanged(position)
+//                    // Toast to show success
+//                    Toast.makeText(holder.itemView.context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
+//                }, onFailure = { exception ->
+//                    Toast.makeText(holder.itemView.context, "Failed to move item: ${exception.message}", Toast.LENGTH_LONG).show()
+//                })
+//            }
+//        }
 
         holder.editButton.visibility = View.GONE
         holder.editButton.setOnClickListener {

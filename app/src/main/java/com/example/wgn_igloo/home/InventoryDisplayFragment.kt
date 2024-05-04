@@ -85,6 +85,47 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         fetchGroceryItemsForUser(userId)
     }
 
+//    private fun fetchCurrentUserAndFriends() {
+//        val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid
+//        if (currentUserUid == null) {
+//            Log.d(TAG, "No user logged in")
+//            Toast.makeText(context, "Please log in to view profiles.", Toast.LENGTH_LONG).show()
+//            return
+//        }
+//
+//        val userRef = FirebaseFirestore.getInstance().collection("users").document(currentUserUid)
+//        userRef.get().addOnSuccessListener { document ->
+//            if (document.exists()) {
+//                val currentUser = document.toObject(User::class.java)?.apply { this.uid = document.id }
+//                val users = mutableListOf<User>()
+//                currentUser?.let { users.add(it) }
+//
+//                userRef.collection("friends").get().addOnSuccessListener { friendsSnapshot ->
+//                    val friendIds = friendsSnapshot.documents.map { it.id }
+//                    var friendsFetched = 0
+//                    for (friendId in friendIds) {
+//                        FirebaseFirestore.getInstance().collection("users").document(friendId).get()
+//                            .addOnSuccessListener { friendDoc ->
+//                                if (friendDoc.exists()) {
+//                                    friendDoc.toObject(User::class.java)?.apply {
+//                                        this.uid = friendDoc.id
+//                                        users.add(this)
+//                                    }
+//                                }
+//                                friendsFetched++
+//                                if (friendsFetched == friendIds.size) {
+//                                    userProfileAdapter = UserProfileAdapter(users, this)
+//                                    viewPager.adapter = userProfileAdapter
+//                                }
+//                            }
+//                    }
+//                }
+//            } else {
+//                Log.d(TAG, "User document does not exist")
+//            }
+//        }
+//    }
+
     private fun fetchCurrentUserAndFriends() {
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid
         if (currentUserUid == null) {
@@ -103,6 +144,13 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
                 userRef.collection("friends").get().addOnSuccessListener { friendsSnapshot ->
                     val friendIds = friendsSnapshot.documents.map { it.id }
                     var friendsFetched = 0
+                    if (friendIds.isEmpty()) {
+                        // Update the user profile adapter if there are no friends
+                        userProfileAdapter = UserProfileAdapter(users, this)
+                        viewPager.adapter = userProfileAdapter
+                        // Fetch grocery items for the current user
+                        fetchGroceryItemsForUser(currentUserUid)
+                    }
                     for (friendId in friendIds) {
                         FirebaseFirestore.getInstance().collection("users").document(friendId).get()
                             .addOnSuccessListener { friendDoc ->
@@ -116,6 +164,8 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
                                 if (friendsFetched == friendIds.size) {
                                     userProfileAdapter = UserProfileAdapter(users, this)
                                     viewPager.adapter = userProfileAdapter
+                                    // Fetch grocery items for the current user after all friends are processed
+                                    fetchGroceryItemsForUser(currentUserUid)
                                 }
                             }
                     }
@@ -125,6 +175,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
             }
         }
     }
+
 
     private fun fetchGroceryItemsForUser(userId: String) {
         val isCurrentUser = userId == FirebaseAuth.getInstance().currentUser?.uid
