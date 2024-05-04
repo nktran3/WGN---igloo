@@ -45,7 +45,7 @@
     <string name="questions">Question</string>
     <string name="answer">Answer</string>
     <string name="scan_button">Scan</string>
-    <string name="see_fridge"><u>See in Your Fridge</u></string>
+    <string name="notification_body"><u>Notification Body</u></string>
     <string name="recipes_query">Recipes containing:</string>
     <string name="search_recipe_button">Search</string>
     <string name="ingredients">Ingredients</string>

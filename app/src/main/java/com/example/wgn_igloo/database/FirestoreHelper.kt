@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.home.GroceryItem
 import com.example.wgn_igloo.grocery.ShoppingListItem
+import com.example.wgn_igloo.inbox.Notifications
 import com.example.wgn_igloo.recipe.RecipeSearch
 //import com.example.wgn_igloo.home.GroceryIndividualItem
 import com.example.wgn_igloo.recipe.SavedRecipe
@@ -56,6 +57,17 @@ class FirestoreHelper(private val context: Context) {
             }
             .addOnFailureListener { e ->
                 Log.w(TAG, "Error adding saved recipe", e)
+            }
+    }
+
+
+    fun addNotifications(uid: String, notif: Notifications) {
+        db.collection("users").document(uid).collection("notificationItems").add(notif)
+            .addOnSuccessListener {
+                Log.d(TAG, "Notification added successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error adding notification", e)
             }
     }
 
@@ -170,6 +182,8 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+
+
 //    fun updateUsername(uid: String, newUsername: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
 //        db.collection("users").document(uid).update("uid", newUsername)
 //            .addOnSuccessListener {
@@ -214,12 +228,27 @@ class FirestoreHelper(private val context: Context) {
                                 "email" to currentUserEmail,
                                 "uid" to currentUserId,
                                 "username" to currentUsername,
-                                "friendSince" to Timestamp.now()
+                                "friendSince" to Timestamp.now(),
+
                             )
 
                             val batch = db.batch()
                             batch.set(db.collection("users").document(currentUserId).collection("friends").document(friendUser.uid), friendDataForCurrentUser)
                             batch.set(db.collection("users").document(friendUser.uid).collection("friends").document(currentUserId), currentUserDataForFriend)
+                            getUser(currentUserId,
+                                onSuccess = { user ->
+                                    val notification = Notifications(
+                                        title = "Friend Request",
+                                        message = "${user.givenName} is now friends with ${friendUser.givenName}"
+                                    )
+                                    addNotifications(currentUserId, notification)
+                                    addNotifications(friendUser.uid, notification)
+                                },
+                                onFailure = { exception ->
+                                    Log.d(TAG, exception.toString())
+                                }
+                                )
+
 
                             batch.commit()
                                 .addOnSuccessListener {
