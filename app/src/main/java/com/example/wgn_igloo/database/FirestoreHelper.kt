@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.home.GroceryItem
 import com.example.wgn_igloo.grocery.ShoppingListItem
+import com.example.wgn_igloo.recipe.RecipeSearch
 //import com.example.wgn_igloo.home.GroceryIndividualItem
 import com.example.wgn_igloo.recipe.SavedRecipe
 import com.google.firebase.firestore.FirebaseFirestore
@@ -463,5 +464,28 @@ class FirestoreHelper(private val context: Context) {
             onFailure(e)
         }
     }
+
+//    fun addRecipe(recipe: RecipeSearch, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("recipes").add(recipe)
+//            .addOnSuccessListener {
+//                onSuccess()
+//            }
+//            .addOnFailureListener { e ->
+//                onFailure(e)
+//            }
+//    }
+//
+//    fun getRecipes(onSuccess: (List<RecipeSearch>) -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("recipes")
+//            .get()
+//            .addOnSuccessListener { result ->
+//                val recipes = result.toObjects(RecipeSearch::class.java)
+//                onSuccess(recipes)
+//            }
+//            .addOnFailureListener { e ->
+//                onFailure(e)
+//            }
+//    }
+
 
 }

@@ -5,5 +5,6 @@ data class User(
     val familyName: String = "",
     val email: String = "",  // Provide default empty value
     val uid: String = "",    // Provide default empty value
-    val username: String = uid
-)// for username
+    val username: String = uid  // for username
+)
+
