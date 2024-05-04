@@ -5,18 +5,22 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Button
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
-import com.example.wgn_igloo.database.FirestoreHelper
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.database.FirestoreHelper
+import com.example.wgn_igloo.databinding.FragmentProfileBinding
 
 class ProfileFragment : Fragment() {
 
     private lateinit var firestoreHelper: FirestoreHelper
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var toolbarProfile: Toolbar
 
     companion object {
         private const val TAG = "ProfileFragment"
@@ -26,37 +30,38 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         firestoreHelper = FirestoreHelper(requireContext())
 
-        val editTextUsername = view.findViewById<EditText>(R.id.usernameEditText)
-        val textViewUid = view.findViewById<TextView>(R.id.uidTextView)
-        val usernameTextView = view.findViewById<TextView>(R.id.usernameTextView)
-        val saveButton = view.findViewById<Button>(R.id.saveButton)
-
-        saveButton.setOnClickListener {
-            val newUsername = editTextUsername.text.toString()
+        binding.saveButton.setOnClickListener {
+            val newUsername = binding.usernameEditText.text.toString()
             if (newUsername.isNotBlank()) {
                 updateUsername(newUsername)
-//                textViewUid.text = newUsername // Update TextView immediately
-                usernameTextView.text = newUsername // Update the displayed username immediately
-
+                binding.usernameTextView.text = newUsername // Update the displayed username immediately
             } else {
                 Toast.makeText(context, "Username cannot be empty", Toast.LENGTH_SHORT).show()
             }
         }
 
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-
         currentUserId?.let {
             fetchUserData(it)
         }
+
+        toolbarProfile = binding.toolbarProfile
+        updateToolbar()
     }
 
+    private fun updateToolbar() {
+        toolbarProfile.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
+        toolbarProfile.setNavigationOnClickListener { activity?.onBackPressed() }
+
+    }
     private fun updateUsername(newUsername: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         userId?.let {
@@ -71,14 +76,18 @@ class ProfileFragment : Fragment() {
 
     private fun fetchUserData(userId: String) {
         firestoreHelper.getUser(userId, onSuccess = { user ->
-            view?.findViewById<TextView>(R.id.emailTextView)?.text = user.email
-            view?.findViewById<TextView>(R.id.uidTextView)?.text = user.uid
-            view?.findViewById<TextView>(R.id.usernameTextView)?.text = user.username // Display username in the TextView
-            view?.findViewById<EditText>(R.id.usernameEditText)?.setText(user.username)
+            binding.emailTextView.text = user.email
+            binding.uidTextView.text = user.uid
+            binding.usernameTextView.text = user.username // Display username in the TextView
+            binding.usernameEditText.setText(user.username)
         }, onFailure = { exception ->
             Log.e(TAG, "Failed to fetch user data", exception)
             Toast.makeText(context, "Failed to load user data", Toast.LENGTH_SHORT).show()
         })
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // Prevent memory leaks
+    }
 }
