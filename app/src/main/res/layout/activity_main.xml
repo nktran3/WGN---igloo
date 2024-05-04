@@ -24,9 +24,11 @@
         android:layout_height="0dp"
         android:background="@drawable/bottom_nav_background"
         android:elevation="10dp"
+        app:itemIconTint="@color/black"
+        app:itemTextColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.1"
         app:layout_constraintTop_toBottomOf="@+id/fragment_container"
         app:menu="@menu/bottom_nav"
-        tools:layout_editor_absoluteX="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        tools:layout_editor_absoluteX="0dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
