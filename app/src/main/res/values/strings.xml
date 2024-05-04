@@ -73,5 +73,7 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="viewpager">This is used to display shared fridges</string>
+    <string name="default_web_client_id">938243713874-9iik8hlaoikc60pdpv6glich1gek2a9d.apps.googleusercontent.com</string>
+
   
 </resources>
