@@ -47,7 +47,6 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-
     fun addSavedRecipe(uid: String, recipe: SavedRecipe) {
         db.collection("users").document(uid)
             .collection("savedRecipes").document(recipe.recipeName).set(recipe)
@@ -56,6 +55,17 @@ class FirestoreHelper(private val context: Context) {
             }
             .addOnFailureListener { e ->
                 Log.w(TAG, "Error adding saved recipe", e)
+            }
+    }
+
+    fun removeSavedRecipe(uid: String, recipe: SavedRecipe) {
+        db.collection("users").document(uid)
+            .collection("savedRecipes").document(recipe.recipeName).delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "Saved recipe removed successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error removed saved recipe", e)
             }
     }
 
@@ -99,6 +109,18 @@ class FirestoreHelper(private val context: Context) {
             .get()
             .addOnSuccessListener { snapshot ->
                 val items = snapshot.toObjects(GroceryItem::class.java)
+                onSuccess(items)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+    fun getSavedRecipe(userId: String, onSuccess: (List<SavedRecipe>) -> Unit, onFailure: (Exception) -> Unit) {
+        db.collection("users").document(userId).collection("savedRecipes")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val items = snapshot.toObjects(SavedRecipe::class.java)
                 onSuccess(items)
             }
             .addOnFailureListener { exception ->

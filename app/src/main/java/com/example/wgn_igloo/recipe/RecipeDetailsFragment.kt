@@ -9,13 +9,16 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.FragmentRecipeDetailsBinding
+import com.google.firebase.auth.FirebaseAuth
 import java.util.ArrayList
 
 private const val TAG = "RecipeDetailsFragment"
@@ -31,9 +34,10 @@ class RecipeDetailsFragment : Fragment() {
     private var parsed_time: String = ""
     private var parsed_servings: String = ""
     private var parsed_image: String = ""
+    private var parsed_saved: Boolean = false
 
     private lateinit var toolbarRecipeDetails: Toolbar
-
+    private lateinit var firestoreHelper: FirestoreHelper
     private var isRecipeSaved = false
 
     companion object {
@@ -46,12 +50,13 @@ class RecipeDetailsFragment : Fragment() {
         private const val TIME = "TIME"
         private const val SERVINGS = "SERVINGS"
         private const val IMAGE = "IMAGE"
+        private const val SAVED = false
 
         fun newInstance(
             instructionsMessage: List<String>?, ingredientsMessage: List<String>?,
             titleMessage: String?, dishMessage: String?, cuisineMessage: String?,
             dietMessage: String?, timeMessage: String?, servingsMessage: String?,
-            imageMessage: String?): RecipeDetailsFragment {
+            imageMessage: String?, savedMessage: Boolean): RecipeDetailsFragment {
             val fragment = RecipeDetailsFragment()
             val args = Bundle()
 
@@ -65,6 +70,7 @@ class RecipeDetailsFragment : Fragment() {
             args.putString(TIME, timeMessage)
             args.putString(SERVINGS, servingsMessage)
             args.putString(IMAGE, imageMessage)
+            args.putBoolean(SAVED.toString(), savedMessage)
 
             // Set the Bundle as the fragment's arguments
             fragment.arguments = args
@@ -87,6 +93,9 @@ class RecipeDetailsFragment : Fragment() {
         parsed_time = arguments?.getString(TIME)!!
         parsed_servings = arguments?.getString(SERVINGS)!!
         parsed_image = arguments?.getString(IMAGE)!!
+        parsed_saved = arguments?.getBoolean(SAVED.toString()) == true
+        isRecipeSaved = parsed_saved
+
 
 
 
@@ -98,6 +107,10 @@ class RecipeDetailsFragment : Fragment() {
                 Log.d(TAG, step)
             }
         }
+        if (parsed_saved){
+
+        }
+
 
         return binding.root
     }
@@ -116,6 +129,12 @@ class RecipeDetailsFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false) // Disable the title
         setHasOptionsMenu(true)
         updateToolbar()
+        firestoreHelper = FirestoreHelper(requireContext())
+
+        // Set the correct save icon based on the saved state
+        toolbarRecipeDetails.post {
+            activity?.invalidateOptionsMenu()  // Request to recreate the menu so it can reflect the updated icon
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -128,14 +147,31 @@ class RecipeDetailsFragment : Fragment() {
             R.id.action_save -> {
                 isRecipeSaved = !isRecipeSaved
                 updateSaveIcon(item)
+                val recipe = SavedRecipe(
+                    imageId = parsed_image,
+                    recipeName = parsed_title,
+                    cuisineType = parsed_cuisine,
+                    dietType = parsed_diet,
+                    dishType = parsed_dish,
+                    servingSize = parsed_servings,
+                    totalTime = parsed_time,
+                    ingredients = parsed_ingredients,
+                    instructions = parsed_instructions,
+                )
                 if (isRecipeSaved) {
-                    saveRecipe()
+                    saveRecipe(recipe)
                 } else {
-                    unsaveRecipe()
+                    unsaveRecipe(recipe)
                 }
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.action_save)?.let {
+            updateSaveIcon(it)
         }
     }
 
@@ -147,11 +183,21 @@ class RecipeDetailsFragment : Fragment() {
         }
     }
 
-    private fun saveRecipe() {
+
+
+    private fun saveRecipe(recipe: SavedRecipe) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            firestoreHelper.addSavedRecipe(uid,recipe )
+        }
         Log.d(TAG, "Recipe saved")
     }
 
-    private fun unsaveRecipe() {
+    private fun unsaveRecipe(recipe: SavedRecipe) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            firestoreHelper.removeSavedRecipe(uid, recipe)
+        }
         Log.d(TAG, "Recipe unsaved")
     }
 

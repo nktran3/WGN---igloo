@@ -37,23 +37,20 @@ class RecipesPage : Fragment() {
     private var query = ""
     private var groceryItems: List<GroceryItem> = emptyList()
     private var searchedRecipes: List<RecipeSearch> = mutableListOf()
-    private lateinit var suggestedRecipesAdapter: RecipeAdapter
-    private lateinit var savedRecipesAdapter:RecipeAdapter
+    private var savedRecipes: List<SavedRecipe> = mutableListOf()
+    private lateinit var suggestedRecipesAdapter: SuggestedRecipeAdapter
+    private lateinit var savedRecipesAdapter:SavedRecipeAdapter
 
 
 
-    private val recipeData = listOf(
-        SavedRecipe(R.drawable.lobster, "Lobster Thermidor", "30 mins", "45 mins", "1 hr 15 mins", "2 servings"),
-        SavedRecipe(R.drawable.salmon, "Garlic Butter Salmon", "20 mins", "30 mins", "50 mins", "4 servings"),
-        SavedRecipe(R.drawable.salad, "Caesar Salad", "15 mins", "0 mins", "15 mins", "3 servings")
-    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(requireActivity()).get(RecipeViewModel::class.java)
         firestoreHelper = FirestoreHelper(requireContext())
         userUid = FirebaseAuth.getInstance().currentUser?.uid
-        suggestedRecipesAdapter = RecipeAdapter(mutableListOf())
-        savedRecipesAdapter = RecipeAdapter(mutableListOf())
+        suggestedRecipesAdapter = SuggestedRecipeAdapter(mutableListOf())
+        savedRecipesAdapter = SavedRecipeAdapter(mutableListOf())
 
     }
 
@@ -72,6 +69,9 @@ class RecipesPage : Fragment() {
                 .commit()
         }
         fetchGroceryItems()
+        fetchSavedRecipes()
+
+
         return binding.root
     }
 
@@ -79,6 +79,15 @@ class RecipesPage : Fragment() {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid
         if (userUid != null) {
             firestoreHelper.getGroceryItems(userUid, this::updateGroceryItems, this::handleFetchError)
+        } else {
+            Log.e(TAG, "No user UID found")
+        }
+    }
+
+    fun fetchSavedRecipes(){
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (userUid != null) {
+            firestoreHelper.getSavedRecipe(userUid, this::updateSavedRecipes, this::handleFetchError)
         } else {
             Log.e(TAG, "No user UID found")
         }
@@ -94,27 +103,19 @@ class RecipesPage : Fragment() {
         recipeSearchByIngredients(ingredients.joinToString(separator =  ","))
     }
 
+    private fun updateSavedRecipes(recipes: List<SavedRecipe>) {
+        savedRecipes = recipes
+        savedRecipesAdapter.updateData(savedRecipes)
+        Log.d(TAG, "Fetched saved recipes: ${recipes.map {it.recipeName}}")
+    }
+
+
     private fun handleFetchError(exception: Exception) {
         Log.e(TAG, "Error fetching grocery items", exception)
     }
 
 
-    private fun addDummyRecipeListItem() {
-        userUid?.let { uid ->
-            // Create a dummy SavedRecipe
-            val dummyRecipe = SavedRecipe(
-                imageId = R.drawable.lobster, // Assuming you have a drawable resource
-                recipeName = "Dummy Recipe",
-                preparationTime = "10 mins",
-                cookTime = "20 mins",
-                totalTime = "30 mins",
-                servingSize = "2 servings"
-            )
 
-            // Add the dummy recipe to Firestore using FirestoreHelper
-            firestoreHelper.addSavedRecipe(uid, dummyRecipe)
-        }
-    }
 
     // Function used to make API call to Spoonacular
     private fun recipeSearchByIngredients(ingredientsQuery: String) {
@@ -151,7 +152,6 @@ class RecipesPage : Fragment() {
                 }
                 activity?.runOnUiThread {
                     suggestedRecipesAdapter.updateData(searchedRecipes)
-                    savedRecipesAdapter.updateData(searchedRecipes)
                 }
 
 
@@ -170,8 +170,8 @@ class RecipesPage : Fragment() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
         // Initialize your adapter with the necessary parameters
-        suggestedRecipesAdapter = RecipeAdapter(searchedRecipes)
-        savedRecipesAdapter = RecipeAdapter(searchedRecipes) // Assuming you want to use the same data for both for now
+        suggestedRecipesAdapter = SuggestedRecipeAdapter(searchedRecipes)
+        savedRecipesAdapter = SavedRecipeAdapter(savedRecipes) // Assuming you want to use the same data for both for now
 
         // Setup the RecyclerView for suggested recipes
         val suggestedRecipeRecyclerView: RecyclerView = view.findViewById(R.id.suggested_recipes_recycler_view)
@@ -183,16 +183,11 @@ class RecipesPage : Fragment() {
         savedRecipeRecyclerView.layoutManager = LinearLayoutManager(context)
         savedRecipeRecyclerView.adapter = savedRecipesAdapter // Use another instance or the same adapter as needed
 
-        val userUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (userUid != null) {
-            addDummyRecipeListItem()
-        } else {
-            Log.d(InventoryDisplayFragment.TAG, "User is not logged in")
-        }
+
     }
 }
 
-class RecipeAdapter(private var recipeData: List<RecipeSearch>) : RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
+class SuggestedRecipeAdapter(private var recipeData: List<RecipeSearch>) : RecyclerView.Adapter<SuggestedRecipeAdapter.RecipeViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
@@ -250,7 +245,61 @@ class RecipeAdapter(private var recipeData: List<RecipeSearch>) : RecyclerView.A
             val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
             val recipeDetailsFragment = RecipeDetailsFragment.newInstance(
                 totalSteps, totalIngredients, recipe.recipeName,
-                dishTypeList, cuisineTypeList, dietTypeList, recipe.totalTime, recipe.servingSize, recipe.imageId)
+                dishTypeList, cuisineTypeList, dietTypeList, recipe.totalTime, recipe.servingSize, recipe.imageId, false)
+            fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
+
+    override fun getItemCount(): Int = recipeData.size
+
+    class RecipeViewHolder(val binding: RecipeItemLayoutBinding) : RecyclerView.ViewHolder(binding.root)
+
+
+
+}
+
+class SavedRecipeAdapter(private var recipeData: List<SavedRecipe>) : RecyclerView.Adapter<SavedRecipeAdapter.RecipeViewHolder>() {
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
+        val binding = RecipeItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return RecipeViewHolder(binding)
+    }
+
+    fun updateData(newRecipes: List<SavedRecipe?>) {
+        if (!newRecipes.isNullOrEmpty()) {
+            recipeData = newRecipes as List<SavedRecipe>
+            notifyDataSetChanged()
+            Log.d(TAG, "Data updated with ${recipeData.size} recipes")
+        } else {
+            Log.d(TAG, "No recipes to update")
+        }
+    }
+
+
+    override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
+        val recipe = recipeData[position]
+        Log.d(TAG, "${recipe.recipeName}")
+        with(holder.binding) {
+            com.bumptech.glide.Glide.with(holder.itemView.context).load(recipe.imageId).into(recipeImage)
+            recipeTitle.text = recipe.recipeName
+            totalTime.text = "Total Time: " + recipe.totalTime + " mins"
+            cuisineType.text = "Cuisine: " + recipe.cuisineType
+            dietType.text = "Diet: " + recipe.dietType
+            servingSize.text = "Serving Size: " + recipe.servingSize
+        }
+
+
+
+        holder.itemView.setOnClickListener {
+            // Use the fragment manager to replace the container with the RecipeDetailsFragment
+            val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
+            val recipeDetailsFragment = RecipeDetailsFragment.newInstance(
+                recipe.instructions, recipe.ingredients, recipe.recipeName,
+                recipe.dishType, recipe.cuisineType, recipe.dietType, recipe.totalTime, recipe.servingSize, recipe.imageId, true)
             fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
                 .addToBackStack(null)
                 .commit()
