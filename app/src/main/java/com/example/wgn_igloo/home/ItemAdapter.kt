@@ -1,18 +1,27 @@
 package com.example.wgn_igloo.home
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.database.FirestoreHelper
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class ItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHelper: FirestoreHelper) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+
+    companion object {
+        private const val TAG = "FirestoreHelper"
+    }
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemTextView: TextView = view.findViewById(R.id.itemTextView)
@@ -27,10 +36,25 @@ class ItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<I
         val editButton: ImageButton = view.findViewById(R.id.edit_button)
         val deleteButton: ImageButton = view.findViewById(R.id.delete_button)
     }
+//    fun updateItems(newItems: List<GroceryItem>) {
+//        items = newItems
+//        notifyDataSetChanged()
+//    }
+
     fun updateItems(newItems: List<GroceryItem>) {
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = items.size
+            override fun getNewListSize() = newItems.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                items[oldItemPosition].name == newItems[newItemPosition].name
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                items[oldItemPosition] == newItems[newItemPosition]
+        })
+
         items = newItems
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
+
 
     override fun getItemCount() = items.size
 
@@ -41,9 +65,12 @@ class ItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<I
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
-        holder.itemTextView.text = "${item.name}"
-        holder.quantityValueTextView.text = "${item.quantity}"
-        holder.dateTextView.text = "${formatDate(item.expirationDate)}"
+//        holder.itemTextView.text = "${item.name}"
+//        holder.quantityValueTextView.text = "${item.quantity}"
+//        holder.dateTextView.text = "${formatDate(item.expirationDate)}"
+        holder.itemTextView.text = item.name
+        holder.quantityValueTextView.text = item.quantity.toString()
+        holder.dateTextView.text = formatDate(item.expirationDate)
         holder.quantityTextView.visibility = View.GONE
         holder.quantityValueTextView.visibility = View.GONE
         holder.expirationTextView.visibility = View.GONE
@@ -52,8 +79,82 @@ class ItemAdapter(private var items: List<GroceryItem>) : RecyclerView.Adapter<I
         holder.sharedWithValueTextView.visibility = View.GONE
         holder.requestToBorrow.visibility = View.GONE
         holder.addToShoppingList.visibility = View.GONE
-        holder.editButton.visibility = View.GONE
         holder.deleteButton.visibility = View.GONE
+
+//        holder.deleteButton.setOnClickListener {
+//            val userId = firestoreHelper.getCurrentUserId()
+//            if (userId != null) {
+//                firestoreHelper.deleteGroceryItem(userId, item.name,
+//                    onSuccess = {
+//                        // If deletion is successful, update the UI by removing the item from the list
+//                        val newList = items.toMutableList()
+//                        newList.removeAt(holder.adapterPosition)
+//                        updateItems(newList)
+//                    },
+//                    onFailure = { exception ->
+//                        // Handle failure, e.g., show an error message
+//                        Log.e(TAG, "Error deleting item", exception)
+//                    }
+//                )
+//            }
+//        }
+
+        holder.deleteButton.setOnClickListener {
+            val userId = firestoreHelper.getCurrentUserId()
+            val position = holder.adapterPosition
+            if (userId != null && position != RecyclerView.NO_POSITION) {
+                firestoreHelper.deleteGroceryItem(userId, items[position].name,
+                    onSuccess = {
+                        // If deletion is successful, remove the item from the list safely
+                        val newList = items.toMutableList()
+                        newList.removeAt(position)
+                        updateItems(newList)
+                    },
+                    onFailure = { exception ->
+                        // Handle failure, e.g., show an error message
+                        Log.e(TAG, "Error deleting item", exception)
+                    }
+                )
+            }
+        }
+
+        holder.addToShoppingList.setOnClickListener {
+            val userId = firestoreHelper.getCurrentUserId()
+            val position = holder.adapterPosition
+            if (userId != null && position != RecyclerView.NO_POSITION) {
+                val itemName = items[position].name
+                firestoreHelper.moveItemToShoppingList(userId, itemName,
+                    onSuccess = {
+                        // Remove the item from the adapter's data set
+                        val updatedList = items.toMutableList().apply {
+                            removeAt(position)
+                        }
+                        updateItems(updatedList)
+                        // Notify the user of success
+//                        Toast.makeText(context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
+                    },
+                    onFailure = { exception ->
+                        // Log error and notify user
+                        Log.e(TAG, "Failed to move item to shopping list", exception)
+//                        Toast.makeText(context, "Error moving item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
+        }
+
+
+        holder.editButton.visibility = View.GONE
+        holder.editButton.setOnClickListener {
+            it.context?.let { context ->
+                if (context is AppCompatActivity) {
+                    val fragment = EditItemsFormFragment.newInstance(item)
+                    context.supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
+        }
         holder.itemTextView.setOnClickListener {
 
                 if (item.isOwnedByUser) {

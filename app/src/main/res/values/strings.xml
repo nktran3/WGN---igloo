@@ -8,7 +8,7 @@
     <string name="meats">Meats</string>
     <string name="produce">Produce</string>
     <string name="miscellaneous">Miscellaneous</string>
-    <string name="shopping_list">Shopping List</string>
+    <string name="grocery_list">Grocery List</string>
     <string name="suggested_recipes">Suggested Recipes</string>
     <string name="saved_recipes">Saved Recipes</string>
     <string name="search_recipes">Search for recipes…</string>
@@ -59,6 +59,8 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="name">Name</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
     <string name="username">Username</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="or">or</string>
@@ -72,8 +74,10 @@
     <string name="none">None</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <string name="save_item">Save Item</string>
     <string name="viewpager">This is used to display shared fridges</string>
     <string name="default_web_client_id">938243713874-9iik8hlaoikc60pdpv6glich1gek2a9d.apps.googleusercontent.com</string>
+    <string name="my_friends">MY FRIENDS</string>
+    <string name="add_friend">ADD FRIEND</string>
 
-  
 </resources>

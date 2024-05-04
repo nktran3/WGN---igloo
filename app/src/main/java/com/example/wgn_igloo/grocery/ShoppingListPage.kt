@@ -62,15 +62,19 @@ class ShoppingListPage : Fragment() {
         }
 
         userUid?.let { uid ->
-            fetchShoppingListItems(uid,
-                onSuccess = { items ->
-                    (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
-                },
-                onFailure = { exception ->
-                    Log.w(TAG, "Error getting shopping list items", exception)
-                }
-            )
+            setupShoppingListListener(uid) // Setup the real-time listener
         }
+
+//        userUid?.let { uid ->
+//            fetchShoppingListItems(uid,
+//                onSuccess = { items ->
+//                    (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(items)
+//                },
+//                onFailure = { exception ->
+//                    Log.w(TAG, "Error getting shopping list items", exception)
+//                }
+//            )
+//        }
         // Add a dummy shopping list item for testing purposes
         // adding the item -- how to call to add the item
         // Set up the button (Replace 'R.id.add_button' with your actual button ID)
@@ -131,6 +135,19 @@ class ShoppingListPage : Fragment() {
                 }
             )
         }
+    }
+    private fun setupShoppingListListener(uid: String) {
+        firestoreDb.collection("users").document(uid)
+            .collection("shoppingList")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                val shoppingListItems = snapshot?.toObjects(ShoppingListItem::class.java) ?: emptyList()
+                (recyclerView.adapter as? ShoppingListAdapter)?.updateItems(shoppingListItems)
+            }
     }
 
 }
