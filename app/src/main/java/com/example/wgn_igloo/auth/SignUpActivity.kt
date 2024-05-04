@@ -140,7 +140,7 @@ class SignUpActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     user?.let {
-                        val newUser = User(email = email, uid = it.uid, username = username, name = name)
+                        val newUser = User(email = email, uid = it.uid, username = username)
                         Firebase.firestore.collection("users").document(it.uid)
                             .set(newUser)
                             .addOnSuccessListener {
