@@ -239,10 +239,14 @@ class FirestoreHelper(private val context: Context) {
                                 onSuccess = { user ->
                                     val notification = Notifications(
                                         title = "Friend Request",
-                                        message = "${user.givenName} is now friends with ${friendUser.givenName}"
+                                        message = "You are now friends with ${friendUser.givenName}"
+                                    )
+                                    val friendNotification = Notifications(
+                                        title = "Friend Request",
+                                        message = "You are now friends with ${user.givenName}"
                                     )
                                     addNotifications(currentUserId, notification)
-                                    addNotifications(friendUser.uid, notification)
+                                    addNotifications(friendUser.uid, friendNotification)
                                 },
                                 onFailure = { exception ->
                                     Log.d(TAG, exception.toString())

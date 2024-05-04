@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.util.Calendar
+import kotlin.math.abs
 
 private const val TAG = "InboxPage"
 class InboxPage : Fragment() {
@@ -83,10 +84,20 @@ class InboxPage : Fragment() {
                             // Check if notification needs to be sent
                             if (diffDays < 3 && !item.expireNotified) {
                                 //TODO: Capitalize the item name and make post-expiration red
-                                val notif = Notifications(
-                                    title = "Item Expiring Soon",
-                                    message = "${item.name} is expiring in ${diffDays+1} days"
-                                )
+                                var notif: Notifications
+                                if (diffDays < 0){
+                                     notif = Notifications(
+                                        title = "Item Expiring Soon",
+                                        message = "${item.name} expired ${abs(diffDays+1)} days ago"
+                                    )
+                                }
+                                else {
+                                    notif = Notifications(
+                                        title = "Item Expiring Soon",
+                                        message = "${item.name} is expiring in ${diffDays+1} days"
+                                    )
+                                }
+
                                 if (userUid != null) {
                                     firestoreHelper.addNotifications(userUid, notif)
                                     // Update expireNotified to true to avoid multiple notifications
