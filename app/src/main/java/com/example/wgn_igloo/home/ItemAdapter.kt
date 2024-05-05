@@ -226,74 +226,74 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                 holder.sharedWithValueTextView.visibility =
                     if (holder.sharedWithValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             }
-                if (item.isOwnedByUser) {
-                    holder.editButton.visibility =
-                        if (holder.editButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            if (item.isOwnedByUser) {
+                holder.editButton.visibility =
+                    if (holder.editButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                    holder.deleteButton.visibility =
-                        if (holder.deleteButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                holder.deleteButton.visibility =
+                    if (holder.deleteButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                    holder.addToShoppingList.visibility =
-                        if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                } else {
-                    holder.requestToBorrow.visibility =
-                        if (holder.requestToBorrow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                holder.addToShoppingList.visibility =
+                    if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            } else {
+                holder.requestToBorrow.visibility =
+                    if (holder.requestToBorrow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                    holder.requestToBorrow.setOnClickListener {
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid
-                        if (uid == null) {
-                            Toast.makeText(holder.itemView.context, "User not logged in!", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener
-                        }
-
-                        // Assuming friendsUID and uid are not empty
-                        var friendName = ""
-                        var userName = ""
-
-                        firestoreHelper.getUser(uid,
-                            onSuccess = { user ->
-                                userName = user.givenName
-                                // Nested call inside first onSuccess
-                                firestoreHelper.getUser(friendsUID,
-                                    onSuccess = { friend ->
-                                        friendName = friend.givenName
-                                        sendNotification(friendName, userName, uid, friendsUID, item.name, holder)
-                                    },
-                                    onFailure = { exception ->
-                                        Log.d(TAG, "Error getting friend", exception)
-                                        Toast.makeText(holder.itemView.context, "Failed to find friend.", Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            },
-                            onFailure = { exception ->
-                                Log.d(TAG, "Error getting user", exception)
-                                Toast.makeText(holder.itemView.context, "Failed to notify user.", Toast.LENGTH_SHORT).show()
-                            }
-                        )
+                holder.requestToBorrow.setOnClickListener {
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid
+                    if (uid == null) {
+                        Toast.makeText(holder.itemView.context, "User not logged in!", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
                     }
-                    holder.addToShoppingList.visibility =
-                        if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
+                    // Assuming friendsUID and uid are not empty
+                    var friendName = ""
+                    var userName = ""
+
+                    firestoreHelper.getUser(uid,
+                        onSuccess = { user ->
+                            userName = user.givenName
+                            // Nested call inside first onSuccess
+                            firestoreHelper.getUser(friendsUID,
+                                onSuccess = { friend ->
+                                    friendName = friend.givenName
+                                    sendNotification(friendName, userName, uid, friendsUID, item.name, holder)
+                                },
+                                onFailure = { exception ->
+                                    Log.d(TAG, "Error getting friend", exception)
+                                    Toast.makeText(holder.itemView.context, "Failed to find friend.", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        },
+                        onFailure = { exception ->
+                            Log.d(TAG, "Error getting user", exception)
+                            Toast.makeText(holder.itemView.context, "Failed to notify user.", Toast.LENGTH_SHORT).show()
+                        }
+                    )
                 }
+                holder.addToShoppingList.visibility =
+                    if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            }
 
-                holder.quantityTextView.visibility =
-                    if (holder.quantityTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            holder.quantityTextView.visibility =
+                if (holder.quantityTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                holder.quantityValueTextView.visibility =
-                    if (holder.quantityValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            holder.quantityValueTextView.visibility =
+                if (holder.quantityValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                holder.expirationTextView.visibility =
-                    if (holder.expirationTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            holder.expirationTextView.visibility =
+                if (holder.expirationTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                holder.dateTextView.visibility =
-                    if (holder.dateTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            holder.dateTextView.visibility =
+                if (holder.dateTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                if (item.sharedWith.isNotEmpty()) {
-                    holder.sharedWithValueTextView.text = "${item.sharedWith}"
-                    holder.sharedWithTextView.visibility =
-                        if (holder.sharedWithTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                    holder.sharedWithValueTextView.visibility =
-                        if (holder.sharedWithValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                }
+            if (item.sharedWith.isNotEmpty()) {
+                holder.sharedWithValueTextView.text = "${item.sharedWith}"
+                holder.sharedWithTextView.visibility =
+                    if (holder.sharedWithTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                holder.sharedWithValueTextView.visibility =
+                    if (holder.sharedWithValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            }
         }
     }
 
