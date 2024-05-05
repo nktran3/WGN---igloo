@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -49,12 +50,12 @@ class NewItemsFormFragment : Fragment() {
     private lateinit var sharedWithInput: Spinner
     // Hard coded list
     private val categoryList = arrayOf("Choose an option", "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Other" )
-//    private val sharedWithList = arrayOf("choose an option", "Wilbert", "Gary", "Nicole", "Rhett")
 
     // Default list with a placeholder for choosing an option
     private var sharedWithList = arrayOf("No one")
 
     private lateinit var toolbarAddItem: Toolbar
+    private lateinit var toolbarAddItemTitle: TextView
     companion object {
         private const val EXTRA_MESSAGE = "EXTRA_MESSAGE"
 
@@ -122,6 +123,7 @@ class NewItemsFormFragment : Fragment() {
         setupSpinnerCategory()
         setupSpinnerRoomate()
         toolbarAddItem = binding.toolbarAddItem
+        toolbarAddItemTitle = binding.toolbarAddItemTitle
         updateToolbar()
 //        fetchFriendsAndUpdateSpinner()
 
@@ -141,7 +143,7 @@ class NewItemsFormFragment : Fragment() {
     private fun updateToolbar() {
         toolbarAddItem.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
         toolbarAddItem.setNavigationOnClickListener { activity?.onBackPressed() }
-
+        toolbarAddItemTitle.text = "Add New Item"
     }
     private fun setupViews() {
         submitButton = binding.submitButton
