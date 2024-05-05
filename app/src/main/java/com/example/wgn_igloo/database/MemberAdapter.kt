@@ -11,7 +11,8 @@ class MemberAdapter(private var members: MutableList<Member>) :
     RecyclerView.Adapter<MemberAdapter.MemberViewHolder>() {
 
     class MemberViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.fridge_members)
+        val fullNameTextView: TextView = view.findViewById(R.id.fridge_members)
+        val usernameTextView: TextView = view.findViewById(R.id.fridge_members_username)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
@@ -21,7 +22,8 @@ class MemberAdapter(private var members: MutableList<Member>) :
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
         val member = members[position]
-        holder.textView.text = member.username  // Use username to display in TextView
+        holder.fullNameTextView.text = member.givenName + " " + member.familyName
+        holder.usernameTextView.text = member.username
     }
 
     override fun getItemCount() = members.size
