@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.example.wgn_igloo.R
@@ -20,6 +21,7 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private lateinit var toolbarProfile: Toolbar
+    private lateinit var toolbarProfileTitle: TextView
 
     companion object {
         private const val TAG = "ProfileFragment"
@@ -54,12 +56,14 @@ class ProfileFragment : Fragment() {
         }
 
         toolbarProfile = binding.toolbarProfile
+        toolbarProfileTitle = binding.toolbarProfileTitle
         updateToolbar()
     }
 
     private fun updateToolbar() {
         toolbarProfile.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarProfile.setNavigationOnClickListener { activity?.onBackPressed() }
+        toolbarProfileTitle.text = "Profile"
 
     }
     private fun updateUsername(newUsername: String) {
