@@ -77,6 +77,7 @@ class NewItemsFormFragment : Fragment() {
         }
         fetchFriendsAndUpdateSpinner()
     }
+
     private fun fetchFriendsAndUpdateSpinner() {
         val userId = auth.currentUser?.uid
         if (userId != null) {

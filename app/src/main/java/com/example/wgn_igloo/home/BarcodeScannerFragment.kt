@@ -155,7 +155,6 @@ class BarcodeScannerFragment : Fragment() {
     private fun upcLookup(upc: String) {
 
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl("https://api.nal.usda.gov/")
             .addConverterFactory(MoshiConverterFactory.create(moshi))

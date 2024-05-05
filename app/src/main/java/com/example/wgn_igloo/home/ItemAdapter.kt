@@ -53,7 +53,6 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
                 items[oldItemPosition] == newItems[newItemPosition]
         })
-
         items = newItems
         diffResult.dispatchUpdatesTo(this)
     }
@@ -106,18 +105,22 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             val userId = firestoreHelper.getCurrentUserId()
             val position = holder.adapterPosition
             if (userId != null && position != RecyclerView.NO_POSITION) {
-                firestoreHelper.deleteGroceryItem(userId, items[position].name,
-                    onSuccess = {
-                        // If deletion is successful, remove the item from the list safely
-                        val newList = items.toMutableList()
-                        newList.removeAt(position)
-                        updateItems(newList)
-                    },
-                    onFailure = { exception ->
-                        // Handle failure, e.g., show an error message
-                        Log.e(TAG, "Error deleting item", exception)
-                    }
-                )
+                val documentId = items[position].documentId
+                if (documentId.isNotEmpty()) {
+                    firestoreHelper.deleteGroceryItem(userId, documentId,
+                        onSuccess = {
+                            val newList = items.toMutableList().apply {
+                                removeAt(position)
+                            }
+                            updateItems(newList)
+                        },
+                        onFailure = { exception ->
+                            Toast.makeText(holder.itemView.context, "Error deleting item: ${exception.message}", Toast.LENGTH_LONG).show()
+                        }
+                    )
+                } else {
+                    Toast.makeText(holder.itemView.context, "Invalid document ID", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -142,7 +145,6 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                 )
             }
         }
-
 
         if (movedToShoppingList.contains(position)) {
             holder.addToShoppingList.isEnabled = false
@@ -179,44 +181,38 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             }
         }
         holder.itemTextView.setOnClickListener {
+            if (item.isOwnedByUser) {
+                holder.editButton.visibility =
+                    if (holder.editButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                if (item.isOwnedByUser) {
-                    holder.editButton.visibility =
-                        if (holder.editButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                holder.deleteButton.visibility =
+                    if (holder.deleteButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                    holder.deleteButton.visibility =
-                        if (holder.deleteButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                holder.addToShoppingList.visibility =
+                    if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            } else {
+                holder.requestToBorrow.visibility =
+                    if (holder.requestToBorrow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                holder.addToShoppingList.visibility =
+                    if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            }
 
-                    holder.addToShoppingList.visibility =
-                        if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                } else {
-                    holder.requestToBorrow.visibility =
-                        if (holder.requestToBorrow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            holder.quantityTextView.visibility =
+                if (holder.quantityTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            holder.quantityValueTextView.visibility =
+                if (holder.quantityValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            holder.expirationTextView.visibility =
+                if (holder.expirationTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            holder.dateTextView.visibility =
+                if (holder.dateTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                    holder.addToShoppingList.visibility =
-                        if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                }
-
-                holder.quantityTextView.visibility =
-                    if (holder.quantityTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                holder.quantityValueTextView.visibility =
-                    if (holder.quantityValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                holder.expirationTextView.visibility =
-                    if (holder.expirationTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                holder.dateTextView.visibility =
-                    if (holder.dateTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                if (item.sharedWith.isNotEmpty()) {
-                    holder.sharedWithValueTextView.text = "${item.sharedWith}"
-                    holder.sharedWithTextView.visibility =
-                        if (holder.sharedWithTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                    holder.sharedWithValueTextView.visibility =
-                        if (holder.sharedWithValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                }
-
+            if (item.sharedWith.isNotEmpty()) {
+                holder.sharedWithValueTextView.text = "${item.sharedWith}"
+                holder.sharedWithTextView.visibility =
+                    if (holder.sharedWithTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                holder.sharedWithValueTextView.visibility =
+                    if (holder.sharedWithValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            }
         }
     }
 
