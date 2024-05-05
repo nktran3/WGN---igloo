@@ -9,11 +9,13 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import com.example.wgn_igloo.R
 import com.example.wgn_igloo.database.FirestoreHelper
+import com.example.wgn_igloo.inbox.NotificationsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -24,10 +26,13 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     }
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var groceryItemAdapter: ItemAdapter
+    private lateinit var adapter: ItemAdapter
     private lateinit var viewPager: ViewPager
     private lateinit var leftArrow: ImageButton
     private lateinit var rightArrow: ImageButton
     private lateinit var userProfileAdapter: UserProfileAdapter
+
+    private lateinit var viewModel: NotificationsViewModel
 
     companion object {
         const val TAG = "InventoryDisplayFragment"
@@ -47,6 +52,8 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel = ViewModelProvider(requireActivity()).get(NotificationsViewModel::class.java)
         viewPager = view.findViewById(R.id.view_pager)
         leftArrow = view.findViewById(R.id.left_arrow)
         rightArrow = view.findViewById(R.id.right_arrow)
@@ -57,13 +64,18 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
 //        groceryItemAdapter = ItemAdapter(emptyList())
+
         groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper)
 //        firestoreHelper = FirestoreHelper(requireContext())
+// New implementation - commented bellow to solve merge
+//         groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
 
         recyclerView.adapter = groceryItemAdapter
         firestoreDb = FirebaseFirestore.getInstance()
 
         fetchCurrentUserAndFriends()
+
+        adapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
 
         view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
             navigateToAddNewItemForm()
@@ -204,6 +216,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
                 userRef.collection("friends").get().addOnSuccessListener { friendsSnapshot ->
                     val friendIds = friendsSnapshot.documents.map { it.id }
+                    Log.d(TAG, "$friendIds")
                     var friendsFetched = 0
                     if (friendIds.isEmpty()) {
                         // Update the user profile adapter if there are no friends
@@ -247,7 +260,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
                 val items = snapshot.toObjects(GroceryItem::class.java).map { item ->
                     item.copy(isOwnedByUser = isCurrentUser)  // Set flag based on whether the item belongs to the current user
                 }
-                groceryItemAdapter.updateItems(items)
+                groceryItemAdapter.updateItems(items, userId)
             }
             .addOnFailureListener { exception ->
                 Log.e(TAG, "Error getting grocery items: ", exception)

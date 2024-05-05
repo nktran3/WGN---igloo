@@ -1,34 +1,42 @@
 package com.example.wgn_igloo.inbox
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.text.format.DateFormat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.firebase.firestore.FirebaseFirestore
-import android.util.Log
 import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.database.FirestoreHelper
+import com.example.wgn_igloo.home.GroceryItem
+import com.example.wgn_igloo.home.InventoryDisplayFragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import java.util.Calendar
+import kotlin.math.abs
 
-data class Notification(
-    val notification: String
-)
-
+private const val TAG = "InboxPage"
 class InboxPage : Fragment() {
+    private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var recyclerView: RecyclerView
     private lateinit var notificationAdapter: NotificationsAdapter
-    private var notificationList: MutableList<Notification> = mutableListOf() // Ensure this is mutable
+    private lateinit var viewModel: NotificationsViewModel
+    private var notificationList: MutableList<Notifications> = mutableListOf(
+        Notifications(title = "Item Request", message = "Gary borrowed coconut")
+    ) // Ensure this is mutable
 
     private val db = FirebaseFirestore.getInstance()
 
-    companion object {
-        const val TAG = "FirestoreHelper"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
     }
 
     override fun onCreateView(
@@ -37,48 +45,108 @@ class InboxPage : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_inbox_page, container, false)
         recyclerView = view.findViewById(R.id.notifications_recycler_view)
-
-//         fetchFriendRequests()
-//         notificationList = listOf(
-//              Notification("Roommate 1 requested to borrow eggs"),
-//             Notification("Roommate 2 requested to borrow milk"),
-//         )
-
         recyclerView.layoutManager = LinearLayoutManager(context)
         notificationAdapter = NotificationsAdapter(notificationList)
         recyclerView.adapter = notificationAdapter
+        firestoreHelper = FirestoreHelper(requireContext())
+        checkExpiring()
+        fetchNotifications()
+        viewModel = ViewModelProvider(requireActivity()).get(NotificationsViewModel::class.java)
+
+        viewModel.refreshNotifications.observe(viewLifecycleOwner) { refresh ->
+            if (refresh) {
+                fetchNotifications()
+                viewModel.setRefreshNotifications(false)
+            }
+        }
         return view
     }
 
-    private fun fetchFriendRequests() {
-        db.collection("friendRequests")
-            .whereEqualTo("to", "currentUserId")  // Ensure to replace "currentUserId" with the actual user ID
+
+    private fun checkExpiring() {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        FirebaseFirestore.getInstance().collection("users")
+            .document(userUid).collection("groceryItems")
             .get()
-            .addOnSuccessListener { documents ->
-                notificationList.clear()  // Clear existing data
-                if (documents.isEmpty) {
-                    notificationList.add(Notification("No friend requests"))
-                } else {
-                    documents.forEach { doc ->
-                        doc.getString("from")?.let { from ->
-                            notificationList.add(Notification("You have a friend request from $from"))
+            .addOnSuccessListener { snapshot ->
+                if (snapshot != null && !snapshot.isEmpty) {
+                    val today = Calendar.getInstance()
+                    for (document in snapshot.documents) {
+                        val item = document.toObject(GroceryItem::class.java)
+                        val itemId = document.id  // Retrieving the document ID which serves as the itemID
+                        if (item != null) {
+                            val expirationCal: Calendar = Calendar.getInstance()
+                            expirationCal.timeInMillis = item.expirationDate.seconds * 1000L
+                            val date: String = DateFormat.format("dd-MM-yyyy", expirationCal).toString()
+                            val diffTime = expirationCal.timeInMillis - today.timeInMillis
+                            val diffDays = diffTime / (24 * 60 * 60 * 1000)
+                            Log.d(TAG, "${item.name} expires on $date. Days until expiration: $diffDays")
+                            // Check if notification needs to be sent
+                            if (diffDays < 3 && !item.expireNotified) {
+                                //TODO: Capitalize the item name and make post-expiration red
+                                var notif: Notifications
+                                if (diffDays < 0){
+                                     notif = Notifications(
+                                        title = "Item Expiring Soon",
+                                        message = "${item.name} expired ${abs(diffDays+1)} days ago"
+                                    )
+                                }
+                                else {
+                                    notif = Notifications(
+                                        title = "Item Expiring Soon",
+                                        message = "${item.name} is expiring in ${diffDays+1} days"
+                                    )
+                                }
+
+                                if (userUid != null) {
+                                    firestoreHelper.addNotifications(userUid, notif)
+                                    // Update expireNotified to true to avoid multiple notifications
+                                    FirebaseFirestore.getInstance().collection("users")
+                                        .document(userUid).collection("groceryItems").document(itemId)
+                                        .update("expireNotified", true)
+                                        .addOnSuccessListener {
+                                            Log.d(TAG, "Notification flag updated for ${item.name}")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.w(TAG, "Error updating notification flag for ${item.name}", e)
+                                        }
+                                }
+                            }
                         }
                     }
+                    fetchNotifications()
+                } else {
+                    Log.d(TAG, "No grocery items found")
                 }
-                notificationAdapter.notifyDataSetChanged()  // Notify the adapter of data change
             }
             .addOnFailureListener { exception ->
-                Log.w(TAG, "Error fetching friend requests: ", exception)
-                notificationList.add(Notification("Failed to fetch friend requests"))
-                notificationAdapter.notifyDataSetChanged()
+                Log.d(InventoryDisplayFragment.TAG, "Error getting documents: ", exception)
             }
     }
 
-    class NotificationsAdapter(private val notifications: List<Notification>) :
+
+    private fun fetchNotifications() {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        FirebaseFirestore.getInstance().collection("users")
+            .document(userUid).collection("notificationItems").orderBy("timeCreated", Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val notifs = snapshot.toObjects(Notifications::class.java)
+                print("Notifications:" + notifs)
+                notificationAdapter.updateItems(notifs)
+            }
+            .addOnFailureListener { exception ->
+                Log.d(InventoryDisplayFragment.TAG, "Error getting documents: ", exception)
+            }
+    }
+
+
+    class NotificationsAdapter(private var notifications: List<Notifications>) :
         RecyclerView.Adapter<NotificationsAdapter.NotificationViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.notification_action_item, parent, false)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.notification_text_item, parent, false)
             return NotificationViewHolder(view)
         }
 
@@ -87,11 +155,17 @@ class InboxPage : Fragment() {
             holder.bind(notification)
         }
 
+        fun updateItems(newNotifs: List<Notifications>) {
+            notifications = newNotifs
+            notifyDataSetChanged()
+        }
+
         override fun getItemCount() = notifications.size
 
         class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            fun bind(notification: Notification) {
-                itemView.findViewById<TextView>(R.id.notification_request_text).text = notification.notification
+            fun bind(notification: Notifications) {
+                itemView.findViewById<TextView>(R.id.notification_title).text = notification.title
+                itemView.findViewById<TextView>(R.id.notification_body).text = notification.message
             }
         }
     }

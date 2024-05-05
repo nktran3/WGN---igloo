@@ -45,7 +45,7 @@
     <string name="questions">Question</string>
     <string name="answer">Answer</string>
     <string name="scan_button">Scan</string>
-    <string name="see_fridge"><u>See in Your Fridge</u></string>
+    <string name="notification_body"><u>Notification Body</u></string>
     <string name="recipes_query">Recipes containing:</string>
     <string name="search_recipe_button">Search</string>
     <string name="ingredients">Ingredients</string>
@@ -79,5 +79,7 @@
     <string name="default_web_client_id">938243713874-9iik8hlaoikc60pdpv6glich1gek2a9d.apps.googleusercontent.com</string>
     <string name="my_friends">MY FRIENDS</string>
     <string name="add_friend">ADD FRIEND</string>
-
+    <string name="about1">Welcome to igloo! igloo is a mobile application that allows users to keep track of all the items in their fridge. This app is a useful tool to help users reduce food waste and simplify the process of planning meals based on the ingredients they have on hand.</string>
+    <string name="our_mission">Our Mission</string>
+    <string name="mission">At igloo, we\'re on a mission to empower users to take control of their fridge contents, reduce food waste, and make meal planning effortless. We believe that by harnessing the power of technology, we can revolutionize the way people manage their food inventory and contribute to a more sustainable world.</string>
 </resources>

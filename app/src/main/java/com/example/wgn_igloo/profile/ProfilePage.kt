@@ -42,7 +42,7 @@ class ProfilePage : Fragment() {
         ProfileItem(R.drawable.support_icon, "Support"),
         ProfileItem(R.drawable.faq_icon, "FAQ"),
         ProfileItem(R.drawable.setting_icon, "Settings"),
-        ProfileItem(R.drawable.about_icon, "About"),
+        ProfileItem(R.drawable.about_icon, "About Us"),
         ProfileItem(R.drawable.logout_icon, "Logout")
 
     )
@@ -88,7 +88,7 @@ class ProfilePage : Fragment() {
 
                 "Settings" -> showSettings()
 
-                "About" -> showAbout()
+                "About Us" -> showAbout()
 
                 "Logout" -> {
                     signOut()

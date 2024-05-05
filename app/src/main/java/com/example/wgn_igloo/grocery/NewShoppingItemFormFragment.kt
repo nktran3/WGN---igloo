@@ -23,6 +23,7 @@ class NewShoppingItemFormFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var toolbarAddShopping: Toolbar
+    private lateinit var toolbarAddShoppingTitle: TextView
 //    private val auth by lazy { FirebaseAuth.getInstance() }
     private val firestore by lazy { FirebaseFirestore.getInstance() }
 
@@ -50,13 +51,14 @@ class NewShoppingItemFormFragment : Fragment() {
         setupSpinners()
         setupSubmitButton()
         toolbarAddShopping = binding.toolbarAddShopping
+        toolbarAddShoppingTitle = binding.toolbarAddShoppingTitle
         updateToolbar()
     }
 
     private fun updateToolbar() {
         toolbarAddShopping.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarAddShopping.setNavigationOnClickListener { activity?.onBackPressed() }
-
+        toolbarAddShoppingTitle.text = "Add New Item"
     }
 
     private fun setupSpinners() {
