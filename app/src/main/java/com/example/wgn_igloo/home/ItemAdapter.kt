@@ -243,7 +243,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
         if (friendName.isNotEmpty() && userName.isNotEmpty()) {
             val notif = Notifications(
                 title = "Item Request",
-                message = "$userName wants to borrow $itemName from $friendName"
+                message = "You wants to borrow $itemName from $friendName"
             )
             val notifToFriend = Notifications(
                 title = "Item Request",
