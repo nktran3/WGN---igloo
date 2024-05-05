@@ -97,8 +97,10 @@ class Members : Fragment() {
                 snapshot?.documents?.forEach { document ->
                     val username = document.getString("username") ?: return@forEach
                     val uid = document.getString("uid") ?: return@forEach
+                    val givenName = document.getString("givenName") ?: ""
+                    val familyName = document.getString("familyName") ?: ""
                     val friendSince = document.getDate("friendSince")
-                    friendsList.add(Member(username, uid, friendSince))
+                    friendsList.add(Member(username, uid, givenName, familyName, friendSince))
                 }
                 memberAdapter.updateMembers(friendsList)
             }
