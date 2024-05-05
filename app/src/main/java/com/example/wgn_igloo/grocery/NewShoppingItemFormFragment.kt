@@ -133,8 +133,14 @@ class NewShoppingItemFormFragment : Fragment() {
             purchasedBy = userUid
         )
 
-        firestoreHelper.addShoppingListItem(userUid, shoppingItem)
-    }
+        firestoreHelper.addShoppingListItem(userUid, shoppingItem,
+            onSuccess = {
+                Toast.makeText(context, "${shoppingItem.name} added successfully", Toast.LENGTH_SHORT).show()
+            },
+            onFailure = {
+                Toast.makeText(context, "Failed to add item: ${it.message}", Toast.LENGTH_LONG).show()
+            }
+        )    }
 
 
     override fun onDestroyView() {

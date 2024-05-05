@@ -80,7 +80,7 @@ class ProfileFragment : Fragment() {
 
     private fun fetchUserData(userId: String) {
         firestoreHelper.getUser(userId, onSuccess = { user ->
-
+            binding.nameTextView.text = user.givenName + " " + user.familyName
             binding.emailTextView.text = user.email
             binding.uidTextView.text = user.uid
             binding.usernameTextView.text = user.username // Display username in the TextView

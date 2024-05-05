@@ -2,6 +2,7 @@ package com.example.wgn_igloo.home
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,10 +12,11 @@ import androidx.fragment.app.Fragment
 import com.example.wgn_igloo.R
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.FragmentEditItemsFormBinding
-import com.google.gson.Gson
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
+import com.google.gson.Gson
 import java.util.*
 
 class EditItemsFormFragment : Fragment() {
@@ -27,6 +29,7 @@ class EditItemsFormFragment : Fragment() {
     companion object {
         private const val ARG_ITEM_JSON = "edit_item_json"
 
+
         fun newInstance(item: GroceryItem): EditItemsFormFragment {
             val fragment = EditItemsFormFragment()
             val args = Bundle()
@@ -37,12 +40,6 @@ class EditItemsFormFragment : Fragment() {
         }
     }
 
-//    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-//        _binding = FragmentEditItemsFormBinding.inflate(inflater, container, false)
-//        firestore = FirebaseFirestore.getInstance()
-//        return binding.root
-//    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentEditItemsFormBinding.inflate(inflater, container, false)
@@ -50,46 +47,15 @@ class EditItemsFormFragment : Fragment() {
         return binding.root
     }
 
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//        val itemJson = arguments?.getString(ARG_ITEM_JSON)
-//        val item = Gson().fromJson(itemJson, GroceryItem::class.java)
-//        setupViews(item)
-//        loadSpinnerData(item)
-//    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val itemId = arguments?.getString("item_id") ?: return
-        fetchItemAndSetupViews(itemId)
-    }
-
-    private fun fetchItemAndSetupViews(itemId: String) {
-        val userId = FirestoreHelper(requireContext()).getCurrentUserId() ?: return
-        firestore.document("/users/$userId/groceryItems/$itemId").get().addOnSuccessListener { documentSnapshot ->
-            val item = documentSnapshot.toObject(GroceryItem::class.java) ?: return@addOnSuccessListener
+        val itemJson = arguments?.getString(ARG_ITEM_JSON)
+        val item = Gson().fromJson(itemJson, GroceryItem::class.java)
+        if (item != null) {
             setupViews(item)
-        }.addOnFailureListener {
-            Toast.makeText(context, "Failed to fetch item details", Toast.LENGTH_SHORT).show()
         }
     }
 
-//    private fun setupViews(item: GroceryItem?) {
-////        item?.let {
-////            binding.itemInput.setText(it.name)
-////            binding.quantityInput.setText(it.quantity.toString())
-//////            setupCategorySpinner(it.category)
-////            setupDatePicker(it.expirationDate)
-//////            setupSharedWithSpinner(it.sharedWith)
-////        }
-//        item?.let {
-//            binding.itemInput.setText(it.name)
-//            binding.quantityInput.setText(it.quantity.toString())
-//        }
-//        binding.submitButton.setOnClickListener {
-//            updateItem()
-//        }
-//    }
     private fun setupViews(item: GroceryItem) {
         binding.itemInput.setText(item.name)
         binding.quantityInput.setText(item.quantity.toString())
@@ -102,46 +68,75 @@ class EditItemsFormFragment : Fragment() {
         }
     }
 
-//    private fun loadSpinnerData(item: GroceryItem?) {
-//        firestore.collection("categories").get().addOnSuccessListener { snapshot ->
-//            val categories = snapshot.documents.map { it.id }
-//            setupCategorySpinner(categories, item?.category ?: "")
-//        }
-//
-//        firestore.collection("shared_with_options").get().addOnSuccessListener { snapshot ->
-//            val sharedWithOptions = snapshot.documents.map { it.id }
-//            setupSharedWithSpinner(sharedWithOptions, item?.sharedWith ?: "")
-//        }
-//    }
+    private fun getCurrentUserId(): String? {
+        return FirebaseAuth.getInstance().currentUser?.uid
+    }
 
-//    private fun setupCategorySpinner(categories: List<String>, selectedCategory: String) {
-//        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categories)
-//        binding.categoryInput.adapter = adapter
-//        binding.categoryInput.setSelection(categories.indexOf(selectedCategory))
-//    }
 
     private fun setupCategorySpinner(selectedCategory: String) {
-        val categories = arrayOf("Drinks", "Dairy", "Produce") // Should be fetched from Firestore or defined statically
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categories)
-        binding.categoryInput.adapter = adapter
-        binding.categoryInput.setSelection(categories.indexOfFirst { it == selectedCategory })
+        val userId = getCurrentUserId()
+        if (userId == null) {
+            Toast.makeText(context, "User not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        firestore.collection("/users/$userId/groceryItems")
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    Log.d("SetupSpinner", "No categories found")
+                    Toast.makeText(context, "No categories found", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Extract unique categories using a set to avoid duplicates
+                    val categories = documents.documents.mapNotNull { it.getString("category") }.toSet().toTypedArray()
+                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categories)
+                    binding.categoryInput.adapter = adapter
+                    // Set the current selection based on fetched data
+                    val selectedIndex = categories.indexOfFirst { it == selectedCategory }
+                    binding.categoryInput.setSelection(if (selectedIndex >= 0) selectedIndex else 0)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("SetupSpinner", "Failed to fetch categories: ${e.message}", e)
+                Toast.makeText(context, "Failed to fetch categories: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
-//    private fun setupSharedWithSpinner(sharedWithOptions: List<String>, selectedSharedWith: String) {
-//        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, sharedWithOptions)
-//        binding.sharedWithInput.adapter = adapter
-//        binding.sharedWithInput.setSelection(sharedWithOptions.indexOf(selectedSharedWith))
-//    }
+
     private fun setupSharedWithSpinner(selectedSharedWith: String) {
-        val sharedWithOptions = arrayOf("None", "Family", "Friends") // Should be fetched from Firestore or defined statically
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, sharedWithOptions)
-        binding.sharedWithInput.adapter = adapter
-        binding.sharedWithInput.setSelection(sharedWithOptions.indexOfFirst { it == selectedSharedWith })
+        val userId = getCurrentUserId()
+        if (userId == null) {
+            Toast.makeText(context, "User not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Assuming shared options are stored under a specific user's document
+        firestore.collection("/users/$userId/groceryItems")
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    Log.d("SetupSpinner", "No shared options found")
+                    Toast.makeText(context, "No shared options found", Toast.LENGTH_SHORT).show()
+                } else {
+                    val sharedWithOptions = documents.mapNotNull { it.getString("sharedWith") }.toTypedArray()
+                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, sharedWithOptions)
+                    binding.sharedWithInput.adapter = adapter
+                    val selectedIndex = sharedWithOptions.indexOfFirst { it == selectedSharedWith }
+                    binding.sharedWithInput.setSelection(if (selectedIndex >= 0) selectedIndex else 0)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("SetupSpinner", "Failed to fetch shared options: ${e.message}", e)
+                Toast.makeText(context, "Failed to fetch shared options: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
+
+
+
+
     private fun setupDatePicker(selectedDate: Timestamp) {
         val calendar = Calendar.getInstance()
         calendar.time = selectedDate.toDate()
-
         val datePickerListener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, month)
@@ -159,40 +154,26 @@ class EditItemsFormFragment : Fragment() {
         binding.expirationInput.setText(dateFormat.format(calendar.time))
     }
 
-//    private fun updateItem() {
-//        val updatedItem = GroceryItem(
-//            name = binding.itemInput.text.toString(),
-//            quantity = binding.quantityInput.text.toString().toInt(),
-//            category = binding.categoryInput.selectedItem.toString(),
-//            sharedWith = binding.sharedWithInput.selectedItem.toString(),
-//            expirationDate = Timestamp(Date()),  // Replace with actual date parsing logic
-//            dateBought = Timestamp.now(),
-//            status = true,
-//            isOwnedByUser = true
-//        )
-//
-//        FirestoreHelper(requireContext()).updateGroceryItem(updatedItem, {
-//            Toast.makeText(context, "Item updated successfully", Toast.LENGTH_SHORT).show()
-//        }, {
-//            Toast.makeText(context, "Failed to update item", Toast.LENGTH_SHORT).show()
-//        })
-//    }
     private fun updateItem(item: GroceryItem) {
         val updatedItem = item.copy(
             name = binding.itemInput.text.toString(),
             quantity = binding.quantityInput.text.toString().toInt(),
             category = binding.categoryInput.selectedItem.toString(),
             sharedWith = binding.sharedWithInput.selectedItem.toString(),
-            expirationDate = FirestoreHelper(requireContext()).parseTimestamp(binding.expirationInput.text.toString()),
-            dateBought = item.dateBought,
-            status = item.status,
-            isOwnedByUser = item.isOwnedByUser
+            expirationDate = parseTimestamp(binding.expirationInput.text.toString()),
+            status = item.status, // assuming you want to keep the status unchanged
+            isOwnedByUser = item.isOwnedByUser // assuming you want to keep the ownership status unchanged
         )
 
-        FirestoreHelper(requireContext()).updateGroceryItem(updatedItem, {
+        firestoreHelper.updateGroceryItem(updatedItem, {
             Toast.makeText(context, "Item updated successfully", Toast.LENGTH_SHORT).show()
         }, {
             Toast.makeText(context, "Failed to update item", Toast.LENGTH_SHORT).show()
         })
+    }
+
+    private fun parseTimestamp(dateStr: String): Timestamp {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        return Timestamp(sdf.parse(dateStr) ?: Date())
     }
 }

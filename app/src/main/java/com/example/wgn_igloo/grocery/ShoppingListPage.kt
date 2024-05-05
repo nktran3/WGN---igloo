@@ -122,7 +122,7 @@ class ShoppingListPage : Fragment() {
             )
 
             // Add the dummy item to Firestore using FirestoreHelper
-            firestoreHelper.addShoppingListItem(uid, dummyItem)
+//            firestoreHelper.addShoppingListItem(uid, dummyItem)
         }
         // after add fetch again
         userUid?.let { uid ->

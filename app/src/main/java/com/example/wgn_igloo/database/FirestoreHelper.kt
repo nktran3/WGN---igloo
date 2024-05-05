@@ -37,11 +37,43 @@ class FirestoreHelper(private val context: Context) {
         return auth.currentUser?.uid
     }
 
-    fun addGroceryItem(uid: String, item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//    fun addGroceryItem(uid: String, item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("users").document(uid).collection("groceryItems").add(item)
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Item added successfully")
+//                onSuccess()
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "Error adding item", e)
+//                onFailure(e)
+//            }
+//    }
+//    fun addGroceryItem(uid: String, item: GroceryItem, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("users").document(uid).collection("groceryItems").add(item)
+//            .addOnSuccessListener { documentReference ->
+//                Log.d(TAG, "Item added successfully with ID: ${documentReference.id}")
+//                onSuccess(documentReference.id)  // Pass the new document ID back
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "Error adding item", e)
+//                onFailure(e)
+//            }
+//    }
+
+    fun addGroceryItem(uid: String, item: GroceryItem, onSuccess: (GroceryItem) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(uid).collection("groceryItems").add(item)
-            .addOnSuccessListener {
-                Log.d(TAG, "Item added successfully")
-                onSuccess()
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "Item added successfully with ID: ${documentReference.id}")
+                val newItem = item.copy(documentId = documentReference.id)
+                // Update the Firestore entry with the new documentId included
+                documentReference.set(newItem)
+                    .addOnSuccessListener {
+                        onSuccess(newItem)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "Error updating item with documentId", e)
+                        onFailure(e)
+                    }
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error adding item", e)
@@ -82,29 +114,73 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    fun addShoppingListItem(uid: String, item: ShoppingListItem) {
+//    fun addShoppingListItem(uid: String, item: ShoppingListItem) {
+//        db.collection("users").document(uid).collection("shoppingList").document(item.name).set(item)
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Shopping list item added successfully")
+//            }
+//            .addOnFailureListener { e ->
+//                Log.w(TAG, "Error adding shopping list item", e)
+//            }
+//    }
+
+    fun addShoppingListItem(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(uid).collection("shoppingList").document(item.name).set(item)
             .addOnSuccessListener {
                 Log.d(TAG, "Shopping list item added successfully")
+                onSuccess()
             }
             .addOnFailureListener { e ->
                 Log.w(TAG, "Error adding shopping list item", e)
+                onFailure(e)
             }
     }
 
 
+
+//    fun moveItemToInventory(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        // Remove from shopping list
+//        db.collection("users").document(uid).collection("shoppingList").document(item.name).delete()
+//            .addOnSuccessListener {
+//                // Add to grocery items with a unique name
+//                val groceryItem = mapShoppingListItemToGroceryItem(item)
+////                db.collection("users").document(uid).collection("groceryItems").add(item)
+//                db.collection("users").document(uid).collection("groceryItems").add(groceryItem)
+////                db.collection("users").document(uid).collection("groceryItems").document(groceryItem.name).set(groceryItem)
+//                    .addOnSuccessListener {
+//                        Log.d(TAG, "Item moved to grocery items successfully")
+//                        onSuccess()
+//                    }
+//                    .addOnFailureListener { e ->
+//                        Log.w(TAG, "Error adding item to grocery items", e)
+//                        onFailure(e)
+//                    }
+//            }
+//            .addOnFailureListener { e ->
+//                Log.w(TAG, "Error removing item from shopping list", e)
+//                onFailure(e)
+//            }
+//    }
     fun moveItemToInventory(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        // Remove from shopping list
+        // First, delete the item from the shopping list
         db.collection("users").document(uid).collection("shoppingList").document(item.name).delete()
             .addOnSuccessListener {
-                // Add to grocery items with a unique name
+                // Create the corresponding GroceryItem
                 val groceryItem = mapShoppingListItemToGroceryItem(item)
-//                db.collection("users").document(uid).collection("groceryItems").add(item)
+                // Add to grocery items and get the new document ID
                 db.collection("users").document(uid).collection("groceryItems").add(groceryItem)
-//                db.collection("users").document(uid).collection("groceryItems").document(groceryItem.name).set(groceryItem)
-                    .addOnSuccessListener {
-                        Log.d(TAG, "Item moved to grocery items successfully")
-                        onSuccess()
+                    .addOnSuccessListener { documentReference ->
+                        // Update the GroceryItem with the new documentId
+                        val updatedGroceryItem = groceryItem.copy(documentId = documentReference.id)
+                        documentReference.set(updatedGroceryItem)
+                            .addOnSuccessListener {
+                                Log.d(TAG, "Item moved to grocery items successfully with document ID: ${documentReference.id}")
+                                onSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(TAG, "Error updating item with documentId", e)
+                                onFailure(e)
+                            }
                     }
                     .addOnFailureListener { e ->
                         Log.w(TAG, "Error adding item to grocery items", e)
@@ -117,17 +193,62 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+
+//    fun getGroceryItems(userId: String, onSuccess: (List<GroceryItem>) -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("users").document(userId).collection("groceryItems")
+//            .get()
+//            .addOnSuccessListener { snapshot ->
+//                val items = snapshot.toObjects(GroceryItem::class.java)
+//                onSuccess(items)
+//            }
+//            .addOnFailureListener { exception ->
+//                onFailure(exception)
+//            }
+//    }
+
     fun getGroceryItems(userId: String, onSuccess: (List<GroceryItem>) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(userId).collection("groceryItems")
             .get()
             .addOnSuccessListener { snapshot ->
-                val items = snapshot.toObjects(GroceryItem::class.java)
+                val items = snapshot.documents.map { document ->
+                    GroceryItem(
+                        documentId = document.id,  // Store the document ID within each GroceryItem
+                        category = document.getString("category") ?: "",
+                        dateBought = document.getTimestamp("dateBought") ?: Timestamp.now(),
+                        expirationDate = document.getTimestamp("expirationDate") ?: Timestamp.now(),
+                        name = document.getString("name") ?: "",
+                        quantity = (document.getLong("quantity") ?: 0L).toInt(),
+                        sharedWith = document.getString("sharedWith") ?: "",
+                        status = document.getBoolean("status") ?: false,
+                        isOwnedByUser = document.getBoolean("isOwnedByUser") ?: true
+                    )
+                }
                 onSuccess(items)
             }
             .addOnFailureListener { exception ->
+                Log.e(TAG, "Error fetching grocery items: ", exception)
                 onFailure(exception)
             }
     }
+
+    fun fetchGroceryItemsForUser(userId: String, onSuccess: (List<GroceryItem>) -> Unit, onFailure: (Exception) -> Unit) {
+        val userRef = db.collection("users").document(userId).collection("groceryItems")
+        userRef.get().addOnSuccessListener { snapshot ->
+            val ownedItems = snapshot.toObjects(GroceryItem::class.java)
+
+            // Fetch items shared with this user
+            db.collectionGroup("groceryItems")
+                .whereEqualTo("sharedWith", userId)
+                .get()
+                .addOnSuccessListener { sharedSnapshot ->
+                    val sharedItems = sharedSnapshot.toObjects(GroceryItem::class.java)
+                    onSuccess(ownedItems + sharedItems)  // Combine owned and shared items
+                }
+                .addOnFailureListener(onFailure)
+        }
+            .addOnFailureListener(onFailure)
+    }
+
 
     fun getSavedRecipe(userId: String, onSuccess: (List<SavedRecipe>) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(userId).collection("savedRecipes")
@@ -156,18 +277,45 @@ class FirestoreHelper(private val context: Context) {
         )
     }
 
+//    fun shareGroceryItem(userId: String, itemId: String, friendUserId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        val itemRef = db.collection("users").document(userId).collection("groceryItems").document(itemId)
+//        itemRef.update("sharedWith", friendUserId)
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Grocery item shared successfully")
+//                onSuccess()
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.w(TAG, "Error sharing grocery item", exception)
+//                onFailure(exception)
+//            }
+//    }
+
     fun shareGroceryItem(userId: String, itemId: String, friendUserId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val itemRef = db.collection("users").document(userId).collection("groceryItems").document(itemId)
         itemRef.update("sharedWith", friendUserId)
             .addOnSuccessListener {
-                Log.d(TAG, "Grocery item shared successfully")
-                onSuccess()
+                itemRef.get().addOnSuccessListener { documentSnapshot ->
+                    val item = documentSnapshot.toObject(GroceryItem::class.java)
+                    item?.let {
+                        db.collection("users").document(friendUserId).collection("sharedItems").document(itemId).set(it)
+                            .addOnSuccessListener {
+                                Log.d(TAG, "Grocery item shared successfully and added to friend's shared items")
+                                onSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Error adding item to friend's shared items", e)
+                                onFailure(e)
+                            }
+                    }
+                }
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error sharing grocery item", exception)
                 onFailure(exception)
             }
     }
+
+
 
 
     fun getUser(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
@@ -433,30 +581,103 @@ class FirestoreHelper(private val context: Context) {
 //                onFailure(e)
 //            }
 //    }
-    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        Log.d(TAG, "Attempting to delete item: $itemName for user: $userId")
-        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
-        docRef.addOnSuccessListener { documents ->
-            if (documents.isEmpty) {
-                Log.w(TAG, "No item found with name: $itemName for deletion")
-            } else {
-                for (document in documents) {
-                    db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
-                        .addOnSuccessListener {
-                            Log.d(TAG, "Item deleted successfully: ${document.id}")
-                            onSuccess()
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e(TAG, "Error deleting item: ${document.id}", e)
-                            onFailure(e)
-                        }
-                }
-            }
-        }.addOnFailureListener { e ->
-            Log.e(TAG, "Failed to retrieve item for deletion: $itemName", e)
-            onFailure(e)
+//    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        Log.d(TAG, "Attempting to delete item: $itemName for user: $userId")
+////        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
+//        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
+//        docRef.addOnSuccessListener { documents ->
+//            if (documents.isEmpty) {
+//                Log.w(TAG, "No item found with name: $itemName for deletion")
+//            } else {
+//                for (document in documents) {
+//                    db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
+//                        .addOnSuccessListener {
+//                            Log.d(TAG, "Item deleted successfully: ${document.id}")
+//                            onSuccess()
+//                        }
+//                        .addOnFailureListener { e ->
+//                            Log.e(TAG, "Error deleting item: ${document.id}", e)
+//                            onFailure(e)
+//                        }
+//                }
+//            }
+//        }.addOnFailureListener { e ->
+//            Log.e(TAG, "Failed to retrieve item for deletion: $itemName", e)
+//            onFailure(e)
+//        }
+//    }
+
+//    fun deleteGroceryItem(userId: String, documentId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        db.collection("users").document(userId).collection("groceryItems").document(documentId)
+//            .delete()
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Item deleted successfully: $documentId")
+//                onSuccess()
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "Error deleting item: $documentId", e)
+//                onFailure(e)
+//            }
+//    }
+
+    fun deleteGroceryItem(userId: String, documentId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        if (documentId.isBlank()) {
+            Log.e(TAG, "Invalid document ID")
+            onFailure(IllegalArgumentException("Invalid document ID"))
+            return
         }
+
+        db.collection("users").document(userId).collection("groceryItems").document(documentId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "Item deleted successfully: $documentId")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error deleting item: $documentId", e)
+                onFailure(e)
+            }
     }
+
+//    fun moveItemToShoppingList(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        val groceryItemRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName)
+//
+//        groceryItemRef.get().addOnSuccessListener { documents ->
+//            if (documents.isEmpty) {
+//                Log.w(TAG, "No item found with name: $itemName")
+//                onFailure(Exception("No item found with name: $itemName"))
+//            } else {
+//                val document = documents.documents.first()  // Assuming name is unique, so we take the first document.
+//                val item = document.toObject(GroceryItem::class.java)
+//                if (item != null) {
+//                    // Add to shopping list
+//                    db.collection("users").document(userId).collection("shoppingList").document(itemName).set(item)
+//                        .addOnSuccessListener {
+//                            // Delete from grocery items
+//                            db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
+//                                .addOnSuccessListener {
+//                                    Log.d(TAG, "Item moved to shopping list successfully and removed from grocery items")
+//                                    onSuccess()
+//                                }
+//                                .addOnFailureListener { e ->
+//                                    Log.e(TAG, "Error deleting item from grocery items", e)
+//                                    onFailure(e)
+//                                }
+//                        }
+//                        .addOnFailureListener { e ->
+//                            Log.e(TAG, "Error adding item to shopping list", e)
+//                            onFailure(e)
+//                        }
+//                } else {
+//                    Log.w(TAG, "Failed to parse the grocery item")
+//                    onFailure(Exception("Failed to parse the grocery item"))
+//                }
+//            }
+//        }.addOnFailureListener { e ->
+//            Log.e(TAG, "Error retrieving grocery item", e)
+//            onFailure(e)
+//        }
+//    }
 
     fun moveItemToShoppingList(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val groceryItemRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName)
@@ -472,16 +693,8 @@ class FirestoreHelper(private val context: Context) {
                     // Add to shopping list
                     db.collection("users").document(userId).collection("shoppingList").document(itemName).set(item)
                         .addOnSuccessListener {
-                            // Delete from grocery items
-                            db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
-                                .addOnSuccessListener {
-                                    Log.d(TAG, "Item moved to shopping list successfully and removed from grocery items")
-                                    onSuccess()
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e(TAG, "Error deleting item from grocery items", e)
-                                    onFailure(e)
-                                }
+                            Log.d(TAG, "Item moved to shopping list successfully")
+                            onSuccess()
                         }
                         .addOnFailureListener { e ->
                             Log.e(TAG, "Error adding item to shopping list", e)
@@ -497,28 +710,5 @@ class FirestoreHelper(private val context: Context) {
             onFailure(e)
         }
     }
-
-//    fun addRecipe(recipe: RecipeSearch, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-//        db.collection("recipes").add(recipe)
-//            .addOnSuccessListener {
-//                onSuccess()
-//            }
-//            .addOnFailureListener { e ->
-//                onFailure(e)
-//            }
-//    }
-//
-//    fun getRecipes(onSuccess: (List<RecipeSearch>) -> Unit, onFailure: (Exception) -> Unit) {
-//        db.collection("recipes")
-//            .get()
-//            .addOnSuccessListener { result ->
-//                val recipes = result.toObjects(RecipeSearch::class.java)
-//                onSuccess(recipes)
-//            }
-//            .addOnFailureListener { e ->
-//                onFailure(e)
-//            }
-//    }
-
 
 }
