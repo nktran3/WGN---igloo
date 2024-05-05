@@ -1,5 +1,6 @@
 package com.example.wgn_igloo.database
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,11 +21,19 @@ class MemberAdapter(private var members: MutableList<Member>) :
         return MemberViewHolder(view)
     }
 
+//    override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
+//        val member = members[position]
+//        holder.fullNameTextView.text = member.givenName + " " + member.familyName
+//        holder.usernameTextView.text = member.username
+//    }
+
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
         val member = members[position]
-        holder.fullNameTextView.text = member.givenName + " " + member.familyName
+        holder.fullNameTextView.text = "${member.givenName} ${member.familyName}"
         holder.usernameTextView.text = member.username
+        Log.d("MemberAdapter", "Binding view for: ${member.givenName} ${member.familyName}") // Debugging to see what's being bound
     }
+
 
     override fun getItemCount() = members.size
 
