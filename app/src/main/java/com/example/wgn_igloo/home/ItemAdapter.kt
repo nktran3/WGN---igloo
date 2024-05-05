@@ -125,7 +125,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                             val newList = items.toMutableList().apply {
                                 removeAt(position)
                             }
-                            updateItems(newList)
+                            updateItems(newList, userId)
                         },
                         onFailure = { exception ->
                             Toast.makeText(holder.itemView.context, "Error deleting item: ${exception.message}", Toast.LENGTH_LONG).show()

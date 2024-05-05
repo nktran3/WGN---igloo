@@ -65,7 +65,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         recyclerView.layoutManager = LinearLayoutManager(context)
 //        groceryItemAdapter = ItemAdapter(emptyList())
 
-        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper)
+//        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper)
 //        firestoreHelper = FirestoreHelper(requireContext())
 // New implementation - commented bellow to solve merge
 //         groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
@@ -85,7 +85,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     private fun setupRecyclerView(view: View) {
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        groceryItemAdapter = ItemAdapter(emptyList(), FirestoreHelper(requireContext()))
+        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
         recyclerView.adapter = groceryItemAdapter
     }
 
@@ -188,7 +188,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
             .get()
             .addOnSuccessListener { documents ->
                 val items = documents.toObjects(GroceryItem::class.java)
-                groceryItemAdapter.updateItems(items)
+                groceryItemAdapter.updateItems(items, userId)
                 Log.d(TAG, "Number of items in category '$category': ${items.size}")
             }
             .addOnFailureListener { exception ->
