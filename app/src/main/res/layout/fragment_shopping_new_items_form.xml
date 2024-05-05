@@ -55,6 +55,7 @@
             android:hint="@string/enter_item"
             android:minHeight="48sp"
             android:textSize="20sp"
+            android:inputType="textCapWords"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.39"
             app:layout_constraintStart_toStartOf="parent"
@@ -110,7 +111,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8sp"
             android:minHeight="48sp"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.39"
             app:layout_constraintStart_toStartOf="parent"
