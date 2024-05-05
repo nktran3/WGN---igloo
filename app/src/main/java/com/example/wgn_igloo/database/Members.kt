@@ -28,6 +28,7 @@ class Members : Fragment() {
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var toolbarFriends: Toolbar
     private var _binding: FragmentMembersBinding? = null
+    private lateinit var toolbarFriendsTitle: TextView
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -41,6 +42,7 @@ class Members : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toolbarFriends = binding.toolbarFriends
+        toolbarFriendsTitle = binding.toolbarFriendsTitle
         updateToolbar()
 
         binding.fridgeMembersRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -63,7 +65,7 @@ class Members : Fragment() {
     private fun updateToolbar() {
         toolbarFriends.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarFriends.setNavigationOnClickListener { activity?.onBackPressed() }
-
+        toolbarFriendsTitle.text = "Friends"
     }
     private fun handleFriendRequest(friendUsername: String) {
         val currentUserId = getCurrentUserId()
