@@ -33,25 +33,34 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         const val TAG = "InventoryDisplayFragment"
     }
 
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_inventory_display, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // This method is called when the fragment is visible to the user and actively running.
+        // Call your update method here to refresh the inventory every time the fragment comes back to the foreground.
+        fetchCurrentUserAndFriends()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewPager = view.findViewById(R.id.view_pager)
         leftArrow = view.findViewById(R.id.left_arrow)
         rightArrow = view.findViewById(R.id.right_arrow)
+        firestoreDb = FirebaseFirestore.getInstance()
+        setupRecyclerView(view)
         setupViewPagerAndArrows()
 
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
 //        groceryItemAdapter = ItemAdapter(emptyList())
         groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper)
+//        firestoreHelper = FirestoreHelper(requireContext())
 
         recyclerView.adapter = groceryItemAdapter
-//        firestoreHelper = FirestoreHelper(requireContext())
         firestoreDb = FirebaseFirestore.getInstance()
 
         fetchCurrentUserAndFriends()
@@ -59,6 +68,13 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
             navigateToAddNewItemForm()
         }
+    }
+
+    private fun setupRecyclerView(view: View) {
+        val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        groceryItemAdapter = ItemAdapter(emptyList(), FirestoreHelper(requireContext()))
+        recyclerView.adapter = groceryItemAdapter
     }
 
     private fun setupViewPagerAndArrows() {
@@ -125,6 +141,51 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 //            }
 //        }
 //    }
+
+    // Ensure the method is accessible
+    fun onCategorySelected(category: String) {
+        fetchGroceryItemsByCategory(category)
+    }
+
+//    fun fetchGroceryItemsByCategory(category: String) {
+//        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+//        firestoreDb.collection("users/$userId/groceryItems")
+//            .whereEqualTo("category", category)
+//            .get()
+//            .addOnSuccessListener { documents ->
+//                val items = documents.toObjects(GroceryItem::class.java)
+//                groceryItemAdapter.updateItems(items)
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e(TAG, "Error getting grocery items by category: $exception")
+//                Toast.makeText(context, "Error fetching items: ${exception.message}", Toast.LENGTH_SHORT).show()
+//            }
+//    }
+
+    fun fetchGroceryItemsByCategory(category: String) {
+        Log.d(TAG, "FUNCTION CALED IN FetchGroceryItems")
+
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.d(TAG, "User not logged in")
+            return
+        }
+
+        firestoreDb.collection("users/$userId/groceryItems")
+            .whereEqualTo("category", category)
+            .get()
+            .addOnSuccessListener { documents ->
+                val items = documents.toObjects(GroceryItem::class.java)
+                groceryItemAdapter.updateItems(items)
+                Log.d(TAG, "Number of items in category '$category': ${items.size}")
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error fetching grocery items by category: $category", exception)
+                Toast.makeText(context, "Error fetching items: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
 
     private fun fetchCurrentUserAndFriends() {
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid

@@ -1,6 +1,7 @@
 package com.example.wgn_igloo.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.wgn_igloo.MainActivity
 import com.example.wgn_igloo.R
 
 
@@ -17,6 +19,8 @@ class HomePage : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var carouselAdapter: CarouselAdapter
     private lateinit var itemList: MutableList<CarouselAdapter.ItemData>
+    private lateinit var listener: OnCategorySelectedListener
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +41,12 @@ class HomePage : Fragment() {
         setupAddButton(view)
     }
 
+    // To check which category is being selected at the moment
+    interface OnCategorySelectedListener {
+        fun onCategorySelected(category: String)
+    }
+
+
     private fun setupCarousel(view: View) {
         recyclerView = view.findViewById(R.id.carousel)
         recyclerView.setHasFixedSize(true)
@@ -55,12 +65,30 @@ class HomePage : Fragment() {
 
         val initialSelectedPosition = itemList.indexOfFirst { it.text == "All" }
 
+//        carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
+//            override fun onItemClicked(position: Int) {
+//                recyclerView.smoothScrollToPosition(position)
+//            }
+//        }, initialSelectedPosition)
+//        recyclerView.adapter = carouselAdapter
+        // new implementation to check the position when it's clicked
         carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int) {
-                recyclerView.smoothScrollToPosition(position)
+                // This is triggered when an item in the carousel is clicked.
+                val category = itemList[position].text
+                Log.d("HomePage", "Category clicked: $category")
+                (activity as? MainActivity)?.onCategorySelected(category)
+            }
+
+            override fun onCategorySelected(category: String) {
+                // This function seems to be redundant or misplaced in this context.
+                // If you do not need to handle anything specific here, you can simply leave it empty.
+                // Or, if it's mistakenly required by the interface and not actually used, consider removing it from the interface.
             }
         }, initialSelectedPosition)
         recyclerView.adapter = carouselAdapter
+
+
 
         val snapHelper = LinearSnapHelper()
         snapHelper.attachToRecyclerView(recyclerView)

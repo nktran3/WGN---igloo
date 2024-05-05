@@ -15,8 +15,15 @@ class CarouselAdapter(
 
     var selectedItemPosition = initialSelectedPosition
 
+    interface CarouselAdapterListener {
+        fun onCategorySelected(category: String)
+    }
+
+//    var listener: CarouselAdapterListener? = null
+
     interface OnItemClickListener {
         fun onItemClicked(position: Int)
+        fun onCategorySelected(category: String)
     }
     data class ItemData(val imageResId: Int, val text: String, var isSelected: Boolean = false)
 
@@ -31,6 +38,7 @@ class CarouselAdapter(
                 notifyItemChanged(previousItem)
                 notifyItemChanged(adapterPosition)
                 listener.onItemClicked(adapterPosition)
+                listener.onCategorySelected(mData[adapterPosition].text)
             }
         }
     }
