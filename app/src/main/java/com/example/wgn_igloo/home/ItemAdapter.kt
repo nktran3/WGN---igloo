@@ -26,9 +26,6 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
         private const val TAG = "ItemAdapter"
     }
 
-
-    // State to track items moved to shopping list
-    private var movedToShoppingList = mutableSetOf<Int>()
     private var friendsUID = ""
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -58,14 +55,12 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
                 items[oldItemPosition] == newItems[newItemPosition]
         })
-
         Log.d(TAG, "Friends UID: $newUID")
         if (newUID != null) {
             friendsUID = newUID
             Log.d(TAG, "Set Friends UID to $newUID")
 
         }
-
         items = newItems
         diffResult.dispatchUpdatesTo(this)
     }
@@ -118,22 +113,18 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             val userId = firestoreHelper.getCurrentUserId()
             val position = holder.adapterPosition
             if (userId != null && position != RecyclerView.NO_POSITION) {
-                val documentId = items[position].documentId
-                if (documentId.isNotEmpty()) {
-                    firestoreHelper.deleteGroceryItem(userId, documentId,
-                        onSuccess = {
-                            val newList = items.toMutableList().apply {
-                                removeAt(position)
-                            }
-                            updateItems(newList, userId)
-                        },
-                        onFailure = { exception ->
-                            Toast.makeText(holder.itemView.context, "Error deleting item: ${exception.message}", Toast.LENGTH_LONG).show()
-                        }
-                    )
-                } else {
-                    Toast.makeText(holder.itemView.context, "Invalid document ID", Toast.LENGTH_SHORT).show()
-                }
+                firestoreHelper.deleteGroceryItem(userId, items[position].name,
+                    onSuccess = {
+                        // If deletion is successful, remove the item from the list safely
+                        val newList = items.toMutableList()
+                        newList.removeAt(position)
+                        updateItems(newList, null)
+                    },
+                    onFailure = { exception ->
+                        // Handle failure, e.g., show an error message
+                        Log.e(TAG, "Error deleting item", exception)
+                    }
+                )
             }
         }
 
@@ -144,42 +135,23 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                 val itemName = items[position].name
                 firestoreHelper.moveItemToShoppingList(userId, itemName,
                     onSuccess = {
-                        // Log success
-                        Log.d(TAG, "Successfully moved item to shopping list")
-                        // Assuming `context` is available or use holder.itemView.context
-                        Toast.makeText(holder.itemView.context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
+                        // Remove the item from the adapter's data set
+                        val updatedList = items.toMutableList().apply {
+                            removeAt(position)
+                        }
+                        updateItems(updatedList, null)
+                        // Notify the user of success
+//                        Toast.makeText(context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
                     },
                     onFailure = { exception ->
                         // Log error and notify user
                         Log.e(TAG, "Failed to move item to shopping list", exception)
-                        // Assuming `context` is available or use holder.itemView.context
-                        Toast.makeText(holder.itemView.context, "Error moving item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
+//                        Toast.makeText(context, "Error moving item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
                     }
                 )
             }
         }
 
-        if (movedToShoppingList.contains(position)) {
-            holder.addToShoppingList.isEnabled = false
-            holder.addToShoppingList.text = "Added"
-        } else {
-            holder.addToShoppingList.isEnabled = true
-            holder.addToShoppingList.text = "Add to List"
-        }
-
-//        holder.addToShoppingList.setOnClickListener {
-//            val userId = firestoreHelper.getCurrentUserId()
-//            if (userId != null) {
-//                firestoreHelper.moveItemToShoppingList(userId, item.name, onSuccess = {
-//                    movedToShoppingList.add(position)
-//                    notifyItemChanged(position)
-//                    // Toast to show success
-//                    Toast.makeText(holder.itemView.context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
-//                }, onFailure = { exception ->
-//                    Toast.makeText(holder.itemView.context, "Failed to move item: ${exception.message}", Toast.LENGTH_LONG).show()
-//                })
-//            }
-//        }
 
         holder.editButton.visibility = View.GONE
         holder.editButton.setOnClickListener {
@@ -194,6 +166,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             }
         }
         holder.itemTextView.setOnClickListener {
+
             if (item.isOwnedByUser) {
                 holder.editButton.visibility =
                     if (holder.editButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -206,16 +179,52 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             } else {
                 holder.requestToBorrow.visibility =
                     if (holder.requestToBorrow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
+                holder.requestToBorrow.setOnClickListener {
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid
+                    if (uid == null) {
+                        Toast.makeText(holder.itemView.context, "User not logged in!", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+
+                    // Assuming friendsUID and uid are not empty
+                    var friendName = ""
+                    var userName = ""
+
+                    firestoreHelper.getUser(uid,
+                        onSuccess = { user ->
+                            userName = user.givenName
+                            // Nested call inside first onSuccess
+                            firestoreHelper.getUser(friendsUID,
+                                onSuccess = { friend ->
+                                    friendName = friend.givenName
+                                    sendNotification(friendName, userName, uid, friendsUID, item.name, holder)
+                                },
+                                onFailure = { exception ->
+                                    Log.d(TAG, "Error getting friend", exception)
+                                    Toast.makeText(holder.itemView.context, "Failed to find friend.", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        },
+                        onFailure = { exception ->
+                            Log.d(TAG, "Error getting user", exception)
+                            Toast.makeText(holder.itemView.context, "Failed to notify user.", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
                 holder.addToShoppingList.visibility =
                     if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             }
 
             holder.quantityTextView.visibility =
                 if (holder.quantityTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
             holder.quantityValueTextView.visibility =
                 if (holder.quantityValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
             holder.expirationTextView.visibility =
                 if (holder.expirationTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
             holder.dateTextView.visibility =
                 if (holder.dateTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
@@ -226,74 +235,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
                 holder.sharedWithValueTextView.visibility =
                     if (holder.sharedWithValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             }
-                if (item.isOwnedByUser) {
-                    holder.editButton.visibility =
-                        if (holder.editButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
-                    holder.deleteButton.visibility =
-                        if (holder.deleteButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                    holder.addToShoppingList.visibility =
-                        if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                } else {
-                    holder.requestToBorrow.visibility =
-                        if (holder.requestToBorrow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                    holder.requestToBorrow.setOnClickListener {
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid
-                        if (uid == null) {
-                            Toast.makeText(holder.itemView.context, "User not logged in!", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener
-                        }
-
-                        // Assuming friendsUID and uid are not empty
-                        var friendName = ""
-                        var userName = ""
-
-                        firestoreHelper.getUser(uid,
-                            onSuccess = { user ->
-                                userName = user.givenName
-                                // Nested call inside first onSuccess
-                                firestoreHelper.getUser(friendsUID,
-                                    onSuccess = { friend ->
-                                        friendName = friend.givenName
-                                        sendNotification(friendName, userName, uid, friendsUID, item.name, holder)
-                                    },
-                                    onFailure = { exception ->
-                                        Log.d(TAG, "Error getting friend", exception)
-                                        Toast.makeText(holder.itemView.context, "Failed to find friend.", Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            },
-                            onFailure = { exception ->
-                                Log.d(TAG, "Error getting user", exception)
-                                Toast.makeText(holder.itemView.context, "Failed to notify user.", Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                    }
-                    holder.addToShoppingList.visibility =
-                        if (holder.addToShoppingList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                }
-
-                holder.quantityTextView.visibility =
-                    if (holder.quantityTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                holder.quantityValueTextView.visibility =
-                    if (holder.quantityValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                holder.expirationTextView.visibility =
-                    if (holder.expirationTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                holder.dateTextView.visibility =
-                    if (holder.dateTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-
-                if (item.sharedWith.isNotEmpty()) {
-                    holder.sharedWithValueTextView.text = "${item.sharedWith}"
-                    holder.sharedWithTextView.visibility =
-                        if (holder.sharedWithTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                    holder.sharedWithValueTextView.visibility =
-                        if (holder.sharedWithValueTextView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                }
         }
     }
 

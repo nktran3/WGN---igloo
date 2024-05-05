@@ -4,7 +4,7 @@ import android.os.Parcelable
 import android.os.Parcel
 //
 data class GroceryItem(
-    val documentId: String = "",
+    var documentId: String = "",
     val category: String = "",
     val expirationDate: Timestamp = Timestamp.now(),
     val expireNotified: Boolean = false,

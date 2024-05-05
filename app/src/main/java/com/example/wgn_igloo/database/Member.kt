@@ -7,5 +7,6 @@ data class Member(
     val uid: String = "",
     val givenName: String = "",
     val familyName: String = "",
-    val friendSince: Date? = null
+    val friendSince: Date? = null,
+    val isCurrentUser: Boolean = false
 )
