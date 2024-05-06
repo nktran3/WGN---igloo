@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +18,7 @@ class HomePage : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var carouselAdapter: CarouselAdapter
     private lateinit var itemList: MutableList<CarouselAdapter.ItemData>
+    private lateinit var carouselViewModel: CarouselViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +34,7 @@ class HomePage : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        carouselViewModel = ViewModelProvider(requireActivity()).get(CarouselViewModel::class.java)
         setupCarousel(view)
         setupAddButton(view)
     }
