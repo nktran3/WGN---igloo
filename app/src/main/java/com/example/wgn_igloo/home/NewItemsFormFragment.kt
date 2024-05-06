@@ -87,7 +87,7 @@ class NewItemsFormFragment : Fragment() {
                 .addOnSuccessListener { documents ->
                     val friendsUsernames = mutableListOf("Choose an option", "None")
                     for (document in documents) {
-                        document.getString("username")?.let {
+                        document.getString("givenName")?.let {
                             friendsUsernames.add(it)
                         }
                     }
