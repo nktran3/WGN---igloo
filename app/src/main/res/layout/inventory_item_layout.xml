@@ -32,19 +32,21 @@
 
     <ImageButton
         android:id="@+id/edit_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginTop="4dp"
+        android:background="@color/white"
         app:layout_constraintStart_toEndOf="@+id/itemTextView"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/edit_icon" />
 
     <ImageButton
         android:id="@+id/delete_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginTop="4dp"
         android:src="@drawable/delete_icon"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.333"
         app:layout_constraintStart_toEndOf="@+id/edit_button"
