@@ -16,7 +16,7 @@ class UserProfileAdapter(
         val inflater = LayoutInflater.from(container.context)
         val view = inflater.inflate(R.layout.item_user_profile, container, false)
         val textView: TextView = view.findViewById(R.id.user_text_view)
-        textView.text = users[position].username  // Displaying the username
+        textView.text = users[position].givenName  + " " + users[position].familyName// Displaying the username
         container.addView(view)
         return view
     }
@@ -30,7 +30,7 @@ class UserProfileAdapter(
     override fun getCount(): Int = users.size
 
     override fun getPageTitle(position: Int): CharSequence? {
-        return users[position].username  // Optionally set a title for each page
+        return users[position].givenName  + " " + users[position].familyName  // Optionally set a title for each page
     }
 
     override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
