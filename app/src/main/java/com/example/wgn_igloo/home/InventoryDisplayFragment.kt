@@ -31,7 +31,8 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     private lateinit var leftArrow: ImageButton
     private lateinit var rightArrow: ImageButton
     private lateinit var userProfileAdapter: UserProfileAdapter
-
+    // Track the current inventory user
+    private var currentInventoryUserId: String? = FirebaseAuth.getInstance().currentUser?.uid
     private lateinit var viewModel: NotificationsViewModel
 
     companion object {
@@ -46,6 +47,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(requireActivity()).get(NotificationsViewModel::class.java)
+        firestoreHelper.currentInventoryUserId = FirebaseAuth.getInstance().currentUser?.uid
 
         viewPager = view.findViewById(R.id.view_pager)
         leftArrow = view.findViewById(R.id.left_arrow)
@@ -54,16 +56,26 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
         val recyclerView: RecyclerView = view.findViewById(R.id.items_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
+        // Set the current user ID directly to the property
+        firestoreHelper.currentInventoryUserId = FirebaseAuth.getInstance().currentUser?.uid
+
+        // Setup views and adapters...
+        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel, firestoreHelper.currentInventoryUserId)
+
 //        groceryItemAdapter = ItemAdapter(emptyList())
-        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
+//        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel, currentInventoryUserId)
+//        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
 
         recyclerView.adapter = groceryItemAdapter
 //        firestoreHelper = FirestoreHelper(requireContext())
         firestoreDb = FirebaseFirestore.getInstance()
 
         fetchCurrentUserAndFriends()
+//        currentInventoryUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-        adapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
+//        adapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
+//        adapter = ItemAdapter(emptyList(), firestoreHelper, viewModel, currentInventoryUserId)
+
 
         view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
             navigateToAddNewItemForm()
@@ -90,11 +102,38 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         }
     }
 
+
+    override fun onCategorySelected(category: String) {
+        fetchGroceryItemsForUser(FirebaseAuth.getInstance().currentUser?.uid.orEmpty(), category)
+    }
+
+    private fun fetchGroceryItemsForUser(userId: String, category: String) {
+        Log.d(TAG, "Fetching items for category: $category")  // Log the category being fetched
+        currentInventoryUserId = userId  // Update the current user ID whenever items are fetched for a user
+        val query = if (category == "All") {
+            firestoreDb.collection("users").document(userId).collection("groceryItems")
+        } else {
+            firestoreDb.collection("users").document(userId).collection("groceryItems")
+                .whereEqualTo("category", category)
+        }
+
+        query.get().addOnSuccessListener { snapshot ->
+            val items = snapshot.toObjects(GroceryItem::class.java)
+            Log.d(TAG, "Fetched ${items.size} items for category: $category")  // Log how many items were fetched
+            groceryItemAdapter.updateItems(items, userId)
+        }.addOnFailureListener { exception ->
+            Log.e(TAG, "Error getting grocery items for category: $category", exception)  // Log error with specific category
+        }
+    }
+
+
     override fun onUserChanged(userId: String) {
-        fetchGroceryItemsForUser(userId)
+        firestoreHelper.currentInventoryUserId = userId
+        fetchGroceryItemsForUser(userId, "All")
     }
 
     private fun fetchCurrentUserAndFriends() {
+
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid
         if (currentUserUid == null) {
             Log.d(TAG, "No user logged in")
@@ -136,21 +175,21 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         }
     }
 
-    private fun fetchGroceryItemsForUser(userId: String) {
-        val isCurrentUser = userId == FirebaseAuth.getInstance().currentUser?.uid
-
-        firestoreDb.collection("users").document(userId).collection("groceryItems")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val items = snapshot.toObjects(GroceryItem::class.java).map { item ->
-                    item.copy(isOwnedByUser = isCurrentUser)  // Set flag based on whether the item belongs to the current user
-                }
-                groceryItemAdapter.updateItems(items, userId)
-            }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Error getting grocery items: ", exception)
-            }
-    }
+//    private fun fetchGroceryItemsForUser(userId: String) {
+//        val isCurrentUser = userId == FirebaseAuth.getInstance().currentUser?.uid
+//
+//        firestoreDb.collection("users").document(userId).collection("groceryItems")
+//            .get()
+//            .addOnSuccessListener { snapshot ->
+//                val items = snapshot.toObjects(GroceryItem::class.java).map { item ->
+//                    item.copy(isOwnedByUser = isCurrentUser)  // Set flag based on whether the item belongs to the current user
+//                }
+//                groceryItemAdapter.updateItems(items, userId)
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e(TAG, "Error getting grocery items: ", exception)
+//            }
+//    }
 
     private fun navigateToAddNewItemForm() {
         val newItemsFormFragment = NewItemsFormFragment.newInstance("Your message here")
@@ -163,4 +202,5 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
 interface OnUserChangeListener {
     fun onUserChanged(userId: String)
+    fun onCategorySelected(category: String)
 }
