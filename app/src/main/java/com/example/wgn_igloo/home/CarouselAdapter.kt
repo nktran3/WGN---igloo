@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.wgn_igloo.MainActivity
 import com.example.wgn_igloo.R
 
 class CarouselAdapter(
@@ -30,7 +32,10 @@ class CarouselAdapter(
                 selectedItemPosition = adapterPosition
                 notifyItemChanged(previousItem)
                 notifyItemChanged(adapterPosition)
-                listener.onItemClicked(adapterPosition)
+                val category = mData[adapterPosition % mData.size].text
+                (context as? MainActivity)?.let {
+                    ViewModelProvider(it).get(CarouselViewModel::class.java).selectCategory(category)
+                }
             }
         }
     }

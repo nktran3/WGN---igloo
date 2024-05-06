@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,7 +32,11 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     private lateinit var leftArrow: ImageButton
     private lateinit var rightArrow: ImageButton
     private lateinit var userProfileAdapter: UserProfileAdapter
+    private lateinit var carouselViewModel: CarouselViewModel
 
+    private  var currentUserFridge = ""
+
+    private var category = "all"
     private lateinit var viewModel: NotificationsViewModel
 
     companion object {
@@ -46,6 +51,13 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(requireActivity()).get(NotificationsViewModel::class.java)
+
+        carouselViewModel = ViewModelProvider(requireActivity()).get(CarouselViewModel::class.java)
+
+        carouselViewModel.getSelectedCategory().observe(viewLifecycleOwner, Observer { category ->
+            // React to category change
+            onCarouselChanged(category)
+        })
 
         viewPager = view.findViewById(R.id.view_pager)
         leftArrow = view.findViewById(R.id.left_arrow)
@@ -91,8 +103,17 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     }
 
     override fun onUserChanged(userId: String) {
+        currentUserFridge = userId
         fetchGroceryItemsForUser(userId)
     }
+
+    private fun onCarouselChanged(newCategory: String) {
+        this.category = newCategory
+        Toast.makeText(context, "Category selected: $newCategory", Toast.LENGTH_SHORT).show()
+        fetchGroceryItemsForUser(currentUserFridge)
+    }
+
+
 
     private fun fetchCurrentUserAndFriends() {
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid
@@ -136,11 +157,29 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         }
     }
 
-    private fun fetchGroceryItemsForUser(userId: String) {
-        val isCurrentUser = userId == FirebaseAuth.getInstance().currentUser?.uid
+    // Originally done using an if, else if branch for each category and else was used for
+    // all, but then later reduced and simplified using Chat-GPT4
+    private fun fetchGroceryItemsForUser(userId: String?) {
+        if (userId == null || userId.isBlank()) {
+            Log.e(TAG, "Invalid user ID")
+            return  // Exit the function if the userID is invalid
+        }
 
-        firestoreDb.collection("users").document(userId).collection("groceryItems")
-            .get()
+        val isCurrentUser = userId == FirebaseAuth.getInstance().currentUser?.uid
+        val categoryRef = firestoreDb.collection("users").document(userId).collection("groceryItems")
+
+        val query = when (category) {
+            "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Others" -> {
+                Log.d(TAG, "Returning $category items")
+                categoryRef.whereEqualTo("category", category)
+            }
+            else -> {
+                Log.d(TAG, "Returning all items")
+                categoryRef  // If no specific category matches, fetch all items
+            }
+        }
+
+        query.get()
             .addOnSuccessListener { snapshot ->
                 val items = snapshot.toObjects(GroceryItem::class.java).map { item ->
                     item.copy(isOwnedByUser = isCurrentUser)  // Set flag based on whether the item belongs to the current user
@@ -151,7 +190,6 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
                 Log.e(TAG, "Error getting grocery items: ", exception)
             }
     }
-
     private fun navigateToAddNewItemForm() {
         val newItemsFormFragment = NewItemsFormFragment.newInstance("Your message here")
         requireActivity().supportFragmentManager.beginTransaction()
