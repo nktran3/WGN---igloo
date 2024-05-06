@@ -675,6 +675,7 @@ fun updateGroceryItem(userId: String, itemId: String, fieldsToUpdate: Map<String
         val groceryItemRef = db.collection("users").document(friendUserId).collection("groceryItems").whereEqualTo("name", itemName)
         Log.d(TAG, "Querying for item: $itemName in /users/$friendUserId/groceryItems where name is equal to $itemName")
 
+
         groceryItemRef.get().addOnSuccessListener { documents ->
             if (documents.isEmpty) {
                 Log.w(TAG, "No item found with name: $itemName")
