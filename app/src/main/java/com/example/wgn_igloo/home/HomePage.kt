@@ -37,7 +37,14 @@ class HomePage : Fragment() {
         setupAddButton(view)
     }
 
+    interface OnCategorySelectedListener {
+        fun onCategorySelected(category: String)
+    }
+    var categoryListener: OnCategorySelectedListener? = null
+
+
     private fun setupCarousel(view: View) {
+        // Set up RecyclerView, LinearLayoutManager, Adapter, and LinearSnapHelper as before
         recyclerView = view.findViewById(R.id.carousel)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -55,9 +62,16 @@ class HomePage : Fragment() {
 
         val initialSelectedPosition = itemList.indexOfFirst { it.text == "All" }
 
+//        carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
+//            override fun onItemClicked(position: Int) {
+//                recyclerView.smoothScrollToPosition(position)
+//            }
+//        }, initialSelectedPosition)
+//        recyclerView.adapter = carouselAdapter
         carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
-            override fun onItemClicked(position: Int) {
+            override fun onItemClicked(position: Int, category: String) {
                 recyclerView.smoothScrollToPosition(position)
+                categoryListener?.onCategorySelected(category)
             }
         }, initialSelectedPosition)
         recyclerView.adapter = carouselAdapter

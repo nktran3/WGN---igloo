@@ -10,14 +10,26 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.wgn_igloo.R
 
+//class CarouselAdapter(
+//    private val mData: MutableList<ItemData>, private val context: Context, private val listener: OnItemClickListener, initialSelectedPosition: Int = 0) : RecyclerView.Adapter<CarouselAdapter.ViewHolder>() {
 class CarouselAdapter(
-    private val mData: MutableList<ItemData>, private val context: Context, private val listener: OnItemClickListener, initialSelectedPosition: Int = 0) : RecyclerView.Adapter<CarouselAdapter.ViewHolder>() {
+    private val mData: MutableList<ItemData>,
+    private val context: Context,
+    private val listener: OnItemClickListener,
+    initialSelectedPosition: Int = 0
+) : RecyclerView.Adapter<CarouselAdapter.ViewHolder>() {
 
     var selectedItemPosition = initialSelectedPosition
 
     interface OnItemClickListener {
-        fun onItemClicked(position: Int)
+//        fun onItemClicked(position: Int)
+        // should pass the category too
+        fun onItemClicked(position: Int, category: String)
     }
+
+    // communicate between
+
+
     data class ItemData(val imageResId: Int, val text: String, var isSelected: Boolean = false)
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -30,7 +42,9 @@ class CarouselAdapter(
                 selectedItemPosition = adapterPosition
                 notifyItemChanged(previousItem)
                 notifyItemChanged(adapterPosition)
-                listener.onItemClicked(adapterPosition)
+                // old implementation, new implemenation with its category selected
+//                listener.onItemClicked(adapterPosition)
+                listener.onItemClicked(adapterPosition, mData[adapterPosition % mData.size].text)
             }
         }
     }
