@@ -109,7 +109,6 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
     private fun onCarouselChanged(newCategory: String) {
         this.category = newCategory
-        Toast.makeText(context, "Category selected: $newCategory", Toast.LENGTH_SHORT).show()
         fetchGroceryItemsForUser(currentUserFridge)
     }
 
