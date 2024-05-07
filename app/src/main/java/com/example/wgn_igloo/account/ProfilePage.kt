@@ -1,4 +1,4 @@
-package com.example.wgn_igloo.profile
+package com.example.wgn_igloo.account
 
 import android.content.Intent
 import android.net.Uri
@@ -20,7 +20,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.example.wgn_igloo.profile.ProfileItemAdapter.ProfileItem
+import com.example.wgn_igloo.account.ProfileItemAdapter.ProfileItem
 import com.google.firebase.firestore.ktx.firestore
 
 private const val TAG = "ProfilePage"

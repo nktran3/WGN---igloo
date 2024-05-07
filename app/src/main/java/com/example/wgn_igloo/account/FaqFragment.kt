@@ -1,4 +1,4 @@
-package com.example.wgn_igloo.profile
+package com.example.wgn_igloo.account
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

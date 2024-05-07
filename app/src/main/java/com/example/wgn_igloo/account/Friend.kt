@@ -1,4 +1,4 @@
-package com.example.wgn_igloo.profile
+package com.example.wgn_igloo.account
 
 
 class Friend {
