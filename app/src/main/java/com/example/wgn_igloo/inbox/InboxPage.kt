@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,15 +25,14 @@ import kotlin.math.ceil
 
 private const val TAG = "InboxPage"
 class InboxPage : Fragment() {
+
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var recyclerView: RecyclerView
     private lateinit var notificationAdapter: NotificationsAdapter
     private lateinit var viewModel: NotificationsViewModel
     private var notificationList: MutableList<Notifications> = mutableListOf(
         Notifications(title = "", message = "")
-    ) // Ensure this is mutable
-
-    private val db = FirebaseFirestore.getInstance()
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -150,7 +148,7 @@ class InboxPage : Fragment() {
             .get()
             .addOnSuccessListener { snapshot ->
                 val notifs = snapshot.toObjects(Notifications::class.java)
-                print("Notifications:" + notifs)
+                print("Notifications:$notifs")
                 notificationAdapter.updateItems(notifs)
             }
             .addOnFailureListener { exception ->
@@ -181,7 +179,6 @@ class InboxPage : Fragment() {
 
         class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             fun bind(notification: Notifications) {
-//
                 val titleView = itemView.findViewById<TextView>(R.id.notification_title)
                 val bodyView = itemView.findViewById<TextView>(R.id.notification_body)
 

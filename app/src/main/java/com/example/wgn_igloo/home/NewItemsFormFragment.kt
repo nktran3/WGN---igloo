@@ -48,10 +48,9 @@ class NewItemsFormFragment : Fragment() {
     private lateinit var quantityInput: EditText
     private lateinit var categoryInput: Spinner
     private lateinit var sharedWithInput: Spinner
-    // Hard coded list
+
     private val categoryList = arrayOf("Choose an option", "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Other" )
 
-    // Default list with a placeholder for choosing an option
     private var sharedWithList = arrayOf("No one")
 
     private lateinit var toolbarAddItem: Toolbar
