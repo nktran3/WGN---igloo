@@ -127,12 +127,10 @@ class NewItemsFormFragment : Fragment() {
         toolbarAddItemTitle = binding.toolbarAddItemTitle
         binding.itemInput.setText(message)
         updateToolbar()
-//        fetchFriendsAndUpdateSpinner()
 
         submitButton.setOnClickListener {
             if (validateInputs()) {
                 submitGroceryItem()
-//                navigateBack()
             } else {
                 Toast.makeText(context, "Please fill all fields correctly", Toast.LENGTH_SHORT).show()
             }
@@ -166,11 +164,11 @@ class NewItemsFormFragment : Fragment() {
         val roommateAdapter = ArrayAdapter(
             requireContext(),
             R.layout.spinner_item,
-            sharedWithList  // Correct list for roommates
+            sharedWithList
         ).apply {
             setDropDownViewResource(R.layout.spinner_item)
         }
-        sharedWithInput.adapter = roommateAdapter  // Use the correct Spinner
+        sharedWithInput.adapter = roommateAdapter
     }
 
 
@@ -178,43 +176,12 @@ class NewItemsFormFragment : Fragment() {
         val categoryAdapter = ArrayAdapter(
             requireContext(),
             R.layout.spinner_item,
-            categoryList  // Use the correct list here
+            categoryList
         ).apply {
             setDropDownViewResource(R.layout.spinner_item)
         }
-        categoryInput.adapter = categoryAdapter  // Correct Spinner
+        categoryInput.adapter = categoryAdapter
     }
-
-//    private fun submitGroceryItem() {
-//        val userUid = FirebaseAuth.getInstance().currentUser?.uid
-//        if (userUid == null) {
-//            Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        val category = categoryInput.selectedItem.toString().takeIf { it != "Choose an option" } ?: return
-//        val name = itemInput.text.toString()
-//        val sharedWithOption = sharedWithInput.selectedItem.toString()
-//        val sharedWith = if (sharedWithOption == "None") "" else sharedWithOption.takeIf { it != "Choose an option" } ?: return
-//        val quantity = quantityInput.text.toString().toIntOrNull() ?: return
-//        val expirationDate = convertStringToTimestamp(expirationDateInput.text.toString())
-//
-//        // Collect other inputs similarly
-//
-//        val groceryItem = GroceryItem(
-//            category = category,
-//            expirationDate = expirationDate,
-//            dateBought = Timestamp.now(), // Assuming the current timestamp as dateBought
-//            name = name,
-//            quantity = quantity,
-//            sharedWith = sharedWith,
-//            status = true,
-//            isOwnedByUser = true
-//        )
-//
-//        // Now push this groceryItem to Firestore
-//        addGroceryItemForUser(FirebaseAuth.getInstance().currentUser?.uid ?: return, groceryItem)
-//    }
 
     private fun submitGroceryItem() {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
@@ -270,46 +237,6 @@ class NewItemsFormFragment : Fragment() {
         }
     }
 
-    private val db = FirebaseFirestore.getInstance()
-
-    fun addGroceryItemToUserAndFriend(userUid: String, friendUid: String, item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val batch = FirebaseFirestore.getInstance().batch()
-        val userRef = db.collection("users").document(userUid).collection("groceryItems").document()
-        val friendRef = db.collection("users").document(friendUid).collection("groceryItems").document()
-
-        batch.set(userRef, item)
-        batch.set(friendRef, item)
-        batch.commit().addOnSuccessListener {
-            onSuccess()
-        }.addOnFailureListener { e ->
-            onFailure(e)
-        }
-    }
-
-
-
-
-    // You might already have this method in the InventoryDisplayFragment. You can move it to a common utility class or directly use it here.
-    private fun addGroceryItemForUser(uid: String, groceryItem: GroceryItem) {
-        firestoreHelper.addGroceryItem(uid, groceryItem, onSuccess = {
-            // Navigate back to InventoryDisplayFragment upon success
-            Toast.makeText(context, "Item added successfully", Toast.LENGTH_SHORT).show()
-//            requireActivity().supportFragmentManager.popBackStack()
-//            navigateBack()
-        }, onFailure = { e ->
-            Log.e("NewItemsFormFragment", "Failed to add item: ", e)
-            Toast.makeText(context, "Failed to add item", Toast.LENGTH_SHORT).show()
-        })
-    }
-
-//    private fun navigateBack() {
-//        Log.d(TAG, "Back stack entry count: ${requireActivity().supportFragmentManager.backStackEntryCount}")
-//        if (requireActivity().supportFragmentManager.backStackEntryCount > 0) {
-//            requireActivity().supportFragmentManager.popBackStack()
-//        } else {
-//            Log.w(TAG, "No back stack entry to pop.")
-//        }
-//    }
 
     private fun setupDatePicker() {
         val calendar = Calendar.getInstance()
@@ -329,12 +256,11 @@ class NewItemsFormFragment : Fragment() {
                     calendar.get(Calendar.DAY_OF_MONTH)
                 ).also {
                     it.show()
-                    view.clearFocus() // Optional: Clear focus after showing the dialog to prevent it from showing again on back press or navigation
+                    view.clearFocus()
                 }
             }
         }
 
-        // It might still be useful to keep the OnClickListener for users who might re-click the EditText after losing focus
         expirationDateInput.setOnClickListener {
             DatePickerDialog(
                 requireContext(), datePickerListener, calendar
@@ -345,8 +271,7 @@ class NewItemsFormFragment : Fragment() {
     }
 
     private fun updateLabel(calendar: Calendar) {
-        // Define your desired date format
-        val dateFormat = "MM/dd/yyyy" // For example, "MM/dd/yyyy"
+        val dateFormat = "MM/dd/yyyy"
         val sdf = SimpleDateFormat(dateFormat, Locale.US)
         expirationDateInput.setText(sdf.format(calendar.time))
     }
@@ -358,7 +283,7 @@ class NewItemsFormFragment : Fragment() {
             Timestamp(parsedDate)
         } catch (e: ParseException) {
             Log.e("NewItemsFormFragment", "Failed to parse date: ", e)
-            Timestamp.now() // Return current time if parsing fails
+            Timestamp.now()
         }
     }
 

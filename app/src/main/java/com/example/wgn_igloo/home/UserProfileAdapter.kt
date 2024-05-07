@@ -7,10 +7,7 @@ import android.widget.TextView
 import androidx.viewpager.widget.PagerAdapter
 import com.example.wgn_igloo.R
 
-class UserProfileAdapter(
-    private val users: List<InventoryUser>,
-    private val userChangeListener: OnUserChangeListener
-) : PagerAdapter() {
+class UserProfileAdapter(private val users: List<InventoryUser>, private val userChangeListener: OnUserChangeListener) : PagerAdapter() {
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val inflater = LayoutInflater.from(container.context)

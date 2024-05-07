@@ -1,6 +1,7 @@
 package com.example.wgn_igloo.home
 
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -115,7 +116,8 @@ class HomePage : Fragment() {
         val addButton: Button = view.findViewById(R.id.add_button)
         addButton.bringToFront()
         addButton.setOnClickListener { v ->
-            val popup = PopupMenu(requireContext(), v, 0, 0, R.style.CustomPopupMenu)
+            val newContext = ContextThemeWrapper(activity, R.style.CustomPopupMenu)
+            val popup = PopupMenu(newContext, v)
             popup.menuInflater.inflate(R.menu.add_popup_menu, popup.menu)
 
             popup.setOnMenuItemClickListener { item ->

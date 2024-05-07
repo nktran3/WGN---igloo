@@ -27,7 +27,6 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     }
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var groceryItemAdapter: ItemAdapter
-    private lateinit var adapter: ItemAdapter
     private lateinit var viewPager: ViewPager
     private lateinit var leftArrow: ImageButton
     private lateinit var rightArrow: ImageButton
@@ -72,7 +71,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         // Set the current user ID directly to the property
         firestoreHelper.currentInventoryUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-        // Setup views and adapters...
+        // Setup views and adapters
         groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel, firestoreHelper.currentInventoryUserId)
 
         recyclerView.adapter = groceryItemAdapter
@@ -107,10 +106,10 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
 
     override fun onCategorySelected(category: String) {
-        fetchGroceryItemsForUser(FirebaseAuth.getInstance().currentUser?.uid.orEmpty(), category)
+        fetchInventoryItemsForUser(FirebaseAuth.getInstance().currentUser?.uid.orEmpty(), category)
     }
 
-    private fun fetchGroceryItemsForUser(userId: String, category: String) {
+    private fun fetchInventoryItemsForUser(userId: String, category: String) {
         Log.d(TAG, "Fetching items for category: $category")  // Log the category being fetched
         currentInventoryUserId = userId  // Update the current user ID whenever items are fetched for a user
         val query = if (category == "All") {
@@ -132,7 +131,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
     override fun onUserChanged(userId: String) {
         firestoreHelper.currentInventoryUserId = userId
-         fetchGroceryItemsForUser(userId, "All")
+        fetchInventoryItemsForUser(userId, "All")
         currentUserFridge = userId
         fetchGroceryItemsForUser(userId)
     }

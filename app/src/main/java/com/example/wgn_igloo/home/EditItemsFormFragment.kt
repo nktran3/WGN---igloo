@@ -30,20 +30,8 @@ class EditItemsFormFragment : Fragment() {
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestore: FirebaseFirestore
 
-    // input item from the form
-    private lateinit var itemInput: EditText
-    private lateinit var quantityInput: EditText
-    private lateinit var categoryInput: Spinner
-    private lateinit var expirationDateInput: EditText
-    private lateinit var sharedWithInput: Spinner
-    // this is savebutton
-    private lateinit var submitButton: Button
-
-    // Hard coded list
+    // Category list
     private val categoryList = arrayOf("Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Other" )
-    // Default list with a placeholder for choosing an option
-    private var sharedWithList = arrayOf("No one")
-
 
     companion object {
         private const val ARG_ITEM_JSON = "edit_item_json"
@@ -78,7 +66,7 @@ class EditItemsFormFragment : Fragment() {
     }
 
     private fun setupViews(item: GroceryItem) {
-        //itemInput =
+        //itemInput
         binding.itemInput.setText(item.name)
         //quantityInput
         binding.quantityInput.setText(item.quantity.toString())
@@ -162,11 +150,6 @@ class EditItemsFormFragment : Fragment() {
                     Log.d("SetupSpinner", "No shared options found")
                     Toast.makeText(context, "No shared options found", Toast.LENGTH_SHORT).show()
                 } else {
-//                    val sharedWithOptions = documents.mapNotNull { it.getString("sharedWith") }.toTypedArray()
-//                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, sharedWithOptions)
-//                    binding.sharedWithInput.adapter = adapter
-//                    val selectedIndex = sharedWithOptions.indexOfFirst { it == selectedSharedWith }
-//                    binding.sharedWithInput.setSelection(if (selectedIndex >= 0) selectedIndex else 0)
                     val uids = documents.mapNotNull { it.getString("sharedWith") }
                     fetchUserDetails(uids, selectedSharedWith)
                 }
@@ -283,7 +266,7 @@ class EditItemsFormFragment : Fragment() {
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, month)
             calendar.set(Calendar.DAY_OF_MONTH, day)
-            updateLabel(calendar) // This updates the TextView correctly
+            updateLabel(calendar)
         }
 
         binding.expirationInput.setOnClickListener {
@@ -325,13 +308,6 @@ class EditItemsFormFragment : Fragment() {
         })
     }
 
-
-
-//    private fun parseTimestamp(dateStr: String): Timestamp {
-//        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-//        return Timestamp(sdf.parse(dateStr) ?: Date())
-//    }
-
     private val TAG = "EditItemsFormFragment"
 
     private fun parseTimestamp(dateStr: String): Timestamp {
@@ -351,7 +327,7 @@ class EditItemsFormFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null  // Clear the binding when the view is destroyed
+        _binding = null
     }
 
 }

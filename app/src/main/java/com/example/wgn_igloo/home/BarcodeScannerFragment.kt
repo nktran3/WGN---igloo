@@ -176,7 +176,7 @@ class BarcodeScannerFragment : Fragment() {
             .build()
 
         val foodDatabaseApi: USDAFoodDatabaseAPI =
-            retrofit.create<USDAFoodDatabaseAPI>(USDAFoodDatabaseAPI::class.java)
+            retrofit.create(USDAFoodDatabaseAPI::class.java)
         lifecycleScope.launch {
             try {
                 val response = foodDatabaseApi.fetchFoodInfoByUPC(API_KEY, upc, "Branded")
@@ -227,7 +227,6 @@ class BarcodeScannerFragment : Fragment() {
         }
 
     companion object {
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA,
