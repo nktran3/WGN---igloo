@@ -226,7 +226,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         val categoryRef = firestoreDb.collection("users").document(userId).collection("groceryItems")
 
         val query = when (category) {
-            "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Others" -> {
+            "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Other" -> {
                 Log.d(TAG, "Returning $category items")
                 categoryRef.whereEqualTo("category", category)
             }
