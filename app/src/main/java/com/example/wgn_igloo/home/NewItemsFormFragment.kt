@@ -125,6 +125,7 @@ class NewItemsFormFragment : Fragment() {
         setupSpinnerRoomate()
         toolbarAddItem = binding.toolbarAddItem
         toolbarAddItemTitle = binding.toolbarAddItemTitle
+        binding.itemInput.setText(message)
         updateToolbar()
 //        fetchFriendsAndUpdateSpinner()
 

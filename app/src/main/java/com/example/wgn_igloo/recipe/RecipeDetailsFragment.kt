@@ -13,8 +13,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.wgn_igloo.MainActivity
 import com.example.wgn_igloo.R
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.FragmentRecipeDetailsBinding
@@ -39,6 +41,8 @@ class RecipeDetailsFragment : Fragment() {
     private lateinit var toolbarRecipeDetails: Toolbar
     private lateinit var firestoreHelper: FirestoreHelper
     private var isRecipeSaved = false
+
+    private lateinit var recipeModel: RecipeViewModel
 
     companion object {
         private const val INSTRUCTIONS = "INSTRUCTIONS"
@@ -95,6 +99,9 @@ class RecipeDetailsFragment : Fragment() {
         parsed_image = arguments?.getString(IMAGE)!!
         parsed_saved = arguments?.getBoolean(SAVED.toString()) == true
         isRecipeSaved = parsed_saved
+        recipeModel = ViewModelProvider(requireActivity()).get(RecipeViewModel::class.java)
+        recipeModel.currentRecipeDetailsFragment.value = this
+
 
 
 
@@ -107,9 +114,7 @@ class RecipeDetailsFragment : Fragment() {
                 Log.d(TAG, step)
             }
         }
-        if (parsed_saved){
 
-        }
 
 
         return binding.root
@@ -205,8 +210,29 @@ class RecipeDetailsFragment : Fragment() {
     private fun updateToolbar() {
         toolbarRecipeDetails.title = ""
         toolbarRecipeDetails.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
-        toolbarRecipeDetails.setNavigationOnClickListener { activity?.onBackPressed() }
+        toolbarRecipeDetails.setNavigationOnClickListener {
+            // Get a reference to the FragmentManager
+            val fragmentManager = (activity as? AppCompatActivity)?.supportFragmentManager
+            if (fragmentManager != null) {
+                if (fragmentManager.backStackEntryCount == 1) {
+                    // Pop the back stack to go back to the previous fragment
+                    val mainActivity = activity as? MainActivity
+                    // Switch to RecipesPage
+                    mainActivity?.switchFragments(mainActivity.recipesPage)
+                    recipeModel.currentRecipeSearchFragment.value = null
 
+                }
+                else if ( fragmentManager.backStackEntryCount > 1) {
+                    fragmentManager.popBackStack()
+                    fragmentManager.popBackStack()
+                    recipeModel.currentRecipeDetailsFragment.value = null
+                }
+                else {
+                    // Optionally, handle what happens if there's no entry in the back stack
+                    activity?.finish() // or any other fallback handling
+                }
+            }
+        }
     }
 
     private fun setupRecyclerViews(

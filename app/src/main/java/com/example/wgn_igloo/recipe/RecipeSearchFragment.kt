@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.wgn_igloo.MainActivity
 import com.example.wgn_igloo.databinding.FragmentRecipeSearchBinding
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -18,7 +20,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 
-private const val API_KEY = "54c26ca72c5c46f9ac43b5bee9886fca" // We have to change the API key when we're completely done
+private const val API_KEY = "c201d7750771474eac1437c392be2b1f" // We have to change the API key when we're completely done
 private const val TAG = "RecipeSearchPage"
 class RecipeSearchFragment : Fragment() {
 
@@ -27,6 +29,7 @@ class RecipeSearchFragment : Fragment() {
     private lateinit var recipeQueryAdapter: RecipeQueryAdapter
     var query: String? = null // Used to hold the user's query
     private lateinit var toolbarRecipeSearch: Toolbar
+    private lateinit var recipeModel: RecipeViewModel
 
 
     // Static function used to create a new instance of fragment with bundled argument
@@ -47,6 +50,7 @@ class RecipeSearchFragment : Fragment() {
         query = arguments?.getString(EXTRA_MESSAGE) // Extract argument and set it to query
         Log.d(TAG, "onCreate: Received message = $query")
         query?.let { recipeSearch(it) } // Make a GET call using the query
+        recipeModel = ViewModelProvider(requireActivity()).get(RecipeViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -74,8 +78,14 @@ class RecipeSearchFragment : Fragment() {
 
     private fun updateToolbar() {
         toolbarRecipeSearch.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
-        toolbarRecipeSearch.setNavigationOnClickListener { activity?.onBackPressed() }
+        toolbarRecipeSearch.setNavigationOnClickListener {
+            // Get MainActivity reference
+            val mainActivity = activity as? MainActivity
+            // Switch to RecipesPage
+            mainActivity?.switchFragments(mainActivity.recipesPage)
+            recipeModel.currentRecipeSearchFragment.value = null
 
+        }
     }
     // Function used to make API call to Spoonacular
     private fun recipeSearch(query: String) {

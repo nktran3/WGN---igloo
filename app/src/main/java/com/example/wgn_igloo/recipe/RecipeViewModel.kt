@@ -5,5 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.fragment.app.Fragment
 
 class RecipeViewModel : ViewModel() {
-    val currentFragment = MutableLiveData<Fragment>()
+    val currentRecipeSearchFragment = MutableLiveData<Fragment>()
+    val currentRecipeDetailsFragment = MutableLiveData<Fragment>()
 }
