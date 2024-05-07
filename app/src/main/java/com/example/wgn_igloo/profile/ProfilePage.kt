@@ -150,7 +150,9 @@ class ProfilePage : Fragment() {
 
     private fun showFriends() {
         val membersFragment = Members()
-        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, membersFragment).commit()
+        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, membersFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun showSettings(){

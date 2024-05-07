@@ -64,12 +64,6 @@ class HomePage : Fragment() {
 
         val initialSelectedPosition = itemList.indexOfFirst { it.text == "All" }
 
-//        carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
-//            override fun onItemClicked(position: Int) {
-//                recyclerView.smoothScrollToPosition(position)
-//            }
-//        }, initialSelectedPosition)
-//        recyclerView.adapter = carouselAdapter
         carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int, category: String) {
                 recyclerView.smoothScrollToPosition(position)
@@ -84,10 +78,6 @@ class HomePage : Fragment() {
         recyclerView.post {
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(initialSelectedPosition, recyclerView.width / 2 - view.width / 2)
         }
-//
-//        val middlePosition = Integer.MAX_VALUE / 2
-//        val startScrollPosition = middlePosition - (middlePosition % itemList.size) + initialSelectedPosition
-//        recyclerView.scrollToPosition(startScrollPosition)
     }
 
     private fun setupAddButton(view: View) {
@@ -101,12 +91,16 @@ class HomePage : Fragment() {
                 when (item.itemId) {
                     R.id.add_manually -> {
                         val formFragment = NewItemsFormFragment()
-                        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment).commit()
+                        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment)
+                            .addToBackStack(null)
+                            .commit()
                         true
                     }
                     R.id.add_barcode -> {
                         val barcodeFragment = BarcodeScannerFragment()
-                        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, barcodeFragment).commit()
+                        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, barcodeFragment)
+                            .addToBackStack(null)
+                            .commit()
                         true
                     }
                     else -> false

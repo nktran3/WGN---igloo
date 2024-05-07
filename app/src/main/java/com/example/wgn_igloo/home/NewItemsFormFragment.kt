@@ -142,7 +142,7 @@ class NewItemsFormFragment : Fragment() {
     }
 
     private fun updateToolbar() {
-        toolbarAddItem.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
+        toolbarAddItem.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarAddItem.setNavigationOnClickListener { activity?.onBackPressed() }
         toolbarAddItemTitle.text = "Add New Item"
     }
