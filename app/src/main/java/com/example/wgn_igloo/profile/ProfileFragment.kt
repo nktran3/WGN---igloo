@@ -39,12 +39,26 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         firestoreHelper = FirestoreHelper(requireContext())
 
+        binding.editUsername.setOnClickListener {
+            if (binding.newUsernameLabel.visibility == View.GONE) {
+                binding.newUsernameLabel.visibility = View.VISIBLE
+                binding.usernameEditText.visibility = View.VISIBLE
+                binding.saveButton.visibility = View.VISIBLE
+            } else {
+                binding.newUsernameLabel.visibility = View.GONE
+                binding.usernameEditText.visibility = View.GONE
+                binding.saveButton.visibility = View.GONE
+            }
+        }
 
         binding.saveButton.setOnClickListener {
             val newUsername = binding.usernameEditText.text.toString()
             if (newUsername.isNotBlank()) {
                 updateUsername(newUsername)
                 binding.usernameTextView.text = newUsername // Update the displayed username immediately
+                binding.newUsernameLabel.visibility = View.GONE
+                binding.usernameEditText.visibility = View.GONE
+                binding.saveButton.visibility = View.GONE
             } else {
                 Toast.makeText(context, "Username cannot be empty", Toast.LENGTH_SHORT).show()
             }
@@ -72,7 +86,7 @@ class ProfileFragment : Fragment() {
             firestoreHelper.updateUsername(it, newUsername, onSuccess = {
                 Toast.makeText(context, "Username updated successfully", Toast.LENGTH_SHORT).show()
             }, onFailure = { exception ->
-                Toast.makeText(context, "Failed to update username", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "Failed to update username", Toast.LENGTH_SHORT).show()
                 Log.e(TAG, "Failed to update username", exception)
             })
         }
@@ -82,7 +96,6 @@ class ProfileFragment : Fragment() {
         firestoreHelper.getUser(userId, onSuccess = { user ->
             binding.nameTextView.text = user.givenName + " " + user.familyName
             binding.emailTextView.text = user.email
-            binding.uidTextView.text = user.uid
             binding.usernameTextView.text = user.username // Display username in the TextView
             binding.usernameEditText.setText(user.username)
 

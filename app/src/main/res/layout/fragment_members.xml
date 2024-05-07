@@ -43,7 +43,7 @@
         android:id="@+id/friendUidInput"
         android:layout_width="0dp"
         android:layout_height="48sp"
-        android:hint="Enter UID or Email"
+        android:hint="Enter Username"
         app:layout_constraintWidth_percent="0.9"
         android:ems="10"
         android:inputType="textEmailAddress"
