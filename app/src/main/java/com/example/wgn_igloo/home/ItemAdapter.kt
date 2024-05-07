@@ -43,6 +43,8 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
         val deleteButton: ImageButton = view.findViewById(R.id.delete_button)
     }
 
+
+    
     fun updateItems(newItems: List<GroceryItem>, newUID: String?) {
         currentInventoryUserId = newUID  // Update the current inventory user ID
         val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {

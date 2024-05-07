@@ -44,6 +44,7 @@ class RecipeDetailsFragment : Fragment() {
 
     private lateinit var recipeModel: RecipeViewModel
 
+    // Arguments needed to be passed when bundling
     companion object {
         private const val INSTRUCTIONS = "INSTRUCTIONS"
         private const val INGREDIENTS = "INGREDIENTS"
@@ -87,6 +88,7 @@ class RecipeDetailsFragment : Fragment() {
     ): View? {
         _binding = FragmentRecipeDetailsBinding.inflate(inflater, container, false)
 
+        // Extract the data from the arguments
         val instructions = arguments?.getStringArrayList(INSTRUCTIONS)!!
         parsed_ingredients = arguments?.getStringArrayList(INGREDIENTS)!!
         parsed_title = arguments?.getString(TITLE)!!
@@ -101,6 +103,7 @@ class RecipeDetailsFragment : Fragment() {
         recipeModel = ViewModelProvider(requireActivity()).get(RecipeViewModel::class.java)
         recipeModel.currentRecipeDetailsFragment.value = this
 
+        // Format the ingredients list
         Log.d(TAG, "$parsed_ingredients")
         for (lines in instructions){
             val steps = lines.split(".").filter{it.isNotEmpty()}
@@ -134,11 +137,13 @@ class RecipeDetailsFragment : Fragment() {
         }
     }
 
+    // Create options menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.toolbar_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    // Function used to manage the options menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_save -> {
@@ -180,8 +185,6 @@ class RecipeDetailsFragment : Fragment() {
         }
     }
 
-
-
     private fun saveRecipe(recipe: SavedRecipe) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
@@ -199,6 +202,7 @@ class RecipeDetailsFragment : Fragment() {
     }
 
 
+    // Function that manages the back button in the toolbar
     private fun updateToolbar() {
         toolbarRecipeDetails.title = ""
         toolbarRecipeDetails.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)

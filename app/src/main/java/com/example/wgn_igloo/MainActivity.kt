@@ -94,6 +94,8 @@ class MainActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = Firebase.auth
 
+
+        // Initialize listeners to update the variable holding the state of the fragments
         viewModel = ViewModelProvider(this).get(RecipeViewModel::class.java)
         viewModel.currentRecipeSearchFragment.observe(this, Observer { fragment ->
             recipeSearchFragment = fragment as RecipeSearchFragment?

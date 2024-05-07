@@ -5,6 +5,7 @@ import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
 
+// Adapter used to display Instructions in the RecipeDetailFrag
 class InstructionsAdapter(private val instructions: List<String>) : RecyclerView.Adapter<InstructionsAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
