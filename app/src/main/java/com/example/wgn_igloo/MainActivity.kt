@@ -8,19 +8,17 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.wgn_igloo.auth.LoginActivity
 import com.example.wgn_igloo.auth.SignUpActivity
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.ActivityMainBinding
-import com.example.wgn_igloo.grocery.ShoppingListPage
 import com.example.wgn_igloo.home.HomePage
 import com.example.wgn_igloo.inbox.InboxPage
 import com.example.wgn_igloo.account.AccountPage
+import com.example.wgn_igloo.grocery.GroceryListPage
 import com.example.wgn_igloo.recipe.RecipeDetailsFragment
 import com.example.wgn_igloo.recipe.RecipeSearchFragment
 import com.example.wgn_igloo.recipe.RecipeViewModel
 import com.example.wgn_igloo.recipe.RecipesPage
-import com.firebase.ui.auth.AuthUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -35,7 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     // Fragments
     val recipesPage by lazy { RecipesPage() }
-    private val shoppingListPage by lazy { ShoppingListPage() }
+    private val groceryListPage by lazy { GroceryListPage() }
     private val homePage by lazy { HomePage() }
     private val inboxPage by lazy { InboxPage() }
     private val accountPage by lazy { AccountPage() }
@@ -125,7 +123,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupFragments() {
         supportFragmentManager.beginTransaction().apply {
             add(R.id.fragment_container, recipesPage, "recipes").hide(recipesPage)
-            add(R.id.fragment_container, shoppingListPage, "shoppingList").hide(shoppingListPage)
+            add(R.id.fragment_container, groceryListPage, "shoppingList").hide(groceryListPage)
             add(R.id.fragment_container, inboxPage, "inbox").hide(inboxPage)
             add(R.id.fragment_container, accountPage, "profile").hide(accountPage)
             add(R.id.fragment_container, homePage, "home").hide(homePage)
@@ -146,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     recipeDetailsFragment ?: recipeSearchFragment ?: recipesPage
                 }
-                R.id.shopping_list_nav -> shoppingListPage
+                R.id.shopping_list_nav -> groceryListPage
                 R.id.home_nav -> homePage
                 R.id.inbox_nav -> inboxPage
                 R.id.account_nav -> accountPage
@@ -169,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         }
         transaction.show(fragment)
         // Add every fragment change to the back stack unless it's a main navigation item
-        if (fragment !in arrayOf(homePage, shoppingListPage, inboxPage, accountPage, recipesPage)) {
+        if (fragment !in arrayOf(homePage, groceryListPage, inboxPage, accountPage, recipesPage)) {
             transaction.addToBackStack(null)
         }
         transaction.commit()
