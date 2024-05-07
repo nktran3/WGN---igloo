@@ -142,7 +142,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
     override fun onUserChanged(userId: String) {
         firestoreHelper.currentInventoryUserId = userId
-//         fetchGroceryItemsForUser(userId, "All")
+         fetchGroceryItemsForUser(userId, "All")
         currentUserFridge = userId
         fetchGroceryItemsForUser(userId)
     }

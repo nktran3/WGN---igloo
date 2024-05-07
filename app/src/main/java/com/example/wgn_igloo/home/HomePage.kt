@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class HomePage : Fragment() {
@@ -19,6 +21,7 @@ class HomePage : Fragment() {
     private lateinit var carouselAdapter: CarouselAdapter
     private lateinit var itemList: MutableList<CarouselAdapter.ItemData>
     private lateinit var carouselViewModel: CarouselViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +40,34 @@ class HomePage : Fragment() {
         carouselViewModel = ViewModelProvider(requireActivity()).get(CarouselViewModel::class.java)
         setupCarousel(view)
         setupAddButton(view)
+        updateDocumentIds()
+    }
+    private fun updateDocumentIds() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val firestore = FirebaseFirestore.getInstance()
+        val groceryItemsPath = firestore.collection("/users/$userId/groceryItems")
+
+        groceryItemsPath.get().addOnSuccessListener { snapshot ->
+            if (snapshot.documents.isEmpty()) {
+                println("No grocery items found.")
+                return@addOnSuccessListener
+            }
+            snapshot.documents.forEach { document ->
+                val actualDocumentId = document.id
+                val storedDocumentId = document.getString("documentId") ?: ""
+                if (storedDocumentId != actualDocumentId) {
+                    groceryItemsPath.document(actualDocumentId).update("documentId", actualDocumentId)
+                        .addOnSuccessListener {
+                            println("Document ID updated successfully for item: ${document.getString("name")}")
+                        }
+                        .addOnFailureListener { e ->
+                            println("Error updating document ID: ${e.message}")
+                        }
+                }
+            }
+        }.addOnFailureListener { e ->
+            println("Error retrieving grocery items: ${e.message}")
+        }
     }
 
     interface OnCategorySelectedListener {

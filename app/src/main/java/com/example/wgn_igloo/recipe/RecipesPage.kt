@@ -26,7 +26,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 
 private const val TAG = "RecipePage"
-private const val API_KEY = "54c26ca72c5c46f9ac43b5bee9886fca"
+private const val API_KEY = "c201d7750771474eac1437c392be2b1f"
 
 
 class RecipesPage : Fragment() {
@@ -60,12 +60,10 @@ class RecipesPage : Fragment() {
         binding.recipeSearchButton.setOnClickListener {
             query = binding.recipesSearchView.query.toString()
             val recipeSearchFragment = RecipeSearchFragment.newInstance(query)
-            viewModel.currentFragment.value = recipeSearchFragment
+            viewModel.currentRecipeSearchFragment.value = recipeSearchFragment
             requireActivity().supportFragmentManager.beginTransaction()
-                .hide(this@RecipesPage) // Hide the current instance of RecipesPage
                 .add(R.id.fragment_container, recipeSearchFragment, "recipeSearchFragment")
                 .addToBackStack(null)
-                .show(recipeSearchFragment)
                 .commit()
         }
         fetchGroceryItems()
@@ -246,7 +244,8 @@ class SuggestedRecipeAdapter(private var recipeData: List<RecipeSearch>) : Recyc
             val recipeDetailsFragment = RecipeDetailsFragment.newInstance(
                 totalSteps, totalIngredients, recipe.recipeName,
                 dishTypeList, cuisineTypeList, dietTypeList, recipe.totalTime, recipe.servingSize, recipe.imageId, false)
-            fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
+            fragmentManager.beginTransaction()
+                .add(R.id.fragment_container, recipeDetailsFragment)
                 .addToBackStack(null)
                 .commit()
         }
@@ -300,7 +299,8 @@ class SavedRecipeAdapter(private var recipeData: List<SavedRecipe>) : RecyclerVi
             val recipeDetailsFragment = RecipeDetailsFragment.newInstance(
                 recipe.instructions, recipe.ingredients, recipe.recipeName,
                 recipe.dishType, recipe.cuisineType, recipe.dietType, recipe.totalTime, recipe.servingSize, recipe.imageId, true)
-            fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
+            fragmentManager.beginTransaction()
+                .add(R.id.fragment_container, recipeDetailsFragment)
                 .addToBackStack(null)
                 .commit()
         }

@@ -147,10 +147,18 @@ class ProfilePage : Fragment() {
         }
     }
 
-
     private fun showFriends() {
         val membersFragment = Members()
-        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, membersFragment)
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, membersFragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun showProfileDetails(){
+        val profileFragment = ProfileFragment()
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, profileFragment)
             .addToBackStack(null)
             .commit()
     }
@@ -170,6 +178,7 @@ class ProfilePage : Fragment() {
             .addToBackStack(null)
             .commit()
     }
+    
     private fun showFAQpage(){
         val faqFragment = FaqFragment()
         requireActivity().supportFragmentManager.beginTransaction()
@@ -179,14 +188,6 @@ class ProfilePage : Fragment() {
 
     }
 
-    private fun showProfileDetails(){
-        val profileFragment = ProfileFragment()
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, profileFragment)
-            .addToBackStack(null)
-            .commit()
-
-    }
     private fun openGoogleApp() {
         try {
             // URL for the Google Form
