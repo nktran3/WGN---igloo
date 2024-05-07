@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Function used to peform fragment transactions
+    // Function used to perform fragment transactions
     fun switchFragments(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         supportFragmentManager.fragments.forEach {
