@@ -238,6 +238,7 @@ class FirestoreHelper(private val context: Context) {
         )
     }
 
+
     fun getUser(userId: String, onSuccess: (User) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(userId).get()
             .addOnSuccessListener { document ->

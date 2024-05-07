@@ -5,9 +5,11 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.*
 import android.widget.*
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.*
 import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.inbox.NotificationsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,6 +19,7 @@ class ShoppingListPage : Fragment() {
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestoreDb: FirebaseFirestore
     private var userUid: String? = null
+    private lateinit var itemViewModel: ItemViewModel
 
     // RecyclerView
     private lateinit var recyclerView: RecyclerView
@@ -47,6 +50,8 @@ class ShoppingListPage : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        itemViewModel = ViewModelProvider(requireActivity()).get(ItemViewModel::class.java)
+
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.shopping_list_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
@@ -57,6 +62,7 @@ class ShoppingListPage : Fragment() {
                 firestoreHelper.moveItemToInventory(uid, item,
                     onSuccess = {
                         firestoreHelper.deleteItemShoppingList(uid, item)
+                        itemViewModel.setRefreshItems(true)
                         // Fetch updated items after successful inventory move
                         fetchGroceryListItems(uid, { items ->
                             (recyclerView.adapter as? GroceryListAdapter)?.updateItems(items)

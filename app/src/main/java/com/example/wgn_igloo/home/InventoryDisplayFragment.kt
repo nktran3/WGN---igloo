@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import com.example.wgn_igloo.R
 import com.example.wgn_igloo.database.FirestoreHelper
+import com.example.wgn_igloo.grocery.ItemViewModel
 import com.example.wgn_igloo.inbox.NotificationsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -31,6 +32,8 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     private lateinit var leftArrow: ImageButton
     private lateinit var rightArrow: ImageButton
     private lateinit var userProfileAdapter: UserProfileAdapter
+
+    private lateinit var itemViewModel: ItemViewModel
 
     // Track the current inventory user
     private var currentInventoryUserId: String? = FirebaseAuth.getInstance().currentUser?.uid
@@ -55,6 +58,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         firestoreHelper.currentInventoryUserId = FirebaseAuth.getInstance().currentUser?.uid
 
         carouselViewModel = ViewModelProvider(requireActivity()).get(CarouselViewModel::class.java)
+        itemViewModel = ViewModelProvider(requireActivity()).get(ItemViewModel::class.java)
 
         carouselViewModel.getSelectedCategory().observe(viewLifecycleOwner, Observer { category ->
             // React to category change
@@ -83,6 +87,13 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
         view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
             navigateToAddNewItemForm()
+        }
+
+        itemViewModel.refreshItems.observe(viewLifecycleOwner) { refresh ->
+            if (refresh) {
+                fetchInventoryItemsForUser(FirebaseAuth.getInstance().currentUser?.uid.orEmpty(), category)
+                itemViewModel.setRefreshItems(false)
+            }
         }
     }
 
