@@ -157,6 +157,32 @@ class FirestoreHelper(private val context: Context) {
                 onFailure(e)
             }
     }
+    fun deleteItemShoppingList (uid: String, item: GroceryListItem) {
+        Log.d(TAG, "Item Name: ${item}")
+        val docRef = db.collection("users").document(uid).collection("shoppingList").whereEqualTo("name", item.name).get()
+        docRef.addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                Log.w(TAG, "No item found with name: ${item.name} for deletion")
+            } else {
+                for (document in documents) {
+                    db.collection("users").document(uid).collection("shoppingList").document(document.id).delete()
+                        .addOnSuccessListener {
+                            Log.d(TAG, "Item deleted successfully: ${document.id}")
+
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error deleting item: ${document.id}", e)
+
+                        }
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "Failed to retrieve item for deletion: ${item.name}", e)
+
+        }
+        db.collection("users").document(uid).collection("shoppingList").document(docRef.toString()).delete()
+        Log.d(TAG, "Successfully deleted item from Shopping List")
+    }
 
     // Retrieves all grocery items for a specific user.
     // It constructs GroceryItem objects from the Firestore documents and handles both success and failure scenarios.

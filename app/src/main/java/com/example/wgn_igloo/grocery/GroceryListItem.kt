@@ -6,5 +6,5 @@ data class GroceryListItem(
     val lastPurchased: Timestamp = Timestamp.now(),
     val name: String = "",
     val quantity: Int = 0,
-    val purchasedBy: String = ""
+    val purchasedBy: String = "",
 )

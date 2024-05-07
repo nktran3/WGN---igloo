@@ -56,12 +56,14 @@ class ShoppingListPage : Fragment() {
             userUid?.let { uid ->
                 firestoreHelper.moveItemToInventory(uid, item,
                     onSuccess = {
+                        firestoreHelper.deleteItemShoppingList(uid, item)
                         // Fetch updated items after successful inventory move
                         fetchGroceryListItems(uid, { items ->
                             (recyclerView.adapter as? GroceryListAdapter)?.updateItems(items)
                         }, { exception ->
                             Log.w(TAG, "Error refreshing shopping list after moving item", exception)
                         })
+
                     },
                     onFailure = { exception ->
                         Log.e(TAG, "Failed to move item to inventory", exception)
