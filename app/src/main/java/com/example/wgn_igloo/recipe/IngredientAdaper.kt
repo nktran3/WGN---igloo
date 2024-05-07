@@ -5,6 +5,7 @@ import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
 
+// Adapter used to display Ingredients  in the RecipeDetailFrag
 class IngredientsAdapter(private val ingredients: List<String>) : RecyclerView.Adapter<IngredientsAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

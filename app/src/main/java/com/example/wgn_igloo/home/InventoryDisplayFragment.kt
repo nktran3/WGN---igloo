@@ -74,9 +74,11 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         // Setup views and adapters
         groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel, firestoreHelper.currentInventoryUserId)
 
+        // Set the recycler view to the groceryItemAdapter
         recyclerView.adapter = groceryItemAdapter
         firestoreDb = FirebaseFirestore.getInstance()
 
+        // Call the user's friends
         fetchCurrentUserAndFriends()
 
         view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
@@ -84,6 +86,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         }
     }
 
+    // Function used to initialize the ViewPager's arrows that allow to navigate between users
     private fun setupViewPagerAndArrows() {
         val initialUsers = listOf<InventoryUser>()
         userProfileAdapter = UserProfileAdapter(initialUsers, this)
@@ -105,10 +108,12 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     }
 
 
+    //  Implement OnUserChanged interface's function for onCategorySelected
     override fun onCategorySelected(category: String) {
         fetchInventoryItemsForUser(FirebaseAuth.getInstance().currentUser?.uid.orEmpty(), category)
     }
 
+    // Function used to fetch fridge items in the user's database
     private fun fetchInventoryItemsForUser(userId: String, category: String) {
         Log.d(TAG, "Fetching items for category: $category")  // Log the category being fetched
         currentInventoryUserId = userId  // Update the current user ID whenever items are fetched for a user
@@ -129,6 +134,8 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     }
 
 
+
+    //  Implement OnUserChanged interface's function for onUserChanged
     override fun onUserChanged(userId: String) {
         firestoreHelper.currentInventoryUserId = userId
         fetchInventoryItemsForUser(userId, "All")
@@ -136,13 +143,14 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         fetchGroceryItemsForUser(userId)
     }
 
+    // When the the carousel category is changed, update the variable "category" to match
     private fun onCarouselChanged(newCategory: String) {
         this.category = newCategory
         fetchGroceryItemsForUser(currentUserFridge)
     }
 
 
-
+    // Function used to find the current user's friends
     private fun fetchCurrentUserAndFriends() {
 
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid
@@ -220,7 +228,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
             }
     }
 
-    
+    // Function used to replace the current fragment with the newItemsFormFragment
     private fun navigateToAddNewItemForm() {
         val newItemsFormFragment = NewItemsFormFragment.newInstance("Your message here")
         requireActivity().supportFragmentManager.beginTransaction()
@@ -230,6 +238,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     }
 }
 
+// Interface used to support the ViewPager and Carousel
 interface OnUserChangeListener {
     fun onUserChanged(userId: String)
     fun onCategorySelected(category: String)

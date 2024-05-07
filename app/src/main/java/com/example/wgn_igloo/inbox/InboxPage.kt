@@ -63,6 +63,7 @@ class InboxPage : Fragment() {
     }
 
 
+    // Function used to scan the fridge items in the database and check to see if any items are expiring
     private fun checkExpiring() {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         FirebaseFirestore.getInstance().collection("users")
@@ -70,49 +71,54 @@ class InboxPage : Fragment() {
             .get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot != null && !snapshot.isEmpty) {
-                    val today = Calendar.getInstance()
+                    val today = Calendar.getInstance() // Get today's data
                     for (document in snapshot.documents) {
                         val item = document.toObject(GroceryItem::class.java)
                         val itemId = document.id  // Retrieving the document ID which serves as the itemID
                         if (item != null) {
                             val expirationCal: Calendar = Calendar.getInstance()
-                            expirationCal.timeInMillis = item.expirationDate.seconds * 1000L
-                            val date: String = DateFormat.format("dd-MM-yyyy", expirationCal).toString()
-                            val diffTime = expirationCal.timeInMillis - today.timeInMillis
+                            expirationCal.timeInMillis = item.expirationDate.seconds * 1000L // Get the time of expiration date
+                            val date: String = DateFormat.format("dd-MM-yyyy", expirationCal).toString() // Get the time of today dates
+                            val diffTime = expirationCal.timeInMillis - today.timeInMillis // Get the difference between the two
                             val diffDays = ceil(diffTime.toDouble() / (24 * 60 * 60 * 1000)).toInt()
                             Log.d(TAG, "${item.name} expires on $date. Days until expiration: $diffDays")
                             // Check if notification needs to be sent
                             if (diffDays < 3 && !item.expireNotified) {
                                 var notif: Notifications
                                 if (diffDays < 0){
+                                    // Item is passed expired (1 day)
                                     if (diffDays == -1){
                                         notif = Notifications(
                                             title = "Item Expired",
                                             message = "${item.name} expired ${abs(diffDays)} day ago"
                                         )
+                                    // Item is passed expired (more than 1 day)
                                     } else {
                                         notif = Notifications(
                                             title = "Item Expired",
                                             message = "${item.name} expired ${abs(diffDays)} days ago"
                                         )
                                     }
+                                // Item is expiring today
                                 } else if (diffDays == 0) {
                                     notif = Notifications(
                                         title = "Item Expiring Today",
                                         message = "${item.name} is expiring today!!!"
                                     )
+                                // Item is expiring soon (1 day)
                                 } else if (diffDays == 1){
                                     notif = Notifications(
                                         title = "Item Expiring Soon",
                                         message = "${item.name} is expiring in $diffDays day"
                                     )
+                                // Item is expiring soon (more than 1 day)
                                 } else {
                                     notif = Notifications(
                                         title = "Item Expiring Soon",
                                         message = "${item.name} is expiring in ${abs(diffDays)} days"
                                     )
                                 }
-
+                                // Send notification
                                 if (userUid != null) {
                                     firestoreHelper.addNotifications(userUid, notif)
                                     // Update expireNotified to true to avoid multiple notifications
@@ -129,6 +135,7 @@ class InboxPage : Fragment() {
                             }
                         }
                     }
+                    // Update the UI
                     fetchNotifications()
                 } else {
                     Log.d(TAG, "No grocery items found")
@@ -139,7 +146,7 @@ class InboxPage : Fragment() {
             }
     }
 
-
+    // Function used to fetch all new notification items in the database
     private fun fetchNotifications() {
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
@@ -149,6 +156,7 @@ class InboxPage : Fragment() {
             .addOnSuccessListener { snapshot ->
                 val notifs = snapshot.toObjects(Notifications::class.java)
                 print("Notifications:$notifs")
+                // Update the UI with new notification items
                 notificationAdapter.updateItems(notifs)
             }
             .addOnFailureListener { exception ->

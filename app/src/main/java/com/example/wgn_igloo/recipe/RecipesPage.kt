@@ -290,6 +290,7 @@ class SavedRecipeAdapter(private var recipeData: List<SavedRecipe>) : RecyclerVi
 
 
     override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
+        // Populate the viewholder with the data
         val recipe = recipeData[position]
         Log.d(TAG, "${recipe.recipeName}")
         with(holder.binding) {

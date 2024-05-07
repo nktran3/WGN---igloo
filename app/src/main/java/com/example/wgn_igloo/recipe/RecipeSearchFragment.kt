@@ -76,6 +76,7 @@ class RecipeSearchFragment : Fragment() {
         _binding = null
     }
 
+    // Function used to manage the back button in the tool bar
     private fun updateToolbar() {
         toolbarRecipeSearch.navigationIcon = ContextCompat.getDrawable(requireContext(), com.example.wgn_igloo.R.drawable.back_icon)
         toolbarRecipeSearch.setNavigationOnClickListener {
