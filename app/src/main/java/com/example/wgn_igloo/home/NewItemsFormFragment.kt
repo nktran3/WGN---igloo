@@ -78,6 +78,7 @@ class NewItemsFormFragment : Fragment() {
         fetchFriendsAndUpdateSpinner()
     }
 
+    // Fetches friends and updates the spinner for sharing with friends
     private fun fetchFriendsAndUpdateSpinner() {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -101,6 +102,7 @@ class NewItemsFormFragment : Fragment() {
         }
     }
 
+    // Updates the spinner for choosing whom to share the item with
     private fun updateSharedWithSpinner() {
         val roommateAdapter = ArrayAdapter(
             requireContext(),
@@ -111,6 +113,8 @@ class NewItemsFormFragment : Fragment() {
         }
         sharedWithInput.adapter = roommateAdapter
     }
+
+    // Setup the UI views, pickers, and submit button actions
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
