@@ -81,6 +81,25 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+    fun addGroceryItemToUserAndFriend(userUid: String, friendUid: String, item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val batch = FirebaseFirestore.getInstance().batch()
+
+        // Add to user's grocery list
+        val userRef = db.collection("users").document(userUid).collection("groceryItems").document()
+        batch.set(userRef, item)
+
+        // Add to friend's grocery list
+        val friendRef = db.collection("users").document(friendUid).collection("groceryItems").document()
+        batch.set(friendRef, item)
+
+        batch.commit().addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { e ->
+            onFailure(e)
+        }
+    }
+
+
     fun addSavedRecipe(uid: String, recipe: SavedRecipe) {
         db.collection("users").document(uid)
             .collection("savedRecipes").document(recipe.recipeName).set(recipe)
@@ -114,15 +133,6 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-//    fun addShoppingListItem(uid: String, item: ShoppingListItem) {
-//        db.collection("users").document(uid).collection("shoppingList").document(item.name).set(item)
-//            .addOnSuccessListener {
-//                Log.d(TAG, "Shopping list item added successfully")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.w(TAG, "Error adding shopping list item", e)
-//            }
-//    }
 
     fun addShoppingListItem(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(uid).collection("shoppingList").document(item.name).set(item)
@@ -135,6 +145,33 @@ class FirestoreHelper(private val context: Context) {
                 onFailure(e)
             }
     }
+
+    fun addShoppingListItemToUserAndFriend(userUid: String, friendUid: String?, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val batch = db.batch()
+
+        val userRef = db.collection("users").document(userUid).collection("shoppingList").document(item.name)
+        Log.d("FirestoreDebug", "Adding item '${item.name}' to user's (${userUid}) shopping list.")
+        batch.set(userRef, item)
+
+        if (friendUid != null) {
+            val friendRef = db.collection("users").document(friendUid).collection("shoppingList").document(item.name)
+            Log.d("FirestoreDebug", "Adding item '${item.name}' to friend's (${friendUid}) shopping list.")
+            batch.set(friendRef, item)
+        } else {
+            Log.d("FirestoreDebug", "No friend UID provided, item will not be added to a friend's list.")
+        }
+
+        batch.commit().addOnSuccessListener {
+            Log.d("FirestoreDebug", "Successfully added item '${item.name}' to shopping lists.")
+            onSuccess()
+        }.addOnFailureListener { exception ->
+            Log.e("FirestoreDebug", "Failed to add item '${item.name}' to shopping lists: ${exception.message}")
+            onFailure(exception)
+        }
+    }
+
+
 
     fun moveItemToInventory(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         // First, delete the item from the shopping list
@@ -491,24 +528,24 @@ class FirestoreHelper(private val context: Context) {
 //                onFailure(e)
 //            }
 //    }
-fun updateGroceryItem(userId: String, itemId: String, fieldsToUpdate: Map<String, Any>, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-    // Ensure both userId and itemId are valid
-    if (userId.isBlank() || itemId.isBlank()) {
-        onFailure(IllegalArgumentException("Invalid user ID or item ID"))
-        return
-    }
+    fun updateGroceryItem(userId: String, itemId: String, fieldsToUpdate: Map<String, Any>, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        // Ensure both userId and itemId are valid
+        if (userId.isBlank() || itemId.isBlank()) {
+            onFailure(IllegalArgumentException("Invalid user ID or item ID"))
+            return
+        }
 
-    db.collection("users").document(userId).collection("groceryItems").document(itemId)
-        .update(fieldsToUpdate)
-        .addOnSuccessListener {
-            Log.d(TAG, "Grocery item updated successfully")
-            onSuccess()
-        }
-        .addOnFailureListener { e ->
-            Log.e(TAG, "Error updating grocery item: ${e.message}", e)
-            onFailure(e)
-        }
-}
+        db.collection("users").document(userId).collection("groceryItems").document(itemId)
+            .update(fieldsToUpdate)
+            .addOnSuccessListener {
+                Log.d(TAG, "Grocery item updated successfully")
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error updating grocery item: ${e.message}", e)
+                onFailure(e)
+            }
+    }
 
 
 //    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
@@ -523,31 +560,32 @@ fun updateGroceryItem(userId: String, itemId: String, fieldsToUpdate: Map<String
 //                onFailure(e)
 //            }
 //    }
-//    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-//        Log.d(TAG, "Attempting to delete item: $itemName for user: $userId")
-////        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
+
+    fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        Log.d(TAG, "Attempting to delete item: $itemName for user: $userId")
 //        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
-//        docRef.addOnSuccessListener { documents ->
-//            if (documents.isEmpty) {
-//                Log.w(TAG, "No item found with name: $itemName for deletion")
-//            } else {
-//                for (document in documents) {
-//                    db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
-//                        .addOnSuccessListener {
-//                            Log.d(TAG, "Item deleted successfully: ${document.id}")
-//                            onSuccess()
-//                        }
-//                        .addOnFailureListener { e ->
-//                            Log.e(TAG, "Error deleting item: ${document.id}", e)
-//                            onFailure(e)
-//                        }
-//                }
-//            }
-//        }.addOnFailureListener { e ->
-//            Log.e(TAG, "Failed to retrieve item for deletion: $itemName", e)
-//            onFailure(e)
-//        }
-//    }
+        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
+        docRef.addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                Log.w(TAG, "No item found with name: $itemName for deletion")
+            } else {
+                for (document in documents) {
+                    db.collection("users").document(userId).collection("groceryItems").document(document.id).delete()
+                        .addOnSuccessListener {
+                            Log.d(TAG, "Item deleted successfully: ${document.id}")
+                            onSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error deleting item: ${document.id}", e)
+                            onFailure(e)
+                        }
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "Failed to retrieve item for deletion: $itemName", e)
+            onFailure(e)
+        }
+    }
 
 //    fun deleteGroceryItem(userId: String, documentId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
 //        db.collection("users").document(userId).collection("groceryItems").document(documentId)
@@ -562,24 +600,24 @@ fun updateGroceryItem(userId: String, itemId: String, fieldsToUpdate: Map<String
 //            }
 //    }
 
-    fun deleteGroceryItem(userId: String, documentId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        if (documentId.isBlank()) {
-            Log.e(TAG, "Invalid document ID")
-            onFailure(IllegalArgumentException("Invalid document ID"))
-            return
-        }
-
-        db.collection("users").document(userId).collection("groceryItems").document(documentId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d(TAG, "Item deleted successfully: $documentId")
-                onSuccess()
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error deleting item: $documentId", e)
-                onFailure(e)
-            }
-    }
+//    fun deleteGroceryItem(userId: String, documentId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+//        if (documentId.isBlank()) {
+//            Log.e(TAG, "Invalid document ID")
+//            onFailure(IllegalArgumentException("Invalid document ID"))
+//            return
+//        }
+//
+//        db.collection("users").document(userId).collection("groceryItems").document(documentId)
+//            .delete()
+//            .addOnSuccessListener {
+//                Log.d(TAG, "Item deleted successfully: $documentId")
+//                onSuccess()
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "Error deleting item: $documentId", e)
+//                onFailure(e)
+//            }
+//    }
 
 //    fun moveItemToShoppingList(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
 //        val groceryItemRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName)
