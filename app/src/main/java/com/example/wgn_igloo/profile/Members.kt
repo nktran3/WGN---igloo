@@ -1,4 +1,4 @@
-package com.example.wgn_igloo.database
+package com.example.wgn_igloo.profile
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -14,8 +14,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
+import com.example.wgn_igloo.database.FirestoreHelper
 import com.example.wgn_igloo.databinding.FragmentMembersBinding
-import com.example.wgn_igloo.databinding.FragmentShoppingNewItemsFormBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 

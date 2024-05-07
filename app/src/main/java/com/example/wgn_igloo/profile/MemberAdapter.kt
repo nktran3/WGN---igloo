@@ -1,4 +1,4 @@
-package com.example.wgn_igloo.database
+package com.example.wgn_igloo.profile
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,12 +20,6 @@ class MemberAdapter(private var members: MutableList<Member>) :
         val view = LayoutInflater.from(parent.context).inflate(R.layout.members_item_layout, parent, false)
         return MemberViewHolder(view)
     }
-
-//    override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
-//        val member = members[position]
-//        holder.fullNameTextView.text = member.givenName + " " + member.familyName
-//        holder.usernameTextView.text = member.username
-//    }
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
         val member = members[position]

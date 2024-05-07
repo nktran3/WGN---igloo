@@ -1,4 +1,4 @@
-package com.example.wgn_igloo.database
+package com.example.wgn_igloo.profile
 
 import java.util.Date
 

@@ -8,7 +8,7 @@ import androidx.viewpager.widget.PagerAdapter
 import com.example.wgn_igloo.R
 
 class UserProfileAdapter(
-    private val users: List<User>,
+    private val users: List<InventoryUser>,
     private val userChangeListener: OnUserChangeListener
 ) : PagerAdapter() {
 

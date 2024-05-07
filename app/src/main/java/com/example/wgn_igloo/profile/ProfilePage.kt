@@ -12,9 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.auth.LoginActivity
-import com.example.wgn_igloo.database.Members
 import com.example.wgn_igloo.R
-import com.example.wgn_igloo.databinding.FragmentProfileBinding
 import com.example.wgn_igloo.databinding.FragmentProfilePageBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
