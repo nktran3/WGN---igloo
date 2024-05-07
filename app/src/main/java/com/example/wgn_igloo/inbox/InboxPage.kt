@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.util.Calendar
 import kotlin.math.abs
+import kotlin.math.ceil
 
 private const val TAG = "InboxPage"
 class InboxPage : Fragment() {
@@ -29,7 +30,7 @@ class InboxPage : Fragment() {
     private lateinit var notificationAdapter: NotificationsAdapter
     private lateinit var viewModel: NotificationsViewModel
     private var notificationList: MutableList<Notifications> = mutableListOf(
-        Notifications(title = "Item Request", message = "Gary borrowed coconut")
+        Notifications(title = "", message = "")
     ) // Ensure this is mutable
 
     private val db = FirebaseFirestore.getInstance()
@@ -79,22 +80,38 @@ class InboxPage : Fragment() {
                             expirationCal.timeInMillis = item.expirationDate.seconds * 1000L
                             val date: String = DateFormat.format("dd-MM-yyyy", expirationCal).toString()
                             val diffTime = expirationCal.timeInMillis - today.timeInMillis
-                            val diffDays = diffTime / (24 * 60 * 60 * 1000)
+                            val diffDays = ceil(diffTime.toDouble() / (24 * 60 * 60 * 1000)).toInt()
                             Log.d(TAG, "${item.name} expires on $date. Days until expiration: $diffDays")
                             // Check if notification needs to be sent
                             if (diffDays < 3 && !item.expireNotified) {
                                 //TODO: Capitalize the item name and make post-expiration red
                                 var notif: Notifications
                                 if (diffDays < 0){
-                                     notif = Notifications(
-                                        title = "Item Expiring Soon",
-                                        message = "${item.name} expired ${abs(diffDays+1)} days ago"
+                                    if (diffDays == -1){
+                                        notif = Notifications(
+                                            title = "Item Expired",
+                                            message = "${item.name} expired ${abs(diffDays)} day ago"
+                                        )
+                                    } else {
+                                        notif = Notifications(
+                                            title = "Item Expired",
+                                            message = "${item.name} expired ${abs(diffDays)} days ago"
+                                        )
+                                    }
+                                } else if (diffDays == 0) {
+                                    notif = Notifications(
+                                        title = "Item Expiring Today",
+                                        message = "${item.name} is expiring today"
                                     )
-                                }
-                                else {
+                                } else if (diffDays == 1){
                                     notif = Notifications(
                                         title = "Item Expiring Soon",
-                                        message = "${item.name} is expiring in ${diffDays+1} days"
+                                        message = "${item.name} is expiring in $diffDays day"
+                                    )
+                                } else {
+                                    notif = Notifications(
+                                        title = "Item Expiring Soon",
+                                        message = "${item.name} is expiring in ${abs(diffDays)} days"
                                     )
                                 }
 
