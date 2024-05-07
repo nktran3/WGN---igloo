@@ -14,6 +14,8 @@ import com.example.wgn_igloo.databinding.FragmentFaqBinding
 
 class FaqFragment : Fragment() {
     private lateinit var faqAdapter: FaqAdapter
+
+    // Preset list of questions for FAQ
     private var faqList: List<FaqItem> = listOf(
         FaqItem("How does igloo help reduce food waste?", "igloo helps reduce food waste by allowing users to keep track of the items in their fridge, including their expiration dates. With features like notifications for upcoming expirations and recipe suggestions based on fridge contents, users can better plan their meals and use up ingredients before they go to waste."),
         FaqItem("How do you add items to your fridge?", "You can either manually add items to your fridge inventory or you can use the barcode scanning feature to add items to your fridge inventory in igloo."),
@@ -26,8 +28,12 @@ class FaqFragment : Fragment() {
         FaqItem("Is igloo available on both iOS and Android devices?", "Currently, igloo is only available for Android devices, but we are currently working to make it available for iOS devices."),
         FaqItem("How can I provide feedback or report issues with igloo?", "We welcome feedback from our users! You can provide feedback or report any issues with igloo by clicking the support button available on the accounts page. This will lead you to a form that you can use to send your feedback or report issues. Our team works very hard to respond to feed back in a timely manner."),
     )
+
+    // Binding to xml layout
     private var _binding: FragmentFaqBinding? = null
     private val binding get() = _binding!!
+
+    // Toolbar initialization
     private lateinit var toolbarFaq: Toolbar
     private lateinit var toolbarFaqTitle: TextView
 
@@ -41,19 +47,27 @@ class FaqFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Setup RecyclerView
         binding.faqRecyclerView.layoutManager = LinearLayoutManager(context)
         faqAdapter = FaqAdapter(faqList)
         binding.faqRecyclerView.adapter = faqAdapter
+
+        // Setup toolbar
         toolbarFaq = binding.toolbarFaq
         toolbarFaqTitle = binding.toolbarFaqTitle
         updateToolbar()
     }
 
+
+    // Update toolbar with back button and page title
     private fun updateToolbar() {
         toolbarFaq.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarFaq.setNavigationOnClickListener { activity?.onBackPressed() }
         toolbarFaqTitle.text = "Frequently Asked Questions"
     }
+
+    // Cleanup binding on destroyed view
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

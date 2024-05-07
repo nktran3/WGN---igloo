@@ -39,11 +39,15 @@ private const val TAG = "BarcodeScanner"
 
 class BarcodeScannerFragment : Fragment() {
 
+    // Binding to xml layout
     private var _binding: BarcodeScanningBinding? = null
     private val binding get() = _binding!!
+
+    // Toolbar initialization
     private lateinit var toolbarBarcode: Toolbar
     private lateinit var toolbarBarcodeTitle: TextView
 
+    // Camera Executor
     private lateinit var cameraExecutor: ExecutorService
 
     override fun onCreateView(
@@ -57,11 +61,16 @@ class BarcodeScannerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Make sure that all permissions are granted
         if (!allPermissionsGranted()) {
             requestPermissions()
         }
 
+        // Setup camera executor
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+
+        // Set scan button listener
         binding.scanButton.setOnClickListener {
             if (allPermissionsGranted()) {
                 startCamera()
@@ -70,11 +79,13 @@ class BarcodeScannerFragment : Fragment() {
             }
         }
 
+        // Setup toolbar
         toolbarBarcode = binding.toolbarBarcode
         toolbarBarcodeTitle = binding.toolbarBarcodeTitle
         updateToolbar()
     }
 
+    // Update toolbar with back button and title
     private fun updateToolbar() {
         toolbarBarcode.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarBarcode.setNavigationOnClickListener { activity?.onBackPressed() }
@@ -149,16 +160,19 @@ class BarcodeScannerFragment : Fragment() {
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
+    // Function to request permissions
     private fun requestPermissions() {
         activityResultLauncher.launch(REQUIRED_PERMISSIONS)
     }
 
+    // Function to check if all permissions are granted
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
             requireContext(), it
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    // Cleanup resources
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -167,16 +181,22 @@ class BarcodeScannerFragment : Fragment() {
         }
     }
 
+    // Look up UPC code in USDA Food Database
     private fun upcLookup(upc: String) {
 
+        // Initialize Moshi
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+
+        // Initialize Retrofit
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl("https://api.nal.usda.gov/")
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
 
-        val foodDatabaseApi: USDAFoodDatabaseAPI =
-            retrofit.create(USDAFoodDatabaseAPI::class.java)
+        // Create API service
+        val foodDatabaseApi: USDAFoodDatabaseAPI = retrofit.create(USDAFoodDatabaseAPI::class.java)
+
+        // Perform API call using coroutine
         lifecycleScope.launch {
             try {
                 val response = foodDatabaseApi.fetchFoodInfoByUPC(API_KEY, upc, "Branded")
@@ -205,12 +225,10 @@ class BarcodeScannerFragment : Fragment() {
             }
         }
     }
+    // Activity result launcher for permission request
+    private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
 
-    private val activityResultLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        )
-        { permissions ->
+        permissions ->
             // Handle Permission granted/rejected
             var permissionGranted = true
             permissions.entries.forEach {
@@ -227,6 +245,7 @@ class BarcodeScannerFragment : Fragment() {
         }
 
     companion object {
+
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA,

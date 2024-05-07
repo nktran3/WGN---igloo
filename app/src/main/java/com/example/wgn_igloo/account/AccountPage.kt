@@ -33,6 +33,7 @@ class AccountPage : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
+    // Preset list of account page items for RecyclerView
     private val data: List<AccountItem> = listOf(
         AccountItem(R.drawable.profile_icon, "Profile"),
         AccountItem(R.drawable.friends_icon, "Friends"),
@@ -62,18 +63,21 @@ class AccountPage : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentAccountPageBinding.inflate(inflater, container, false)
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize RecyclerView and its layout manager
         val recyclerView: RecyclerView = view.findViewById(R.id.profile_recycler)
         recyclerView.layoutManager = LinearLayoutManager(context)
+
+        // Initialize and set the adapter for RecyclerView
         accountItemAdapter = AccountItemAdapter(data) { item ->
+
+            // Handle click events on RecyclerView items
             when (item.text) {
                 "Profile" -> showProfileDetails()
 
@@ -93,13 +97,16 @@ class AccountPage : Fragment() {
                     Log.d(TAG, "Signed out")
                 }
 
-
             }
         }
         recyclerView.adapter = accountItemAdapter
+
+        // Fetch and display the username
         fetchUsername()
 
     }
+
+    // Fetches the username from Firestore and updates UI
     private fun fetchUsername() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId == null) {
@@ -112,11 +119,12 @@ class AccountPage : Fragment() {
         val userDocRef = Firebase.firestore.collection("users").document(userId)
         userDocRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
+
+                // Extract name and username from document snapshot
                 val givenName = documentSnapshot.getString("givenName")
                 val familyName = documentSnapshot.getString("familyName")
                 val name = "$givenName $familyName"
                 val username = documentSnapshot.getString("username")
-                val email = documentSnapshot.getString("email")
                 updateUsernameOnUI(username, name)
             } else {
                 Log.d(TAG, "No such document")
@@ -128,6 +136,7 @@ class AccountPage : Fragment() {
         }
     }
 
+    // Update user's name on ui
     private fun updateUsernameOnUI(username: String?, name: String?) {
         activity?.runOnUiThread {
             if (username == null) {
@@ -139,14 +148,16 @@ class AccountPage : Fragment() {
         }
     }
 
+    // Inflate friends fragment
     private fun showFriends() {
-        val membersFragment = FriendsFragment()
+        val friendsFragment = FriendsFragment()
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, membersFragment)
+            .replace(R.id.fragment_container, friendsFragment)
             .addToBackStack(null)
             .commit()
     }
 
+    // Inflate profile fragment
     private fun showProfileDetails(){
         val profileFragment = ProfileFragment()
         requireActivity().supportFragmentManager.beginTransaction()
@@ -155,6 +166,7 @@ class AccountPage : Fragment() {
             .commit()
     }
 
+    // Inflate setting fragment
     private fun showSettings(){
         val settingsFragment = SettingsFragment()
         requireActivity().supportFragmentManager.beginTransaction()
@@ -163,6 +175,7 @@ class AccountPage : Fragment() {
             .commit()
     }
 
+    // Inflate about us fragment
     private fun showAbout(){
         val aboutFragment = AboutFragment()
         requireActivity().supportFragmentManager.beginTransaction()
@@ -170,7 +183,8 @@ class AccountPage : Fragment() {
             .addToBackStack(null)
             .commit()
     }
-    
+
+    // Inflate FAQ fragment
     private fun showFAQpage(){
         val faqFragment = FaqFragment()
         requireActivity().supportFragmentManager.beginTransaction()
@@ -180,6 +194,7 @@ class AccountPage : Fragment() {
 
     }
 
+    // Opens the Google form for support
     private fun openGoogleApp() {
         try {
             // URL for the Google Form
@@ -197,12 +212,15 @@ class AccountPage : Fragment() {
         }
     }
 
+    // Navigates to the login activity
     private fun goToLoginActivity() {
         val intent = Intent(activity, LoginActivity::class.java)
         // You can also put extra data to pass to the destination activity
         intent.putExtra("key", "value")
         startActivity(intent)
     }
+
+    // Signs the user out
     private fun signOut() {
         // Firebase sign out
         FirebaseAuth.getInstance().signOut()

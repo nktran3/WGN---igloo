@@ -11,8 +11,10 @@ import com.example.wgn_igloo.R
 
 class AccountItemAdapter(private val data: List<AccountItem>, private val listener: (AccountItem) -> Unit) : RecyclerView.Adapter<AccountItemAdapter.ViewHolder>() {
 
+    // Data model for each item in the RecyclerView
     data class AccountItem(val imageResId: Int, val text: String)
 
+    // ViewHolder class to hold the views of each item
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.icon_image)
         val textView: TextView = view.findViewById(R.id.account_item_text)
@@ -23,20 +25,25 @@ class AccountItemAdapter(private val data: List<AccountItem>, private val listen
         return ViewHolder(view)
     }
 
+    // Bind data to the views in each ViewHolder
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         // Get the data model based on position
         val accountItem = data[position]
 
         // Set item views based on your views and data model
         holder.textView.text = accountItem.text
+
+        // Load image into ImageView using Glide library
         Glide.with(holder.imageView.context)
-            .load(accountItem.imageResId) // Ensure this is a drawable or a correct image resource ID.
+            .load(accountItem.imageResId)
             .into(holder.imageView)
 
+        // Set click listener for the item
         holder.itemView.setOnClickListener {
             listener(accountItem)
         }
     }
 
+    // Return the total number of items in the data set
     override fun getItemCount(): Int = data.size
 }

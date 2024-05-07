@@ -17,15 +17,19 @@ import com.example.wgn_igloo.databinding.FragmentGroceryNewItemsFormBinding
 
 
 class NewGroceryItemFormFragment : Fragment() {
+
+    // Binding to xml layout
     private var _binding: FragmentGroceryNewItemsFormBinding? = null
     private val binding get() = _binding!!
 
+    // Firebase and Firestore
     private lateinit var auth: FirebaseAuth
     private lateinit var firestoreHelper: FirestoreHelper
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
+
+    // Toolbar initialization
     private lateinit var toolbarAddGrocery: Toolbar
     private lateinit var toolbarAddGroceryTitle: TextView
-
-    private val firestore by lazy { FirebaseFirestore.getInstance() }
 
     companion object {
         fun newInstance(): NewGroceryItemFormFragment {
@@ -35,6 +39,8 @@ class NewGroceryItemFormFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize Firebase Auth and FirestoreHelper
         auth = FirebaseAuth.getInstance()
         firestoreHelper = FirestoreHelper(requireContext())
     }
@@ -48,23 +54,31 @@ class NewGroceryItemFormFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Setup spinners and submit button
         setupSpinners()
         setupSubmitButton()
+
+        // Setup toolbar
         toolbarAddGrocery = binding.toolbarAddGrocery
         toolbarAddGroceryTitle = binding.toolbarAddGroceryTitle
         updateToolbar()
     }
 
+    // Update toolbar with back button and title
     private fun updateToolbar() {
         toolbarAddGrocery.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarAddGrocery.setNavigationOnClickListener { activity?.onBackPressed() }
         toolbarAddGroceryTitle.text = "Add New Item"
     }
 
+    // Function to setup spinners
     private fun setupSpinners() {
+
+        // Preset categories array
         val categories = arrayOf("Choose an option", "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Other" )
         val defaultSharedWith = arrayOf("No one")
 
+        // Setup Adapters
         val categoriesAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, categories)
         val sharedWithAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, defaultSharedWith)
 
@@ -85,6 +99,7 @@ class NewGroceryItemFormFragment : Fragment() {
         }
     }
 
+    // Fetch user's friends and update the sharedWith spinner
     private fun fetchFriendsAndUpdateSpinner() {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -108,6 +123,7 @@ class NewGroceryItemFormFragment : Fragment() {
         }
     }
 
+    // Function to setup click listener for submit button
     private fun setupSubmitButton() {
         binding.submitButton.setOnClickListener {
             if (validateInputs()) {
@@ -118,6 +134,7 @@ class NewGroceryItemFormFragment : Fragment() {
         }
     }
 
+    // Function to validate user inputs
     private fun validateInputs(): Boolean {
         val isItemInputNotEmpty = binding.itemInput.text?.isNotEmpty() == true
         val isQuantityValid = binding.quantityInput.text?.toString()?.toIntOrNull() != null
@@ -127,6 +144,7 @@ class NewGroceryItemFormFragment : Fragment() {
     }
 
 
+    // Function to submit grocery item to Firestore
     private fun submitGroceryItem() {
         val userUid = auth.currentUser?.uid ?: run {
             Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
@@ -185,6 +203,7 @@ class NewGroceryItemFormFragment : Fragment() {
     }
 
 
+    // Cleanup binding on destroyed view
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -12,8 +12,12 @@ import com.example.wgn_igloo.R
 import com.example.wgn_igloo.databinding.FragmentAboutBinding
 
 class AboutFragment : Fragment() {
+
+    // Binding to xml layout
     private var _binding: FragmentAboutBinding? = null
     private val binding get() = _binding!!
+
+    // Toolbar initialization
     private lateinit var toolbarAbout: Toolbar
     private lateinit var toolbarAboutTitle: TextView
 
@@ -27,17 +31,22 @@ class AboutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Setup toolbar
         toolbarAbout = binding.toolbarAbout
         toolbarAboutTitle = binding.toolbarAboutTitle
         updateToolbar()
     }
 
+    // Update toolbar with back button and title
     private fun updateToolbar() {
         toolbarAbout.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarAbout.setNavigationOnClickListener { activity?.onBackPressed() }
         toolbarAboutTitle.text = "About Us"
 
     }
+
+    // Cleanup binding when view is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

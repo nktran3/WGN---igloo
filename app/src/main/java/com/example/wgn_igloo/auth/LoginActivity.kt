@@ -23,9 +23,16 @@ import com.google.firebase.auth.GoogleAuthProvider
 private const val TAG = "LoginActivity"
 
 class LoginActivity : AppCompatActivity() {
+    // Binding to login xml layout
     private lateinit var binding: ActivityLoginBinding
+
+    // Firebase instance variables
     private lateinit var auth: FirebaseAuth
+
+    // Google sign in client
     private lateinit var googleSignInClient: GoogleSignInClient
+
+    //Firestore
     private lateinit var firestoreHelper: FirestoreHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,25 +40,30 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        auth = FirebaseAuth.getInstance()
+        auth = FirebaseAuth.getInstance()  // Initialize FirebaseAuth instance
         configureGoogleSignIn() // Configure Google Sign-In on activity creation
 
+        // Initialize FirestoreHelper
         firestoreHelper = FirestoreHelper(this)
 
+        // Set login button on click listener
         binding.buttonLogin.setOnClickListener {
             loginUser()
         }
 
+        // Set signup button on click listener
         binding.textViewSignUp.setOnClickListener {
             goToSignUp()
         }
 
+        // Set Google signin button on click listener
         binding.googleBtSignIn.setOnClickListener {
             Log.d(TAG, "Google Button Clicked")
             signInGoogle()
         }
     }
 
+    // Configure Google Sign-In options
     private fun configureGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -61,6 +73,7 @@ class LoginActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
+    // Initiates the Google Sign-In
     private fun signInGoogle() {
         configureGoogleSignIn() // Reinitialize Google Sign-In client each time before sign-in
         Log.d(TAG, "About to get signInIntent from googleSignInClient.")
@@ -74,6 +87,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // Handles the result of the Google Sign-In
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         Log.d(TAG, "Sign-in activity result received with code: ${result.resultCode}")
         if (result.resultCode == Activity.RESULT_OK) {
@@ -95,6 +109,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // Processes the result of Google Sign-In
     private fun handleResults(task: Task<GoogleSignInAccount>) {
         try {
             val account: GoogleSignInAccount? = task.getResult(ApiException::class.java)
@@ -106,7 +121,6 @@ class LoginActivity : AppCompatActivity() {
 
                 firebaseAuthWithGoogle(account.idToken, userGivenName, userFamilyName,  userEmail)
 
-                // Optionally log or use the email and name
                 Log.d(TAG, "User email: $userEmail")
                 Log.d(TAG, "User name: $userGivenName")
 
@@ -119,6 +133,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // Authenticates the user with Firebase using Google credentials
     private fun firebaseAuthWithGoogle(idToken: String?, givenName: String, familyName: String, gmail:String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
@@ -147,6 +162,7 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
+    // Authenticates the user with Firebase using email/password
     private fun loginUser() {
         val userEmail = binding.emailLogin.text.toString()
         val userPassword = binding.passwordLogin.text.toString()
@@ -163,6 +179,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // Navigates to the sign-up activity
     private fun goToSignUp() {
         val intent = Intent(this, SignUpActivity::class.java)
         startActivity(intent)

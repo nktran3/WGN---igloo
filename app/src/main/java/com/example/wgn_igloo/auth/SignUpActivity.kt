@@ -16,9 +16,12 @@ import com.google.firebase.ktx.Firebase
 
 private const val TAG = "SignInActivity"
 class SignUpActivity : AppCompatActivity() {
+    // Binding to signup xml layout
     private lateinit var binding: ActivitySignUpBinding
+
     // Firebase instance variables
     private lateinit var auth: FirebaseAuth
+
     //Firestore
     private lateinit var firestoreHelper: FirestoreHelper
 

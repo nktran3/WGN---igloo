@@ -17,8 +17,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FriendsFragment : Fragment() {
-    private lateinit var memberAdapter: FriendsAdapter
-    private var memberList: MutableList<Friend> = mutableListOf()
+    private lateinit var friendAdapter: FriendsAdapter
+    private var friendList: MutableList<Friend> = mutableListOf()
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var toolbarFriends: Toolbar
     private var _binding: FragmentFriendsBinding? = null
@@ -40,21 +40,21 @@ class FriendsFragment : Fragment() {
         updateToolbar()
 
         binding.fridgeMembersRecyclerView.layoutManager = LinearLayoutManager(context)
-        memberAdapter = FriendsAdapter(memberList)
-        binding.fridgeMembersRecyclerView.adapter = memberAdapter
+        friendAdapter = FriendsAdapter(friendList)
+        binding.fridgeMembersRecyclerView.adapter = friendAdapter
 
         firestoreHelper = FirestoreHelper(requireContext())  // Initialize FirestoreHelper
 
         binding.submitFriendRequestButton.setOnClickListener {
-            val friendUid = binding.friendUidInput.text.toString()
-            if (friendUid.isNotEmpty()) {
-                handleFriendRequest(friendUid)
+            val friendUsername = binding.friendUsernameInput.text.toString()
+            if (friendUsername.isNotEmpty()) {
+                handleFriendRequest(friendUsername)
             } else {
-                Toast.makeText(context, "Please enter a UID", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Please enter a Username", Toast.LENGTH_SHORT).show()
             }
         }
 
-        fetchMembers()
+        fetchFriends()
     }
     private fun updateToolbar() {
         toolbarFriends.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
@@ -78,7 +78,7 @@ class FriendsFragment : Fragment() {
         )
     }
 
-    private fun fetchMembers() {
+    private fun fetchFriends() {
         val currentUserId = getCurrentUserId() ?: return  // Return early if no user ID
         val db = FirebaseFirestore.getInstance()
         db.collection("users").document(currentUserId).collection("friends")
@@ -96,7 +96,7 @@ class FriendsFragment : Fragment() {
                     val friendSince = document.getDate("friendSince")
                     friendsList.add(Friend(username, uid, givenName, familyName, friendSince))
                 }
-                memberAdapter.updateMembers(friendsList)
+                friendAdapter.updateFriends(friendsList)
             }
     }
 
@@ -105,6 +105,7 @@ class FriendsFragment : Fragment() {
         return user?.uid  // This will return the user ID or null if no user is logged in
     }
 
+    // Cleanup binding on destroyed view
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

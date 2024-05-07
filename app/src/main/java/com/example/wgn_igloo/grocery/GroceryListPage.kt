@@ -13,9 +13,12 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ShoppingListPage : Fragment() {
+    // Firestore
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestoreDb: FirebaseFirestore
     private var userUid: String? = null
+
+    // RecyclerView
     private lateinit var recyclerView: RecyclerView
 
 
@@ -25,8 +28,12 @@ class ShoppingListPage : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize FirestoreHelper and Firestore database instance
         firestoreHelper = FirestoreHelper(requireContext())
         firestoreDb = FirebaseFirestore.getInstance()
+
+        // Get the current user's UID
         userUid = FirebaseAuth.getInstance().currentUser?.uid
     }
 
@@ -40,8 +47,11 @@ class ShoppingListPage : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.shopping_list_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
+
+        // Setup Adapter
         recyclerView.adapter = GroceryListAdapter(emptyList()) { item ->
             userUid?.let { uid ->
                 firestoreHelper.moveItemToInventory(uid, item,
@@ -61,15 +71,17 @@ class ShoppingListPage : Fragment() {
         }
 
         userUid?.let { uid ->
-            setupGroceryListListener(uid) // Setup the real-time listener
+            setupGroceryListListener(uid) // Set up real-time listener for shopping list updates
         }
 
+        // Set add button on click
         view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
             navigateToAddNewItemForm()
         }
 
     }
 
+    // Inflate the add new grocery item form
     private fun navigateToAddNewItemForm() {
         val newGroceryItemFormFragment = NewGroceryItemFormFragment()
         requireActivity().supportFragmentManager.beginTransaction()
@@ -79,6 +91,8 @@ class ShoppingListPage : Fragment() {
     }
 
 
+
+    // Fetch shopping list items from Firestore
     private fun fetchGroceryListItems(uid: String, onSuccess: (List<GroceryListItem>) -> Unit, onFailure: (Exception) -> Unit) {
         firestoreDb.collection("users").document(uid)
             .collection("shoppingList").get()
@@ -91,6 +105,7 @@ class ShoppingListPage : Fragment() {
             }
     }
 
+    // Set up real-time listener for shopping list updates
     private fun setupGroceryListListener(uid: String) {
         firestoreDb.collection("users").document(uid)
             .collection("shoppingList")

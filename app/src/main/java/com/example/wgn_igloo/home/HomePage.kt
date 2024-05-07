@@ -18,6 +18,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 
 class HomePage : Fragment() {
+
+    // RecyclerView and Carousel
     private lateinit var recyclerView: RecyclerView
     private lateinit var carouselAdapter: CarouselAdapter
     private lateinit var itemList: MutableList<CarouselAdapter.ItemData>
@@ -77,12 +79,14 @@ class HomePage : Fragment() {
     var categoryListener: OnCategorySelectedListener? = null
 
 
+    // Setup carousel
     private fun setupCarousel(view: View) {
         // Set up RecyclerView, LinearLayoutManager, Adapter, and LinearSnapHelper as before
         recyclerView = view.findViewById(R.id.carousel)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
+        // Preset list of categories with their specified icons
         itemList = listOf(
             CarouselAdapter.ItemData(R.drawable.all, "All"),
             CarouselAdapter.ItemData(R.drawable.condiments, "Condiments"),
@@ -94,8 +98,10 @@ class HomePage : Fragment() {
             CarouselAdapter.ItemData(R.drawable.other, "Other")
         ).toMutableList()
 
+        // Set initial position in carousel to "All" category
         val initialSelectedPosition = itemList.indexOfFirst { it.text == "All" }
 
+        // Setup carousel adapter
         carouselAdapter = CarouselAdapter(itemList, requireContext(), object : CarouselAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int, category: String) {
                 recyclerView.smoothScrollToPosition(position)
@@ -104,18 +110,23 @@ class HomePage : Fragment() {
         }, initialSelectedPosition)
         recyclerView.adapter = carouselAdapter
 
+        // Attach a LinearSnapHelper to the RecyclerView to ensure items snap into place
         val snapHelper = LinearSnapHelper()
         snapHelper.attachToRecyclerView(recyclerView)
 
+        // Adjust the RecyclerView scroll position so the selected item is centered
         recyclerView.post {
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(initialSelectedPosition, recyclerView.width / 2 - view.width / 2)
         }
     }
 
+    // Setup add button
     private fun setupAddButton(view: View) {
         val addButton: Button = view.findViewById(R.id.add_button)
         addButton.bringToFront()
         addButton.setOnClickListener { v ->
+
+            // Setup popup menu
             val newContext = ContextThemeWrapper(activity, R.style.CustomPopupMenu)
             val popup = PopupMenu(newContext, v)
             popup.menuInflater.inflate(R.menu.add_popup_menu, popup.menu)
@@ -123,6 +134,8 @@ class HomePage : Fragment() {
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.add_manually -> {
+
+                        // Inflate add new items form
                         val formFragment = NewItemsFormFragment()
                         requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, formFragment)
                             .addToBackStack(null)
@@ -130,6 +143,8 @@ class HomePage : Fragment() {
                         true
                     }
                     R.id.add_barcode -> {
+
+                        // inflate barcode fragment
                         val barcodeFragment = BarcodeScannerFragment()
                         requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container, barcodeFragment)
                             .addToBackStack(null)

@@ -18,8 +18,12 @@ import com.example.wgn_igloo.databinding.FragmentProfileBinding
 class ProfileFragment : Fragment() {
 
     private lateinit var firestoreHelper: FirestoreHelper
+
+    // Binding to xml layout
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
+
+    // Toolbar initialization
     private lateinit var toolbarProfile: Toolbar
     private lateinit var toolbarProfileTitle: TextView
 
@@ -37,8 +41,11 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Initialize FirestoreHelper
         firestoreHelper = FirestoreHelper(requireContext())
 
+        // Show the update username visibility when edit username button clicked
         binding.editUsername.setOnClickListener {
             if (binding.newUsernameLabel.visibility == View.GONE) {
                 binding.newUsernameLabel.visibility = View.VISIBLE
@@ -51,11 +58,14 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        // Save button click listener
         binding.saveButton.setOnClickListener {
             val newUsername = binding.usernameEditText.text.toString()
             if (newUsername.isNotBlank()) {
                 updateUsername(newUsername)
                 binding.usernameTextView.text = newUsername // Update the displayed username immediately
+
+                // Hide update username visibility after user changed their username
                 binding.newUsernameLabel.visibility = View.GONE
                 binding.usernameEditText.visibility = View.GONE
                 binding.saveButton.visibility = View.GONE
@@ -64,22 +74,27 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        // Fetch and display user data
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         currentUserId?.let {
             fetchUserData(it)
         }
 
+        // Setup toolbar
         toolbarProfile = binding.toolbarProfile
         toolbarProfileTitle = binding.toolbarProfileTitle
         updateToolbar()
     }
 
+    // Update toolbar with back button and title
     private fun updateToolbar() {
         toolbarProfile.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.back_icon)
         toolbarProfile.setNavigationOnClickListener { activity?.onBackPressed() }
         toolbarProfileTitle.text = "Profile"
 
     }
+
+    // Update username in Firestore
     private fun updateUsername(newUsername: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         userId?.let {
@@ -91,8 +106,11 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Fetch user data from Firestore
     private fun fetchUserData(userId: String) {
         firestoreHelper.getUser(userId, onSuccess = { user ->
+
+            // Display user data
             binding.nameTextView.text = user.givenName + " " + user.familyName
             binding.emailTextView.text = user.email
             binding.usernameTextView.text = user.username // Display username in the TextView
@@ -104,8 +122,9 @@ class ProfileFragment : Fragment() {
         })
     }
 
+    // Cleanup binding on destroyed view
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // Prevent memory leaks
+        _binding = null
     }
 }
