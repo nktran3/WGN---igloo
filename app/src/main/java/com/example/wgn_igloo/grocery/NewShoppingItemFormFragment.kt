@@ -63,7 +63,7 @@ class NewShoppingItemFormFragment : Fragment() {
     }
 
     private fun setupSpinners() {
-        val categories = arrayOf("Choose an option", "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Miscellaneous" )
+        val categories = arrayOf("Choose an option", "Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Other" )
         val defaultSharedWith = arrayOf("No one")
 
         val categoriesAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, categories)

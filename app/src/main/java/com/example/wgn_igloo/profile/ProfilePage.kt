@@ -161,7 +161,6 @@ class ProfilePage : Fragment() {
             .replace(R.id.fragment_container, profileFragment)
             .addToBackStack(null)
             .commit()
-
     }
 
     private fun showSettings(){
@@ -179,6 +178,7 @@ class ProfilePage : Fragment() {
             .addToBackStack(null)
             .commit()
     }
+    
     private fun showFAQpage(){
         val faqFragment = FaqFragment()
         requireActivity().supportFragmentManager.beginTransaction()

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.util.Calendar
 import kotlin.math.abs
+import kotlin.math.ceil
 
 private const val TAG = "InboxPage"
 class InboxPage : Fragment() {
@@ -29,7 +31,7 @@ class InboxPage : Fragment() {
     private lateinit var notificationAdapter: NotificationsAdapter
     private lateinit var viewModel: NotificationsViewModel
     private var notificationList: MutableList<Notifications> = mutableListOf(
-        Notifications(title = "Item Request", message = "Gary borrowed coconut")
+        Notifications(title = "", message = "")
     ) // Ensure this is mutable
 
     private val db = FirebaseFirestore.getInstance()
@@ -79,22 +81,37 @@ class InboxPage : Fragment() {
                             expirationCal.timeInMillis = item.expirationDate.seconds * 1000L
                             val date: String = DateFormat.format("dd-MM-yyyy", expirationCal).toString()
                             val diffTime = expirationCal.timeInMillis - today.timeInMillis
-                            val diffDays = diffTime / (24 * 60 * 60 * 1000)
+                            val diffDays = ceil(diffTime.toDouble() / (24 * 60 * 60 * 1000)).toInt()
                             Log.d(TAG, "${item.name} expires on $date. Days until expiration: $diffDays")
                             // Check if notification needs to be sent
                             if (diffDays < 3 && !item.expireNotified) {
-                                //TODO: Capitalize the item name and make post-expiration red
                                 var notif: Notifications
                                 if (diffDays < 0){
-                                     notif = Notifications(
-                                        title = "Item Expiring Soon",
-                                        message = "${item.name} expired ${abs(diffDays+1)} days ago"
+                                    if (diffDays == -1){
+                                        notif = Notifications(
+                                            title = "Item Expired",
+                                            message = "${item.name} expired ${abs(diffDays)} day ago"
+                                        )
+                                    } else {
+                                        notif = Notifications(
+                                            title = "Item Expired",
+                                            message = "${item.name} expired ${abs(diffDays)} days ago"
+                                        )
+                                    }
+                                } else if (diffDays == 0) {
+                                    notif = Notifications(
+                                        title = "Item Expiring Today",
+                                        message = "${item.name} is expiring today!!!"
                                     )
-                                }
-                                else {
+                                } else if (diffDays == 1){
                                     notif = Notifications(
                                         title = "Item Expiring Soon",
-                                        message = "${item.name} is expiring in ${diffDays+1} days"
+                                        message = "${item.name} is expiring in $diffDays day"
+                                    )
+                                } else {
+                                    notif = Notifications(
+                                        title = "Item Expiring Soon",
+                                        message = "${item.name} is expiring in ${abs(diffDays)} days"
                                     )
                                 }
 
@@ -164,8 +181,19 @@ class InboxPage : Fragment() {
 
         class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             fun bind(notification: Notifications) {
-                itemView.findViewById<TextView>(R.id.notification_title).text = notification.title
-                itemView.findViewById<TextView>(R.id.notification_body).text = notification.message
+//
+                val titleView = itemView.findViewById<TextView>(R.id.notification_title)
+                val bodyView = itemView.findViewById<TextView>(R.id.notification_body)
+
+                titleView.text = notification.title
+                bodyView.text = notification.message
+
+                // change text color for expired items
+                if (notification.title.contains("Expiring Today") || notification.title.contains("Expired")) {
+                    bodyView.setTextColor(ContextCompat.getColor(itemView.context, R.color.red))
+                } else {
+                    bodyView.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+                }
             }
         }
     }
