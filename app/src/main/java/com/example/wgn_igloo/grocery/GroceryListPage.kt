@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 
-class ShoppingListPage : Fragment() {
+class GroceryListPage : Fragment() {
     // Firestore
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestoreDb: FirebaseFirestore
