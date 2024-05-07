@@ -99,8 +99,6 @@ class LoginActivity : AppCompatActivity() {
         try {
             val account: GoogleSignInAccount? = task.getResult(ApiException::class.java)
             if (account != null) {
-
-
                 // Retrieve user's email and name from the Google account
                 val userEmail = account.email ?: "No email found"
                 val userGivenName = account.givenName ?: "No given name found"

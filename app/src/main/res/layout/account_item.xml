@@ -12,7 +12,6 @@
         android:layout_height="20dp"
         android:layout_marginStart="8dp"
         android:gravity="center_vertical"
-        android:src="@drawable/members_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,7 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:gravity="center_vertical"
-        android:text="@string/members"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -5,29 +5,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
 import com.example.wgn_igloo.database.FirestoreHelper
-import com.example.wgn_igloo.databinding.FragmentMembersBinding
+import com.example.wgn_igloo.databinding.FragmentFriendsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class Members : Fragment() {
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var memberAdapter: MemberAdapter
-    private var memberList: MutableList<Member> = mutableListOf()
-    private lateinit var friendUidInput: EditText
-    private lateinit var submitButton: Button
+class FriendsFragment : Fragment() {
+    private lateinit var memberAdapter: FriendsAdapter
+    private var memberList: MutableList<Friend> = mutableListOf()
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var toolbarFriends: Toolbar
-    private var _binding: FragmentMembersBinding? = null
+    private var _binding: FragmentFriendsBinding? = null
     private lateinit var toolbarFriendsTitle: TextView
     private val binding get() = _binding!!
 
@@ -35,7 +29,7 @@ class Members : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentMembersBinding.inflate(inflater, container, false)
+        _binding = FragmentFriendsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -46,7 +40,7 @@ class Members : Fragment() {
         updateToolbar()
 
         binding.fridgeMembersRecyclerView.layoutManager = LinearLayoutManager(context)
-        memberAdapter = MemberAdapter(memberList)
+        memberAdapter = FriendsAdapter(memberList)
         binding.fridgeMembersRecyclerView.adapter = memberAdapter
 
         firestoreHelper = FirestoreHelper(requireContext())  // Initialize FirestoreHelper
@@ -93,14 +87,14 @@ class Members : Fragment() {
                     Toast.makeText(context, "Error fetching data: ${e.message}", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
-                val friendsList = mutableListOf<Member>()
+                val friendsList = mutableListOf<Friend>()
                 snapshot?.documents?.forEach { document ->
                     val username = document.getString("username") ?: return@forEach
                     val uid = document.getString("uid") ?: return@forEach
                     val givenName = document.getString("givenName") ?: ""
                     val familyName = document.getString("familyName") ?: ""
                     val friendSince = document.getDate("friendSince")
-                    friendsList.add(Member(username, uid, givenName, familyName, friendSince))
+                    friendsList.add(Friend(username, uid, givenName, familyName, friendSince))
                 }
                 memberAdapter.updateMembers(friendsList)
             }

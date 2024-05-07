@@ -86,7 +86,6 @@ class ProfileFragment : Fragment() {
             firestoreHelper.updateUsername(it, newUsername, onSuccess = {
                 Toast.makeText(context, "Username updated successfully", Toast.LENGTH_SHORT).show()
             }, onFailure = { exception ->
-//                Toast.makeText(context, "Failed to update username", Toast.LENGTH_SHORT).show()
                 Log.e(TAG, "Failed to update username", exception)
             })
         }

@@ -13,35 +13,34 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.auth.LoginActivity
 import com.example.wgn_igloo.R
-import com.example.wgn_igloo.databinding.FragmentProfilePageBinding
+import com.example.wgn_igloo.databinding.FragmentAccountPageBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.example.wgn_igloo.account.ProfileItemAdapter.ProfileItem
+import com.example.wgn_igloo.account.AccountItemAdapter.AccountItem
 import com.google.firebase.firestore.ktx.firestore
 
 private const val TAG = "ProfilePage"
 
-class ProfilePage : Fragment() {
+class AccountPage : Fragment() {
 
-    private lateinit var profileAdapter: ProfileItemAdapter
-    private lateinit var binding: FragmentProfilePageBinding
-//    private lateinit var binding: FragmentProfileBinding
+    private lateinit var accountItemAdapter: AccountItemAdapter
+    private lateinit var binding: FragmentAccountPageBinding
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    private val myDataset: List<ProfileItem> = listOf(
-        ProfileItem(R.drawable.profile_icon, "Profile"),
-        ProfileItem(R.drawable.friends_icon, "Friends"),
-        ProfileItem(R.drawable.support_icon, "Support"),
-        ProfileItem(R.drawable.faq_icon, "FAQ"),
-        ProfileItem(R.drawable.setting_icon, "Settings"),
-        ProfileItem(R.drawable.about_icon, "About Us"),
-        ProfileItem(R.drawable.logout_icon, "Logout")
+    private val data: List<AccountItem> = listOf(
+        AccountItem(R.drawable.profile_icon, "Profile"),
+        AccountItem(R.drawable.friends_icon, "Friends"),
+        AccountItem(R.drawable.support_icon, "Support"),
+        AccountItem(R.drawable.faq_icon, "FAQ"),
+        AccountItem(R.drawable.setting_icon, "Settings"),
+        AccountItem(R.drawable.about_icon, "About Us"),
+        AccountItem(R.drawable.logout_icon, "Logout")
 
     )
 
@@ -64,7 +63,7 @@ class ProfilePage : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentProfilePageBinding.inflate(inflater, container, false)
+        binding = FragmentAccountPageBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -74,7 +73,7 @@ class ProfilePage : Fragment() {
 
         val recyclerView: RecyclerView = view.findViewById(R.id.profile_recycler)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        profileAdapter = ProfileItemAdapter(myDataset) { item ->
+        accountItemAdapter = AccountItemAdapter(data) { item ->
             when (item.text) {
                 "Profile" -> showProfileDetails()
 
@@ -97,8 +96,7 @@ class ProfilePage : Fragment() {
 
             }
         }
-        recyclerView.adapter = profileAdapter
-        // PREVIOUS IMPLEMENTATION
+        recyclerView.adapter = accountItemAdapter
         fetchUsername()
 
     }
@@ -107,7 +105,7 @@ class ProfilePage : Fragment() {
         if (userId == null) {
             Log.d(TAG, "No user logged in")
             // Possibly update the UI to reflect that no user is logged in
-            updateUsernameOnUI(null, null, null)  // Show "Unknown User" or prompt login
+            updateUsernameOnUI(null, null)  // Show "Unknown User" or prompt login
             return
         }
 
@@ -119,34 +117,30 @@ class ProfilePage : Fragment() {
                 val name = "$givenName $familyName"
                 val username = documentSnapshot.getString("username")
                 val email = documentSnapshot.getString("email")
-                updateUsernameOnUI(username, email, name)
+                updateUsernameOnUI(username, name)
             } else {
                 Log.d(TAG, "No such document")
-                updateUsernameOnUI(null, null, null)  // Handle case where document is missing
+                updateUsernameOnUI(null, null)  // Handle case where document is missing
             }
         }.addOnFailureListener { exception ->
             Log.d(TAG, "Error getting documents: ", exception)
-            updateUsernameOnUI(null, null, null)  // Handle error case
+            updateUsernameOnUI(null, null)  // Handle error case
         }
     }
 
-    private fun updateUsernameOnUI(username: String?, email: String?, name: String?) {
+    private fun updateUsernameOnUI(username: String?, name: String?) {
         activity?.runOnUiThread {
             if (username == null) {
                 binding.accountName.text = "Unknown User"
-                // Optionally show a login button or a message prompting to log in
                 Toast.makeText(context, "Please log in to view profile.", Toast.LENGTH_LONG).show()
             } else {
-//                binding.nameTextView.text = name ?: "Unknown"  // Correctly reference using View Binding
-//                binding.usernameTextView.text = username ?: "Unknown"
-//                binding.emailTextView.text = email ?: "Unknown"
                 binding.accountName.text = name ?: "Unknown User"
             }
         }
     }
 
     private fun showFriends() {
-        val membersFragment = Members()
+        val membersFragment = FriendsFragment()
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, membersFragment)
             .addToBackStack(null)

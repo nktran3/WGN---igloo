@@ -125,7 +125,7 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    // his method transfers an item from the "shoppingList" to "groceryItems".
+    // This method transfers an item from the "shoppingList" to "groceryItems".
     // It deletes the item from the shopping list and then adds it to the grocery items.
     // The update includes a new document ID.
     fun moveItemToInventory(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {

@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wgn_igloo.R
 
-class MemberAdapter(private var members: MutableList<Member>) :
-    RecyclerView.Adapter<MemberAdapter.MemberViewHolder>() {
+class FriendsAdapter(private var members: MutableList<Friend>) :
+    RecyclerView.Adapter<FriendsAdapter.MemberViewHolder>() {
 
     class MemberViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val fullNameTextView: TextView = view.findViewById(R.id.fridge_members)
@@ -17,7 +17,7 @@ class MemberAdapter(private var members: MutableList<Member>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.members_item_layout, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.friends_item_layout, parent, false)
         return MemberViewHolder(view)
     }
 
@@ -31,7 +31,7 @@ class MemberAdapter(private var members: MutableList<Member>) :
 
     override fun getItemCount() = members.size
 
-    fun updateMembers(newMembers: List<Member>) {
+    fun updateMembers(newMembers: List<Friend>) {
         members.clear()
         members.addAll(newMembers)
         notifyDataSetChanged()

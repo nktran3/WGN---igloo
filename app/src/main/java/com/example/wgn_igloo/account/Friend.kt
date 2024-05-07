@@ -1,13 +1,12 @@
 package com.example.wgn_igloo.account
 
+import java.util.Date
 
-class Friend {
-    var name: String? = null
-    var email: String? = null // add more fields as necessary
-
-    constructor()
-    constructor(name: String?, email: String?) {
-        this.name = name
-        this.email = email
-    } // Getters and setters (if needed)
-}
+data class Friend(
+    val username: String = "",
+    val uid: String = "",
+    val givenName: String = "",
+    val familyName: String = "",
+    val friendSince: Date? = null,
+    val isCurrentUser: Boolean = false
+)

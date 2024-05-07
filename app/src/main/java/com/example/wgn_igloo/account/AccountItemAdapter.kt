@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.wgn_igloo.R
 
-class ProfileItemAdapter(private val myDataSet: List<ProfileItem>, private val listener: (ProfileItem) -> Unit) : RecyclerView.Adapter<ProfileItemAdapter.ViewHolder>() {
+class AccountItemAdapter(private val data: List<AccountItem>, private val listener: (AccountItem) -> Unit) : RecyclerView.Adapter<AccountItemAdapter.ViewHolder>() {
 
-    data class ProfileItem(val imageResId: Int, val text: String)
+    data class AccountItem(val imageResId: Int, val text: String)
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.icon_image)
@@ -19,25 +19,24 @@ class ProfileItemAdapter(private val myDataSet: List<ProfileItem>, private val l
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // Inflate the custom layout for each item
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.profile_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.account_item, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         // Get the data model based on position
-        val profileItem = myDataSet[position]
+        val accountItem = data[position]
 
         // Set item views based on your views and data model
-        holder.textView.text = profileItem.text
+        holder.textView.text = accountItem.text
         Glide.with(holder.imageView.context)
-            .load(profileItem.imageResId) // Ensure this is a drawable or a correct image resource ID.
+            .load(accountItem.imageResId) // Ensure this is a drawable or a correct image resource ID.
             .into(holder.imageView)
 
         holder.itemView.setOnClickListener {
-            listener(profileItem)
+            listener(accountItem)
         }
     }
 
-    override fun getItemCount(): Int = myDataSet.size
+    override fun getItemCount(): Int = data.size
 }
