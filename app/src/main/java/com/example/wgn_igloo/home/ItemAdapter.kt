@@ -47,10 +47,6 @@ class ItemAdapter(
         val editButton: ImageButton = view.findViewById(R.id.edit_button)
         val deleteButton: ImageButton = view.findViewById(R.id.delete_button)
     }
-//    fun updateItems(newItems: List<GroceryItem>) {
-//        items = newItems
-//        notifyDataSetChanged()
-//    }
 
     fun updateItems(newItems: List<GroceryItem>, newUID: String?) {
         currentInventoryUserId = newUID  // Update the current inventory user ID
