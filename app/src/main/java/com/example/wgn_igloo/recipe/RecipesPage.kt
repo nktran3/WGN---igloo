@@ -211,11 +211,21 @@ class SuggestedRecipeAdapter(private var recipeData: List<RecipeSearch>) : Recyc
         var cuisineTypeList = recipe.cuisineType?.joinToString(separator = ", ")
         var dietTypeList = recipe.dietType?.joinToString(separator = ", ")
         with(holder.binding) {
-            com.bumptech.glide.Glide.with(holder.itemView.context).load(recipe.imageId).into(recipeImage)
+            Glide.with(holder.itemView.context).load(recipe.imageId).into(recipeImage)
             recipeTitle.text = recipe.recipeName
             totalTime.text = "Total Time: " + recipe.totalTime + " mins"
-            cuisineType.text = "Cuisine: " + cuisineTypeList
-            dietType.text = "Diet: " + dietTypeList
+
+            if (cuisineTypeList == ""){
+                cuisineType.visibility = View.GONE
+            } else {
+                cuisineType.text = "Cuisine: " + cuisineTypeList
+            }
+
+            if (dietTypeList == ""){
+                dietType.visibility = View.GONE
+            } else {
+                dietType.text = "Diet: " + dietTypeList
+            }
             servingSize.text = "Serving Size: " + recipe.servingSize
         }
         // Parse the recipe instructions
@@ -283,11 +293,20 @@ class SavedRecipeAdapter(private var recipeData: List<SavedRecipe>) : RecyclerVi
         val recipe = recipeData[position]
         Log.d(TAG, "${recipe.recipeName}")
         with(holder.binding) {
-            com.bumptech.glide.Glide.with(holder.itemView.context).load(recipe.imageId).into(recipeImage)
+            Glide.with(holder.itemView.context).load(recipe.imageId).into(recipeImage)
             recipeTitle.text = recipe.recipeName
             totalTime.text = "Total Time: " + recipe.totalTime + " mins"
-            cuisineType.text = "Cuisine: " + recipe.cuisineType
-            dietType.text = "Diet: " + recipe.dietType
+
+            if (recipe.cuisineType == ""){
+                cuisineType.visibility = View.GONE
+            } else {
+                cuisineType.text = "Cuisine: " + recipe.cuisineType
+            }
+            if (recipe.dietType == ""){
+                dietType.visibility = View.GONE
+            } else {
+                dietType.text = "Diet: " + recipe.dietType
+            }
             servingSize.text = "Serving Size: " + recipe.servingSize
         }
 
