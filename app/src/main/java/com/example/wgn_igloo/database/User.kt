@@ -1,5 +1,6 @@
 package com.example.wgn_igloo.database
 
+// database structure
 data class User(
     val givenName: String = "",
     val familyName: String = "",

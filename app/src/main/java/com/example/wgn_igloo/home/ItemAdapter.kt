@@ -29,6 +29,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
 
     private var friendsUID = ""
 
+    // ViewHolder class for managing UI components
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val itemTextView: TextView = view.findViewById(R.id.itemTextView)
         val quantityTextView: TextView = view.findViewById(R.id.quantityTextView)
@@ -44,7 +45,9 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
     }
 
 
-    
+    // Updates the adapter's data and notifies the UI of changes
+    // to update the items when there is an item added from grocery list to
+    // inventory list, when user added a new item.
     fun updateItems(newItems: List<GroceryItem>, newUID: String?) {
         currentInventoryUserId = newUID  // Update the current inventory user ID
         val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
@@ -73,6 +76,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
         return ItemViewHolder(view)
     }
 
+    // this item shows when it interacts
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
         holder.itemTextView.text = item.name
@@ -88,6 +92,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
         holder.addToShoppingList.visibility = View.GONE
         holder.deleteButton.visibility = View.GONE
 
+        // when delete button is pressed it will delete the item from the database.
         holder.deleteButton.setOnClickListener {
             val userId = firestoreHelper.getCurrentUserId()
             val position = holder.adapterPosition
@@ -107,6 +112,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             }
         }
 
+        // when add to shoppinglist button is pressed it will move the item to the grocerylist
         holder.addToShoppingList.setOnClickListener {
             val itemName = items[position].name
             val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -132,6 +138,7 @@ class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHel
             )
         }
 
+        // this button allows the user to edit the item name from the database
         holder.editButton.visibility = View.GONE
         holder.editButton.setOnClickListener {
             it.context?.let { context ->
