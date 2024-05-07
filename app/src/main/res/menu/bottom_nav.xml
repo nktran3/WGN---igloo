@@ -21,8 +21,8 @@
         android:icon="@drawable/inbox_icon"/>
 
     <item
-        android:id="@+id/profile_nav"
-        android:title="Profile"
+        android:id="@+id/account_nav"
+        android:title="Account"
         android:icon="@drawable/profile_icon"/>
 
 </menu>

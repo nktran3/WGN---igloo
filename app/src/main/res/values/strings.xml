@@ -24,7 +24,7 @@
     <string name="support">Support</string>
     <string name="logout">Logout</string>
     <string name="account_name">Account Name</string>
-    <string name="notifications">Notifications</string>
+    <string name="inbox">Inbox</string>
     <string name="item_name">Item Name:</string>
     <string name="quantity">Quantity:</string>
     <string name="expiration_date">Expiration Date:</string>

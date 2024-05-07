@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.shopping_list_nav -> shoppingListPage
                 R.id.home_nav -> homePage
                 R.id.inbox_nav -> inboxPage
-                R.id.profile_nav -> profilePage
+                R.id.account_nav -> profilePage
                 else -> return@setOnItemSelectedListener false
             }
 
