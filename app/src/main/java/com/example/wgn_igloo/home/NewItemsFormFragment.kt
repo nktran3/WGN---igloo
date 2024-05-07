@@ -87,7 +87,7 @@ class NewItemsFormFragment : Fragment() {
                 .addOnSuccessListener { documents ->
                     val friendsUsernames = mutableListOf("Choose an option", "None")
                     for (document in documents) {
-                        document.getString("givenName")?.let {
+                        document.getString("username")?.let {
                             friendsUsernames.add(it)
                         }
                     }
@@ -127,7 +127,6 @@ class NewItemsFormFragment : Fragment() {
         toolbarAddItemTitle = binding.toolbarAddItemTitle
         updateToolbar()
 //        fetchFriendsAndUpdateSpinner()
-
 
         submitButton.setOnClickListener {
             if (validateInputs()) {
@@ -185,38 +184,109 @@ class NewItemsFormFragment : Fragment() {
         categoryInput.adapter = categoryAdapter  // Correct Spinner
     }
 
-
+//    private fun submitGroceryItem() {
+//        val userUid = FirebaseAuth.getInstance().currentUser?.uid
+//        if (userUid == null) {
+//            Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        val category = categoryInput.selectedItem.toString().takeIf { it != "Choose an option" } ?: return
+//        val name = itemInput.text.toString()
+//        val sharedWithOption = sharedWithInput.selectedItem.toString()
+//        val sharedWith = if (sharedWithOption == "None") "" else sharedWithOption.takeIf { it != "Choose an option" } ?: return
+//        val quantity = quantityInput.text.toString().toIntOrNull() ?: return
+//        val expirationDate = convertStringToTimestamp(expirationDateInput.text.toString())
+//
+//        // Collect other inputs similarly
+//
+//        val groceryItem = GroceryItem(
+//            category = category,
+//            expirationDate = expirationDate,
+//            dateBought = Timestamp.now(), // Assuming the current timestamp as dateBought
+//            name = name,
+//            quantity = quantity,
+//            sharedWith = sharedWith,
+//            status = true,
+//            isOwnedByUser = true
+//        )
+//
+//        // Now push this groceryItem to Firestore
+//        addGroceryItemForUser(FirebaseAuth.getInstance().currentUser?.uid ?: return, groceryItem)
+//    }
 
     private fun submitGroceryItem() {
-        val userUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (userUid == null) {
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
             Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val category = categoryInput.selectedItem.toString().takeIf { it != "Choose an option" } ?: return
+        // Ensure all fields are properly filled
         val name = itemInput.text.toString()
+        val category = categoryInput.selectedItem.toString().takeIf { it != "Choose an option" } ?: return
         val sharedWithOption = sharedWithInput.selectedItem.toString()
-        val sharedWith = if (sharedWithOption == "None") "" else sharedWithOption.takeIf { it != "Choose an option" } ?: return
         val quantity = quantityInput.text.toString().toIntOrNull() ?: return
         val expirationDate = convertStringToTimestamp(expirationDateInput.text.toString())
 
-        // Collect other inputs similarly
-
+        // Create grocery item object
         val groceryItem = GroceryItem(
             category = category,
             expirationDate = expirationDate,
-            dateBought = Timestamp.now(), // Assuming the current timestamp as dateBought
+            dateBought = Timestamp.now(),
             name = name,
             quantity = quantity,
-            sharedWith = sharedWith,
+            sharedWith = if (sharedWithOption == "None" || sharedWithOption == "Choose an option") "" else sharedWithOption,
             status = true,
             isOwnedByUser = true
         )
 
-        // Now push this groceryItem to Firestore
-        addGroceryItemForUser(FirebaseAuth.getInstance().currentUser?.uid ?: return, groceryItem)
+        // Check if the item needs to be shared
+        if (sharedWithOption == "None" || sharedWithOption == "Choose an option") {
+            firestoreHelper.addGroceryItem(userUid, groceryItem, onSuccess = {
+                Toast.makeText(context, "Item added successfully", Toast.LENGTH_SHORT).show()
+            }, onFailure = { e ->
+                Toast.makeText(context, "Failed to add item: ${e.message}", Toast.LENGTH_SHORT).show()
+            })
+        } else {
+            // Find friend's UID based on the name selected in sharedWithInput spinner
+            firestore.collection("users").whereEqualTo("username", sharedWithOption)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents.isEmpty) {
+                        Toast.makeText(context, "Friend not found: $sharedWithOption", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
+                    val friendUid = documents.documents.first().id
+                    firestoreHelper.addGroceryItemToUserAndFriend(userUid, friendUid, groceryItem, onSuccess = {
+                        Toast.makeText(context, "Item successfully added to both users", Toast.LENGTH_SHORT).show()
+                    }, onFailure = { e ->
+                        Toast.makeText(context, "Failed to add item for both users: ${e.message}", Toast.LENGTH_SHORT).show()
+                    })
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(context, "Failed to find friend: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
+
+    private val db = FirebaseFirestore.getInstance()
+
+    fun addGroceryItemToUserAndFriend(userUid: String, friendUid: String, item: GroceryItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val batch = FirebaseFirestore.getInstance().batch()
+        val userRef = db.collection("users").document(userUid).collection("groceryItems").document()
+        val friendRef = db.collection("users").document(friendUid).collection("groceryItems").document()
+
+        batch.set(userRef, item)
+        batch.set(friendRef, item)
+        batch.commit().addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { e ->
+            onFailure(e)
+        }
+    }
+
+
+
 
     // You might already have this method in the InventoryDisplayFragment. You can move it to a common utility class or directly use it here.
     private fun addGroceryItemForUser(uid: String, groceryItem: GroceryItem) {

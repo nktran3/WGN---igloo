@@ -3,6 +3,7 @@ package com.example.wgn_igloo.grocery
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -72,6 +73,17 @@ class NewShoppingItemFormFragment : Fragment() {
         binding.sharedWithInput.adapter = sharedWithAdapter
         // Fetch and update the sharedWith spinner with dynamic data
         fetchFriendsAndUpdateSpinner()
+
+        binding.sharedWithInput.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                val selected = parent.getItemAtPosition(position).toString()
+                Log.d("SpinnerDebug", "Spinner item selected: $selected at position $position")
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                Log.d("SpinnerDebug", "No spinner item selected")
+            }
+        }
     }
 
     private fun fetchFriendsAndUpdateSpinner() {
@@ -97,7 +109,6 @@ class NewShoppingItemFormFragment : Fragment() {
         }
     }
 
-
     private fun setupSubmitButton() {
         binding.submitButton.setOnClickListener {
             if (validateInputs()) {
@@ -114,33 +125,177 @@ class NewShoppingItemFormFragment : Fragment() {
         val isQuantityValid = binding.quantityInput.text?.toString()?.toIntOrNull() != null
         val isCategorySelected = binding.categoryInput.selectedItemPosition > 0
         val isSharedWithSelected = binding.sharedWithInput.selectedItemPosition > 0
-
         return isItemInputNotEmpty && isQuantityValid && isCategorySelected && isSharedWithSelected
     }
 
 
+//    private fun submitShoppingItem() {
+//        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+//            Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        val shoppingItem = ShoppingListItem(
+//            category = binding.categoryInput.selectedItem.toString(),
+//            lastPurchased = Timestamp(Date()), // Assuming you have a Timestamp constructor taking Date
+//            name = binding.itemInput.text.toString(),
+//            quantity = binding.quantityInput.text.toString().toInt(),
+//            purchasedBy = userUid
+//        )
+//
+//        firestoreHelper.addShoppingListItem(userUid, shoppingItem,
+//            onSuccess = {
+//                Toast.makeText(context, "${shoppingItem.name} added successfully", Toast.LENGTH_SHORT).show()
+//            },
+//            onFailure = {
+//                Toast.makeText(context, "Failed to add item: ${it.message}", Toast.LENGTH_LONG).show()
+//            }
+//        )
+//    }
+
+//    private fun submitShoppingItem() {
+//        Log.d("SubmitDebug", "submitShoppingItem called")  // This should always show up when the method is called
+//        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+//            Log.d("SubmitDebug", "User is not logged in.")
+//            Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        Log.d("SubmitDebug", "User UID: $userUid")
+//
+//        val shoppingItem = ShoppingListItem(
+//            category = binding.categoryInput.selectedItem.toString(),
+//            lastPurchased = Timestamp(Date()),
+//            name = binding.itemInput.text.toString(),
+//            quantity = binding.quantityInput.text.toString().toInt(),
+//            purchasedBy = userUid
+//        )
+//
+//        // Check if "None" or "Choose an option" is not selected
+//        val sharedWithPosition = binding.sharedWithInput.selectedItemPosition
+//        val sharedWithName = binding.sharedWithInput.selectedItem as String
+//        Log.d("SpinnerDebug", "Selected position: $sharedWithPosition")
+//        Log.d("SpinnerDebug", "Selected name at position: $sharedWithName")
+//
+//        if ( binding.sharedWithInput.selectedItemPosition > 1) {
+//            Log.d("SubmitDebug", "Valid friend selection, position: $sharedWithPosition")
+//            // If a friend is selected, find their UID
+//            firestore.collection("users").whereEqualTo("username", sharedWithName)
+//                .get()
+//                .addOnSuccessListener { documents ->
+//                    if (!documents.isEmpty) {
+//                        val friendUid = documents.documents.first().id
+//                        firestoreHelper.addShoppingListItemToUserAndFriend(userUid, friendUid, shoppingItem, {
+//                            Toast.makeText(context, "${shoppingItem.name} added successfully to both users", Toast.LENGTH_SHORT).show()
+//                        }, { e ->
+//                            Toast.makeText(context, "Failed to add item: ${e.message}", Toast.LENGTH_LONG).show()
+//                        })
+//                    } else {
+//                        Toast.makeText(context, "No user found for username: $sharedWithName", Toast.LENGTH_LONG).show()
+//                    }
+//                }
+//                .addOnFailureListener { e ->
+//                    Toast.makeText(context, "Failed to fetch user: ${e.message}", Toast.LENGTH_SHORT).show()
+//                }
+//        } else {
+//            // If no friend is selected or "None" is selected, add only to user's list
+//            firestoreHelper.addShoppingListItemToUserAndFriend(userUid, null, shoppingItem, {
+//                Toast.makeText(context, "${shoppingItem.name} added successfully", Toast.LENGTH_SHORT).show()
+//            }, { e ->
+//                Toast.makeText(context, "Failed to add item: ${e.message}", Toast.LENGTH_LONG).show()
+//            })
+//        }
+//    }
+
+//    private fun submitShoppingItem() {
+//        val userUid = auth.currentUser?.uid ?: run {
+//            Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        val shoppingItem = mapOf(
+//            "category" to binding.categoryInput.selectedItem.toString(),
+//            "lastPurchased" to Timestamp.now(), // Assuming current timestamp as purchase date
+//            "name" to binding.itemInput.text.toString(),
+//            "quantity" to binding.quantityInput.text.toString().toInt(),
+//            "purchasedBy" to userUid,
+//            "sharedWith" to if (binding.sharedWithInput.selectedItemPosition > 1) binding.sharedWithInput.selectedItem.toString() else ""
+//        )
+//
+//        // Add the item to Firestore
+//        firestore.collection("/users/$userUid/groceryItems").add(shoppingItem)
+//            .addOnSuccessListener { documentReference ->
+//                // Successfully added, now set the documentId within the same document
+//                val documentId = documentReference.id
+//                documentReference.update("documentId", documentId).addOnCompleteListener { task ->
+//                    if (task.isSuccessful) {
+//                        Toast.makeText(context, "Item added successfully and documentId set", Toast.LENGTH_SHORT).show()
+//                    } else {
+//                        Toast.makeText(context, "Failed to set documentId: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+//                    }
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                Toast.makeText(context, "Failed to add item: ${e.message}", Toast.LENGTH_LONG).show()
+//            }
+//    }
+
     private fun submitShoppingItem() {
-        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+        val userUid = auth.currentUser?.uid ?: run {
             Toast.makeText(context, "User is not logged in", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val shoppingItem = ShoppingListItem(
-            category = binding.categoryInput.selectedItem.toString(),
-            lastPurchased = Timestamp(Date()), // Assuming you have a Timestamp constructor taking Date
-            name = binding.itemInput.text.toString(),
-            quantity = binding.quantityInput.text.toString().toInt(),
-            purchasedBy = userUid
+        // Prepare the item data
+        val shoppingItemData = mapOf(
+            "category" to binding.categoryInput.selectedItem.toString(),
+            "lastPurchased" to Timestamp.now(),
+            "name" to binding.itemInput.text.toString(),
+            "quantity" to binding.quantityInput.text.toString().toInt(),
+            "purchasedBy" to userUid,
+            "sharedWith" to if (binding.sharedWithInput.selectedItemPosition > 1) binding.sharedWithInput.selectedItem.toString() else "",
+            "expireNotified" to false,
+            "status" to true,
+            "ownedByUser" to true
         )
 
-        firestoreHelper.addShoppingListItem(userUid, shoppingItem,
-            onSuccess = {
-                Toast.makeText(context, "${shoppingItem.name} added successfully", Toast.LENGTH_SHORT).show()
-            },
-            onFailure = {
-                Toast.makeText(context, "Failed to add item: ${it.message}", Toast.LENGTH_LONG).show()
+        // Add the item to the user's Firestore collection
+        val userCollection = firestore.collection("/users/$userUid/groceryItems")
+        userCollection.add(shoppingItemData).addOnSuccessListener { userDocRef ->
+            val userDocId = userDocRef.id
+            userDocRef.update("documentId", userDocId).addOnSuccessListener {
+                Toast.makeText(context, "Item added and document ID set for user.", Toast.LENGTH_SHORT).show()
+
+                // Check if item should be shared and add to friend's collection
+                if (binding.sharedWithInput.selectedItemPosition > 1) {
+                    val sharedWithName = binding.sharedWithInput.selectedItem.toString()
+                    firestore.collection("users").whereEqualTo("username", sharedWithName)
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            if (querySnapshot.documents.isNotEmpty()) {
+                                val friendUid = querySnapshot.documents.first().id
+                                val friendCollection = firestore.collection("/users/$friendUid/groceryItems")
+                                friendCollection.add(shoppingItemData).addOnSuccessListener { friendDocRef ->
+                                    friendDocRef.update("documentId", friendDocRef.id).addOnSuccessListener {
+                                        Toast.makeText(context, "Item also added and document ID set for friend.", Toast.LENGTH_SHORT).show()
+                                    }.addOnFailureListener { e ->
+                                        Log.e("FirestoreError", "Failed to set document ID for friend: ${e.message}")
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(context, "Friend not found", Toast.LENGTH_SHORT).show()
+                            }
+                        }.addOnFailureListener { e ->
+                            Toast.makeText(context, "Failed to fetch friend's user ID: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            }.addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to update user's document ID: ${e.message}", Toast.LENGTH_LONG).show()
             }
-        )    }
+        }.addOnFailureListener { e ->
+            Toast.makeText(context, "Failed to add item: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
 
 
     override fun onDestroyView() {

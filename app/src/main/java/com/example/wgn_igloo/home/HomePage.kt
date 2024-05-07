@@ -20,6 +20,7 @@ class HomePage : Fragment() {
     private lateinit var itemList: MutableList<CarouselAdapter.ItemData>
     private lateinit var carouselViewModel: CarouselViewModel
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }

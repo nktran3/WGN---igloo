@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import com.google.gson.Gson
 import java.util.*
+import java.text.ParseException
 
 class EditItemsFormFragment : Fragment() {
 
@@ -326,10 +327,27 @@ class EditItemsFormFragment : Fragment() {
 
 
 
+//    private fun parseTimestamp(dateStr: String): Timestamp {
+//        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+//        return Timestamp(sdf.parse(dateStr) ?: Date())
+//    }
+
+    private val TAG = "EditItemsFormFragment"
+
     private fun parseTimestamp(dateStr: String): Timestamp {
+        if (dateStr.isBlank()) { // Check if the date string is empty or only whitespace
+            Log.d(TAG, "Received an empty or invalid date string.")
+            return Timestamp(Date()) // Return the current date or handle it as you see fit
+        }
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        return Timestamp(sdf.parse(dateStr) ?: Date())
+        return try {
+            Timestamp(sdf.parse(dateStr)!!)
+        } catch (e: ParseException) {
+            Log.e(TAG, "Failed to parse date: $dateStr", e)
+            Timestamp(Date()) // Return the current date as a fallback
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
