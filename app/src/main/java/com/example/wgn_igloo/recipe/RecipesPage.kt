@@ -26,7 +26,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 
 private const val TAG = "RecipePage"
-private const val API_KEY = "c201d7750771474eac1437c392be2b1f"
+private const val API_KEY = "146aed7513a14d1581fd76de916f33f7"
 
 
 class RecipesPage : Fragment() {

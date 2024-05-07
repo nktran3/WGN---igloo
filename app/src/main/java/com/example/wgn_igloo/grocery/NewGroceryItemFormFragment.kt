@@ -165,7 +165,7 @@ class NewGroceryItemFormFragment : Fragment() {
         )
 
         // Add the item to the user's Firestore collection
-        val userCollection = firestore.collection("/users/$userUid/groceryItems")
+        val userCollection = firestore.collection("/users/$userUid/shoppingList")
         userCollection.add(groceryItemData).addOnSuccessListener { userDocRef ->
             val userDocId = userDocRef.id
             userDocRef.update("documentId", userDocId).addOnSuccessListener {

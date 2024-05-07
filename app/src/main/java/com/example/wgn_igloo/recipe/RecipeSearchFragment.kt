@@ -20,7 +20,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 
-private const val API_KEY = "c201d7750771474eac1437c392be2b1f" // We have to change the API key when we're completely done
+private const val API_KEY = "146aed7513a14d1581fd76de916f33f7" // We have to change the API key when we're completely done
 private const val TAG = "RecipeSearchPage"
 class RecipeSearchFragment : Fragment() {
 
