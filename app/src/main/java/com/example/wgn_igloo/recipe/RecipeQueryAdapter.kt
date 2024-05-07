@@ -2,6 +2,7 @@ package com.example.wgn_igloo.recipe
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -14,8 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 private const val TAG = "RecipeQueryAdapter"
-class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
-    RecyclerView.Adapter<RecipeQueryAdapter.RecipeViewHolder>() {
+class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) : RecyclerView.Adapter<RecipeQueryAdapter.RecipeViewHolder>() {
 
     // Updates the adapter's data with the parsed API response and prompts for a refresh of the RecyclerView
     fun updateData(newRecipes: List<RecipeSearch?>) {
@@ -40,8 +40,19 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
             Glide.with(holder.itemView.context).load(recipe.imageId).into(recipeImage)
             recipeTitle.text = recipe.recipeName
             totalTime.text = "Total Time: " + recipe.totalTime + " mins"
-            cuisineType.text = "Cuisine: " + cuisineTypeList
-            dietType.text = "Diet: " + dietTypeList
+
+            if (cuisineTypeList == ""){
+                cuisineType.visibility = View.GONE
+            } else {
+                cuisineType.text = "Cuisine: " + cuisineTypeList
+            }
+
+            if (dietTypeList == ""){
+                dietType.visibility = View.GONE
+            } else {
+                dietType.text = "Diet: " + dietTypeList
+            }
+
             servingSize.text = "Serving Size: " + recipe.servingSize
         }
         // Parse the recipe instructions

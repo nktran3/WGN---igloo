@@ -1,8 +1,6 @@
 package com.example.wgn_igloo.home
 import com.google.firebase.Timestamp
-import android.os.Parcelable
-import android.os.Parcel
-//
+
 data class GroceryItem(
     var documentId: String = "",
     val category: String = "",

@@ -3,7 +3,7 @@ package com.example.wgn_igloo.database
 import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.home.GroceryItem
-import com.example.wgn_igloo.grocery.ShoppingListItem
+import com.example.wgn_igloo.grocery.GroceryListItem
 import com.example.wgn_igloo.inbox.Notifications
 import com.example.wgn_igloo.recipe.SavedRecipe
 import com.google.firebase.firestore.FirebaseFirestore
@@ -26,9 +26,6 @@ class FirestoreHelper(private val context: Context) {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     var currentInventoryUserId: String? = null
-    fun exampleMethod() {
-        this.currentInventoryUserId = "exampleUserId"
-    }
 
     companion object {
         private const val TAG = "FirestoreHelper"
@@ -114,6 +111,7 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+    // Remove Saved Recipe from user's document
     fun removeSavedRecipe(uid: String, recipe: SavedRecipe) {
         db.collection("users").document(uid)
             .collection("savedRecipes").document(recipe.recipeName).delete()
@@ -125,10 +123,10 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    // his method transfers an item from the "shoppingList" to "groceryItems".
+    // This method transfers an item from the "shoppingList" to "groceryItems".
     // It deletes the item from the shopping list and then adds it to the grocery items.
     // The update includes a new document ID.
-    fun moveItemToInventory(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun moveItemToInventory(uid: String, item: GroceryListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         // First, delete the item from the shopping list
         db.collection("users").document(uid).collection("shoppingList").document(item.name).delete()
             .addOnSuccessListener {
@@ -187,6 +185,7 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
+    // Get saved recipe from user's document
     fun getSavedRecipe(userId: String, onSuccess: (List<SavedRecipe>) -> Unit, onFailure: (Exception) -> Unit) {
         db.collection("users").document(userId).collection("savedRecipes")
             .get()
@@ -199,17 +198,16 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    private fun mapShoppingListItemToGroceryItem(item: ShoppingListItem): GroceryItem {
+    private fun mapShoppingListItemToGroceryItem(item: GroceryListItem): GroceryItem {
         // Generate a unique identifier for the grocery item - not needed
-        val uniqueName = "${item.name}_${System.currentTimeMillis()}"
         return GroceryItem(
             category = item.category,
-            expirationDate = Timestamp.now(),  // Assuming current time as expiration date
+            expirationDate = Timestamp.now(),
             dateBought = item.lastPurchased,
-            name = item.name,  // Use the generated unique name
-            quantity = item.quantity,  // Default quantity
-            sharedWith = "",  // No shared user by default
-            status = true,  // Assuming the item is active/available
+            name = item.name,
+            quantity = item.quantity,
+            sharedWith = "",
+            status = true,
             isOwnedByUser = true
         )
     }
@@ -321,7 +319,6 @@ class FirestoreHelper(private val context: Context) {
                 Log.e(TAG, "Error updating user's username: ", exception)
                 if (exception is FirebaseFirestoreException && exception.code == FirebaseFirestoreException.Code.FAILED_PRECONDITION) {
                     Log.e(TAG, "Missing index for query. Consider adding it via Firebase console.")
-                    // Provide the direct link to create the index if available or suggest checking Firestore documentation
                 }
                 onFailure(exception)
             }
@@ -381,7 +378,6 @@ class FirestoreHelper(private val context: Context) {
 
     fun deleteGroceryItem(userId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         Log.d(TAG, "Attempting to delete item: $itemName for user: $userId")
-//        val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
         val docRef = db.collection("users").document(userId).collection("groceryItems").whereEqualTo("name", itemName).get()
         docRef.addOnSuccessListener { documents ->
             if (documents.isEmpty) {
@@ -407,7 +403,6 @@ class FirestoreHelper(private val context: Context) {
 
     fun moveItemToShoppingList(userId: String, friendUserId: String, itemName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         Log.d(TAG, "Attempting to move item: $itemName for user: $userId from user: $friendUserId's shopping list")
-    //    val groceryItemRef = db.collection("users").document("M924sweDE1WZkYnTAF9MkpeTQX33").collection("groceryItems").whereEqualTo("name", itemName)
         val groceryItemRef = db.collection("users").document(friendUserId).collection("groceryItems").whereEqualTo("name", itemName)
         Log.d(TAG, "Querying for item: $itemName in /users/$friendUserId/groceryItems where name is equal to $itemName")
 

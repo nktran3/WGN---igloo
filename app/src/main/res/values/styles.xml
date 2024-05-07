@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="CircleImageViewStyle">
-        <item name="cornerSize">50%</item>
-    </style>
 
-    <style name="CustomPopupMenu" parent="Widget.AppCompat.PopupMenu">
+    <style name="CustomPopupMenu" parent="">
         <item name="android:textColor">@color/black</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:backgroundTint">@color/white</item>
     </style>
 
 </resources>

@@ -76,7 +76,6 @@ class RecipeDetailsFragment : Fragment() {
             args.putString(IMAGE, imageMessage)
             args.putBoolean(SAVED.toString(), savedMessage)
 
-            // Set the Bundle as the fragment's arguments
             fragment.arguments = args
 
             return fragment
@@ -102,10 +101,6 @@ class RecipeDetailsFragment : Fragment() {
         recipeModel = ViewModelProvider(requireActivity()).get(RecipeViewModel::class.java)
         recipeModel.currentRecipeDetailsFragment.value = this
 
-
-
-
-
         Log.d(TAG, "$parsed_ingredients")
         for (lines in instructions){
             val steps = lines.split(".").filter{it.isNotEmpty()}
@@ -114,8 +109,6 @@ class RecipeDetailsFragment : Fragment() {
                 Log.d(TAG, step)
             }
         }
-
-
 
         return binding.root
     }
@@ -136,9 +129,8 @@ class RecipeDetailsFragment : Fragment() {
         updateToolbar()
         firestoreHelper = FirestoreHelper(requireContext())
 
-        // Set the correct save icon based on the saved state
         toolbarRecipeDetails.post {
-            activity?.invalidateOptionsMenu()  // Request to recreate the menu so it can reflect the updated icon
+            activity?.invalidateOptionsMenu()
         }
     }
 
@@ -228,8 +220,7 @@ class RecipeDetailsFragment : Fragment() {
                     recipeModel.currentRecipeDetailsFragment.value = null
                 }
                 else {
-                    // Optionally, handle what happens if there's no entry in the back stack
-                    activity?.finish() // or any other fallback handling
+                    activity?.finish()
                 }
             }
         }
@@ -243,14 +234,14 @@ class RecipeDetailsFragment : Fragment() {
         binding.recipePageName.text = title
         binding.recipeDishType.text = dish.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         if (cuisine == "") {
-            binding.recipeCuisine.text = "N/A"
+            binding.recipeCuisine.visibility = View.GONE
         }
         else {
             binding.recipeCuisine.text = cuisine
         }
 
         if (diet == "") {
-            binding.recipeDiet.text = "N/A"
+            binding.recipeDiet.visibility = View.GONE
         }
         else {
             binding.recipeDiet.text = diet
@@ -261,8 +252,8 @@ class RecipeDetailsFragment : Fragment() {
         Log.d(TAG,"Image: $imageURL")
         Glide.with(this)
             .load(imageURL)
-            .placeholder(R.drawable.salmon)  // Shows a placeholder image while loading.
-            .error(R.drawable.salad)        // Shows an error image if the URL load fails.
+            .placeholder(R.drawable.loading)
+            .error(R.drawable.error)
             .into(binding.recipePageImage)
 
         // Setting up the Ingredients RecyclerView
@@ -276,6 +267,6 @@ class RecipeDetailsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null  // Clean up binding reference
+        _binding = null
     }
 }

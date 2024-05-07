@@ -25,25 +25,16 @@ import java.text.ParseException
 
 class EditItemsFormFragment : Fragment() {
 
+    // Binding to xml layout
     private var _binding: FragmentEditItemsFormBinding? = null
     private val binding get() = _binding!!
+
+    // Firestore
     private lateinit var firestoreHelper: FirestoreHelper
     private lateinit var firestore: FirebaseFirestore
 
-    // input item from the form
-    private lateinit var itemInput: EditText
-    private lateinit var quantityInput: EditText
-    private lateinit var categoryInput: Spinner
-    private lateinit var expirationDateInput: EditText
-    private lateinit var sharedWithInput: Spinner
-    // this is savebutton
-    private lateinit var submitButton: Button
-
-    // Hard coded list
+    // Category list
     private val categoryList = arrayOf("Condiments", "Dairy", "Drinks", "Freezer", "Meats", "Produce", "Other" )
-    // Default list with a placeholder for choosing an option
-    private var sharedWithList = arrayOf("No one")
-
 
     companion object {
         private const val ARG_ITEM_JSON = "edit_item_json"
@@ -62,6 +53,7 @@ class EditItemsFormFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentEditItemsFormBinding.inflate(inflater, container, false)
         firestore = FirebaseFirestore.getInstance()
+
         // Initialize FirestoreHelper with the context
         firestoreHelper = FirestoreHelper(requireContext())
         return binding.root
@@ -78,7 +70,7 @@ class EditItemsFormFragment : Fragment() {
     }
 
     private fun setupViews(item: GroceryItem) {
-        //itemInput =
+        //itemInput
         binding.itemInput.setText(item.name)
         //quantityInput
         binding.quantityInput.setText(item.quantity.toString())
@@ -94,11 +86,13 @@ class EditItemsFormFragment : Fragment() {
         }
     }
 
+
     private fun getCurrentUserId(): String? {
         return FirebaseAuth.getInstance().currentUser?.uid
     }
 
 
+    //
     private fun setupCategorySpinner(selectedCategory: String) {
         val userId = getCurrentUserId()
         if (userId == null) {
@@ -147,6 +141,7 @@ class EditItemsFormFragment : Fragment() {
         }
     }
 
+    // Set up SharedWith spinner
     private fun setupSharedWithSpinner(selectedSharedWith: String) {
         val userId = getCurrentUserId()
         if (userId == null) {
@@ -162,11 +157,6 @@ class EditItemsFormFragment : Fragment() {
                     Log.d("SetupSpinner", "No shared options found")
                     Toast.makeText(context, "No shared options found", Toast.LENGTH_SHORT).show()
                 } else {
-//                    val sharedWithOptions = documents.mapNotNull { it.getString("sharedWith") }.toTypedArray()
-//                    val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, sharedWithOptions)
-//                    binding.sharedWithInput.adapter = adapter
-//                    val selectedIndex = sharedWithOptions.indexOfFirst { it == selectedSharedWith }
-//                    binding.sharedWithInput.setSelection(if (selectedIndex >= 0) selectedIndex else 0)
                     val uids = documents.mapNotNull { it.getString("sharedWith") }
                     fetchUserDetails(uids, selectedSharedWith)
                 }
@@ -178,6 +168,7 @@ class EditItemsFormFragment : Fragment() {
         setupSharedWithInteraction()
     }
 
+    // Fetch user details from database
     private fun fetchUserDetails(uids: List<String>, selectedSharedWith: String) {
         // Filter out invalid or empty UIDs
         val validUids = uids.filter { it.isNotBlank() }
@@ -216,6 +207,7 @@ class EditItemsFormFragment : Fragment() {
         }
     }
 
+    // Update SharedWith spinner
     private fun updateSharedWithSpinner(usernames: List<String>, selectedSharedWith: String) {
         // Convert list to array and set up the adapter
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, usernames)
@@ -224,6 +216,7 @@ class EditItemsFormFragment : Fragment() {
         binding.sharedWithInput.setSelection(if (selectedIndex >= 0) selectedIndex else 0)
     }
 
+    // Fetch friends from database and update spinner
     private fun fetchFriendsAndUpdateSpinner() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
@@ -254,6 +247,7 @@ class EditItemsFormFragment : Fragment() {
         }
     }
 
+    // Fetch and set expiration date from firestore
     private fun fetchAndSetExpirationDate() {
         val userId = getCurrentUserId()
         firestore.collection("/users/$userId/groceryItems")
@@ -275,7 +269,7 @@ class EditItemsFormFragment : Fragment() {
             }
     }
 
-
+    // Set up calendar date picker
     private fun setupDatePicker(selectedDate: Timestamp) {
         val calendar = Calendar.getInstance()
         calendar.time = selectedDate.toDate()
@@ -283,7 +277,7 @@ class EditItemsFormFragment : Fragment() {
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, month)
             calendar.set(Calendar.DAY_OF_MONTH, day)
-            updateLabel(calendar) // This updates the TextView correctly
+            updateLabel(calendar)
         }
 
         binding.expirationInput.setOnClickListener {
@@ -296,6 +290,7 @@ class EditItemsFormFragment : Fragment() {
         binding.expirationInput.setText(dateFormat.format(calendar.time))
     }
 
+    // Function to update items
     private fun updateItem(item: GroceryItem) {
         val fieldsToUpdate = mapOf(
             "name" to binding.itemInput.text.toString(),
@@ -325,17 +320,13 @@ class EditItemsFormFragment : Fragment() {
         })
     }
 
-
-
-//    private fun parseTimestamp(dateStr: String): Timestamp {
-//        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-//        return Timestamp(sdf.parse(dateStr) ?: Date())
-//    }
-
     private val TAG = "EditItemsFormFragment"
 
+    // Parse time stamp
     private fun parseTimestamp(dateStr: String): Timestamp {
-        if (dateStr.isBlank()) { // Check if the date string is empty or only whitespace
+
+        // Check if the date string is empty or only whitespace
+        if (dateStr.isBlank()) {
             Log.d(TAG, "Received an empty or invalid date string.")
             return Timestamp(Date()) // Return the current date or handle it as you see fit
         }
@@ -349,9 +340,10 @@ class EditItemsFormFragment : Fragment() {
     }
 
 
+    // Clean up binding on destroyed view
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null  // Clear the binding when the view is destroyed
+        _binding = null
     }
 
 }

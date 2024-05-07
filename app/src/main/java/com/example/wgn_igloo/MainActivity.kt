@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.wgn_igloo.auth.LoginActivity
@@ -16,7 +15,7 @@ import com.example.wgn_igloo.databinding.ActivityMainBinding
 import com.example.wgn_igloo.grocery.ShoppingListPage
 import com.example.wgn_igloo.home.HomePage
 import com.example.wgn_igloo.inbox.InboxPage
-import com.example.wgn_igloo.profile.ProfilePage
+import com.example.wgn_igloo.account.AccountPage
 import com.example.wgn_igloo.recipe.RecipeDetailsFragment
 import com.example.wgn_igloo.recipe.RecipeSearchFragment
 import com.example.wgn_igloo.recipe.RecipeViewModel
@@ -39,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     private val shoppingListPage by lazy { ShoppingListPage() }
     private val homePage by lazy { HomePage() }
     private val inboxPage by lazy { InboxPage() }
-    private val profilePage by lazy { ProfilePage() }
+    private val accountPage by lazy { AccountPage() }
 
 
     // Current active fragment
@@ -126,7 +125,7 @@ class MainActivity : AppCompatActivity() {
             add(R.id.fragment_container, recipesPage, "recipes").hide(recipesPage)
             add(R.id.fragment_container, shoppingListPage, "shoppingList").hide(shoppingListPage)
             add(R.id.fragment_container, inboxPage, "inbox").hide(inboxPage)
-            add(R.id.fragment_container, profilePage, "profile").hide(profilePage)
+            add(R.id.fragment_container, accountPage, "profile").hide(accountPage)
             add(R.id.fragment_container, homePage, "home").hide(homePage)
         }.commit()
     }
@@ -148,7 +147,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.shopping_list_nav -> shoppingListPage
                 R.id.home_nav -> homePage
                 R.id.inbox_nav -> inboxPage
-                R.id.account_nav -> profilePage
+                R.id.account_nav -> accountPage
                 else -> return@setOnItemSelectedListener false
             }
 
@@ -157,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Function used to peform fragment transactions
+    // Function used to perform fragment transactions
     fun switchFragments(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()
         supportFragmentManager.fragments.forEach {
@@ -168,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         }
         transaction.show(fragment)
         // Add every fragment change to the back stack unless it's a main navigation item
-        if (fragment !in arrayOf(homePage, shoppingListPage, inboxPage, profilePage, recipesPage)) {
+        if (fragment !in arrayOf(homePage, shoppingListPage, inboxPage, accountPage, recipesPage)) {
             transaction.addToBackStack(null)
         }
         transaction.commit()

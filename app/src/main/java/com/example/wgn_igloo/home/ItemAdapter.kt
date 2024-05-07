@@ -20,13 +20,8 @@ import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-//class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHelper: FirestoreHelper, private val viewModel: NotificationsViewModel) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
-class ItemAdapter(
-    private var items: List<GroceryItem>,
-    private val firestoreHelper: FirestoreHelper,
-    private val viewModel: NotificationsViewModel,
-    private var currentInventoryUserId: String? // Accept currentInventoryUserId on initialization
-) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+
+class ItemAdapter(private var items: List<GroceryItem>, private val firestoreHelper: FirestoreHelper, private val viewModel: NotificationsViewModel, private var currentInventoryUserId: String?) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     companion object {
         private const val TAG = "ItemAdapter"
@@ -78,9 +73,6 @@ class ItemAdapter(
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
-//        holder.itemTextView.text = "${item.name}"
-//        holder.quantityValueTextView.text = "${item.quantity}"
-//        holder.dateTextView.text = "${formatDate(item.expirationDate)}"
         holder.itemTextView.text = item.name
         holder.quantityValueTextView.text = item.quantity.toString()
         holder.dateTextView.text = formatDate(item.expirationDate)
@@ -112,78 +104,6 @@ class ItemAdapter(
                 )
             }
         }
-
-//        holder.addToShoppingList.setOnClickListener {
-//            val userId = firestoreHelper.getCurrentUserId()
-//            val position = holder.adapterPosition
-//            if (userId != null && position != RecyclerView.NO_POSITION) {
-//                val itemName = items[position].name
-//                firestoreHelper.moveItemToShoppingList(userId, itemName,
-//                    onSuccess = {
-//                        // Remove the item from the adapter's data set
-//                        val updatedList = items.toMutableList().apply {
-//                            removeAt(position)
-//                        }
-//                        updateItems(updatedList, null)
-//                        // Notify the user of success
-////                        Toast.makeText(context, "Item moved to shopping list", Toast.LENGTH_SHORT).show()
-//                    },
-//                    onFailure = { exception ->
-//                        // Log error and notify user
-//                        Log.e(TAG, "Failed to move item to shopping list", exception)
-////                        Toast.makeText(context, "Error moving item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
-//                    }
-//                )
-//            }
-//        }
-
-        // this add to its own db
-//        holder.addToShoppingList.setOnClickListener {
-//            val itemName = items[position].name
-//            val userId = FirebaseAuth.getInstance().currentUser?.uid  // ID of the logged-in user
-//
-//            if (userId == null) {
-//                Toast.makeText(holder.itemView.context, "You must be logged in to modify the shopping list.", Toast.LENGTH_LONG).show()
-//                return@setOnClickListener
-//            }
-//
-//            currentInventoryUserId?.let { userId ->
-//                firestoreHelper.moveItemToShoppingList(userId, itemName,
-//                    onSuccess = {
-//                        // Notify user of success
-//                        Toast.makeText(holder.itemView.context, "Item added to your shopping list.", Toast.LENGTH_SHORT).show()
-//                    },
-//                    onFailure = { exception ->
-//                        // Log error and notify user
-//                        Log.e(TAG, "Failed to add item to shopping list", exception)
-//                        Toast.makeText(holder.itemView.context, "Failed to add item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
-//                    }
-//                )
-//            }
-//        }
-
-//        holder.addToShoppingList.setOnClickListener {
-//            val itemName = items[position].name
-//            // Always use the ID of the currently logged-in user to add to their shopping list, not the inventory user's ID.
-//            val userId = FirebaseAuth.getInstance().currentUser?.uid  // ID of the logged-in user
-//
-//            if (userId == null) {
-//                Toast.makeText(holder.itemView.context, "You must be logged in to modify the shopping list.", Toast.LENGTH_LONG).show()
-//                return@setOnClickListener
-//            }
-//
-//            firestoreHelper.moveItemToShoppingList(userId, itemName,
-//                onSuccess = {
-//                    // Notify user of success
-//                    Toast.makeText(holder.itemView.context, "Item added to your shopping list.", Toast.LENGTH_SHORT).show()
-//                },
-//                onFailure = { exception ->
-//                    // Log error and notify user
-//                    Log.e(TAG, "Failed to add item to shopping list", exception)
-//                    Toast.makeText(holder.itemView.context, "Failed to add item to shopping list: ${exception.message}", Toast.LENGTH_LONG).show()
-//                }
-//            )
-//        }
 
         holder.addToShoppingList.setOnClickListener {
             val itemName = items[position].name
@@ -299,7 +219,7 @@ class ItemAdapter(
         if (friendName.isNotEmpty() && userName.isNotEmpty()) {
             val notif = Notifications(
                 title = "Item Request",
-                message = "You wants to borrow $itemName from $friendName"
+                message = "You want to borrow $itemName from $friendName"
             )
             val notifToFriend = Notifications(
                 title = "Item Request",

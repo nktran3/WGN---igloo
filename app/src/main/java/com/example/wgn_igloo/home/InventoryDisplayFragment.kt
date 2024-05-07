@@ -27,17 +27,16 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     }
     private lateinit var firestoreDb: FirebaseFirestore
     private lateinit var groceryItemAdapter: ItemAdapter
-    private lateinit var adapter: ItemAdapter
     private lateinit var viewPager: ViewPager
     private lateinit var leftArrow: ImageButton
     private lateinit var rightArrow: ImageButton
     private lateinit var userProfileAdapter: UserProfileAdapter
+
     // Track the current inventory user
     private var currentInventoryUserId: String? = FirebaseAuth.getInstance().currentUser?.uid
     private lateinit var carouselViewModel: CarouselViewModel
 
     private  var currentUserFridge = ""
-
     private var category = "all"
     private lateinit var viewModel: NotificationsViewModel
 
@@ -72,23 +71,13 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         // Set the current user ID directly to the property
         firestoreHelper.currentInventoryUserId = FirebaseAuth.getInstance().currentUser?.uid
 
-        // Setup views and adapters...
+        // Setup views and adapters
         groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel, firestoreHelper.currentInventoryUserId)
 
-//        groceryItemAdapter = ItemAdapter(emptyList())
-//        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel, currentInventoryUserId)
-//        groceryItemAdapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
-
         recyclerView.adapter = groceryItemAdapter
-//        firestoreHelper = FirestoreHelper(requireContext())
         firestoreDb = FirebaseFirestore.getInstance()
 
         fetchCurrentUserAndFriends()
-//        currentInventoryUserId = FirebaseAuth.getInstance().currentUser?.uid
-
-//        adapter = ItemAdapter(emptyList(), firestoreHelper, viewModel)
-//        adapter = ItemAdapter(emptyList(), firestoreHelper, viewModel, currentInventoryUserId)
-
 
         view.findViewById<Button>(R.id.add_button)?.setOnClickListener {
             navigateToAddNewItemForm()
@@ -96,7 +85,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
     }
 
     private fun setupViewPagerAndArrows() {
-        val initialUsers = listOf<User>()
+        val initialUsers = listOf<InventoryUser>()
         userProfileAdapter = UserProfileAdapter(initialUsers, this)
         viewPager.adapter = userProfileAdapter
 
@@ -117,10 +106,10 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
 
     override fun onCategorySelected(category: String) {
-        fetchGroceryItemsForUser(FirebaseAuth.getInstance().currentUser?.uid.orEmpty(), category)
+        fetchInventoryItemsForUser(FirebaseAuth.getInstance().currentUser?.uid.orEmpty(), category)
     }
 
-    private fun fetchGroceryItemsForUser(userId: String, category: String) {
+    private fun fetchInventoryItemsForUser(userId: String, category: String) {
         Log.d(TAG, "Fetching items for category: $category")  // Log the category being fetched
         currentInventoryUserId = userId  // Update the current user ID whenever items are fetched for a user
         val query = if (category == "All") {
@@ -142,7 +131,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
 
     override fun onUserChanged(userId: String) {
         firestoreHelper.currentInventoryUserId = userId
-         fetchGroceryItemsForUser(userId, "All")
+        fetchInventoryItemsForUser(userId, "All")
         currentUserFridge = userId
         fetchGroceryItemsForUser(userId)
     }
@@ -166,8 +155,8 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
         val userRef = FirebaseFirestore.getInstance().collection("users").document(currentUserUid)
         userRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
-                val currentUser = document.toObject(User::class.java)?.apply { this.uid = document.id }
-                val users = mutableListOf<User>()
+                val currentUser = document.toObject(InventoryUser::class.java)?.apply { this.uid = document.id }
+                val users = mutableListOf<InventoryUser>()
                 currentUser?.let { users.add(it) }
 
                 userRef.collection("friends").get().addOnSuccessListener { friendsSnapshot ->
@@ -178,7 +167,7 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
                         FirebaseFirestore.getInstance().collection("users").document(friendId).get()
                             .addOnSuccessListener { friendDoc ->
                                 if (friendDoc.exists()) {
-                                    friendDoc.toObject(User::class.java)?.apply {
+                                    friendDoc.toObject(InventoryUser::class.java)?.apply {
                                         this.uid = friendDoc.id
                                         users.add(this)
                                     }
@@ -196,23 +185,6 @@ class InventoryDisplayFragment : Fragment(), OnUserChangeListener {
             }
         }
     }
-
-
-//    private fun fetchGroceryItemsForUser(userId: String) {
-//        val isCurrentUser = userId == FirebaseAuth.getInstance().currentUser?.uid
-//
-//        firestoreDb.collection("users").document(userId).collection("groceryItems")
-//            .get()
-//            .addOnSuccessListener { snapshot ->
-//                val items = snapshot.toObjects(GroceryItem::class.java).map { item ->
-//                    item.copy(isOwnedByUser = isCurrentUser)  // Set flag based on whether the item belongs to the current user
-//                }
-//                groceryItemAdapter.updateItems(items, userId)
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.e(TAG, "Error getting grocery items: ", exception)
-//            }
-//    }
 
     // Originally done using an if, else if branch for each category and else was used for
     // all, but then later reduced and simplified using Chat-GPT4

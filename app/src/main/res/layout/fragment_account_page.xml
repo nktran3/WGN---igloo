@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".account.ProfilePage"
+    android:background="@color/white">
+
+
+    <TextView
+        android:id="@+id/account_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:textColor="@color/black"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.077"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/profile_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/account_name"
+        app:layout_constraintVertical_bias="0.039"
+        tools:layout_editor_absoluteX="0dp" />
+
+
+    <!--    <ImageButton-->
+<!--        android:id="@+id/profileButton"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_marginStart="24dp"-->
+<!--        android:layout_marginTop="56dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/profile2_icon"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/account_name"-->
+<!--        tools:ignore="SpeakableTextPresentCheck" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/accountTextView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="40dp"-->
+<!--        android:text="@string/account"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:textSize="20dp"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/profileButton" />-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/settings_button"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_marginStart="28dp"-->
+<!--        android:layout_marginTop="56dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/settings_icon"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/profileButton"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/account_name"-->
+<!--        tools:ignore="SpeakableTextPresentCheck" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/settingsTextView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="60dp"-->
+<!--        android:text="@string/settings"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:textSize="20dp"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/accountTextView"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/settings_button" />-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/members_button"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_marginTop="60dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/members_icon"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.474"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/settings_button"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/account_name"-->
+<!--        tools:ignore="SpeakableTextPresentCheck" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/membersTextView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/members"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:textSize="20dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.626"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/settingsTextView"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/members_button" />-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/faq_button"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_marginStart="24dp"-->
+<!--        android:layout_marginTop="44dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/faq_icon"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/accountTextView"-->
+<!--        tools:ignore="SpeakableTextPresentCheck" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/faqTextView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="52dp"-->
+<!--        android:text="@string/faq"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:textSize="20dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/faq_button"-->
+<!--        app:layout_constraintVertical_bias="0.0" />-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/support_button"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_marginStart="28dp"-->
+<!--        android:layout_marginTop="44dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/support_icon"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/faq_button"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/settingsTextView"-->
+<!--        tools:ignore="SpeakableTextPresentCheck" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/supportTextView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="84dp"-->
+<!--        android:text="@string/support"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:textSize="20dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/faqTextView"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/support_button"-->
+<!--        app:layout_constraintVertical_bias="0.0" />-->
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/logout_button"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_marginStart="12dp"-->
+<!--        android:layout_marginTop="44dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:src="@drawable/logout_icon"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.446"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/support_button"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/membersTextView"-->
+<!--        tools:ignore="SpeakableTextPresentCheck" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/logoutTextView"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginEnd="40dp"-->
+<!--        android:text="@string/logout"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:textSize="20dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="1.0"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/supportTextView"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/logout_button"-->
+<!--        app:layout_constraintVertical_bias="0.0" />-->
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
