@@ -26,6 +26,7 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
         val binding = RecipeItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+
         return RecipeViewHolder(binding)
     }
 
@@ -69,9 +70,11 @@ class RecipeQueryAdapter(private var recipeList: List<RecipeSearch>) :
             val recipeDetailsFragment = RecipeDetailsFragment.newInstance(
                 totalSteps, totalIngredients, recipe.recipeName,
                 dishTypeList, cuisineTypeList, dietTypeList, recipe.totalTime, recipe.servingSize, recipe.imageId, false)
-            fragmentManager.beginTransaction().replace(R.id.fragment_container, recipeDetailsFragment)
+            fragmentManager.beginTransaction()
+                .add(R.id.fragment_container, recipeDetailsFragment, "recipeDetailsFragment")
                 .addToBackStack(null)
                 .commit()
+            Log.d(TAG, "Added recipe details frag to stack")
         }
 
 

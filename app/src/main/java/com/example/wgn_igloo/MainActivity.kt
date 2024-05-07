@@ -17,6 +17,7 @@ import com.example.wgn_igloo.grocery.ShoppingListPage
 import com.example.wgn_igloo.home.HomePage
 import com.example.wgn_igloo.inbox.InboxPage
 import com.example.wgn_igloo.profile.ProfilePage
+import com.example.wgn_igloo.recipe.RecipeDetailsFragment
 import com.example.wgn_igloo.recipe.RecipeSearchFragment
 import com.example.wgn_igloo.recipe.RecipeViewModel
 import com.example.wgn_igloo.recipe.RecipesPage
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: RecipeViewModel
 
     // Fragments
-    private val recipesPage by lazy { RecipesPage() }
+    val recipesPage by lazy { RecipesPage() }
     private val shoppingListPage by lazy { ShoppingListPage() }
     private val homePage by lazy { HomePage() }
     private val inboxPage by lazy { InboxPage() }
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity() {
 
     // Feature fragments
     private var recipeSearchFragment: RecipeSearchFragment? = null
+    private var recipeDetailsFragment: RecipeDetailsFragment? = null
 
     // Firebase Authentication
     private lateinit var auth: FirebaseAuth
@@ -60,14 +62,23 @@ class MainActivity : AppCompatActivity() {
 
         val callback = object : OnBackPressedCallback(true ) {
             override fun handleOnBackPressed() {
-                val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                var currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
                 // If current frag is recipe search set it to null and
                 // make sure to set the viewModel data to null to prevent zombie
-                if (currentFragment is RecipeSearchFragment) {
+                Log.d(TAG, "Current Frag: $currentFragment")
+                if (currentFragment is RecipeDetailsFragment) {
+                    Log.d(TAG, "Stepping out RecipeDetailPage")
+                    recipeDetailsFragment = null
+                    viewModel.currentRecipeDetailsFragment.value = null
+                    recipeSearchFragment?.let { switchFragments(it) }
+                }
+                else if (currentFragment is RecipeSearchFragment) {
+                    Log.d(TAG, "Stepping out RecipeSearchPage")
                     recipeSearchFragment = null
-                    viewModel.currentFragment.value = null
+                    viewModel.currentRecipeSearchFragment.value = null
                     switchFragments(recipesPage)
                 } else {
+                    Log.d(TAG, "In recipe page")
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
                 }
@@ -85,8 +96,11 @@ class MainActivity : AppCompatActivity() {
         auth = Firebase.auth
 
         viewModel = ViewModelProvider(this).get(RecipeViewModel::class.java)
-        viewModel.currentFragment.observe(this, Observer { fragment ->
+        viewModel.currentRecipeSearchFragment.observe(this, Observer { fragment ->
             recipeSearchFragment = fragment as RecipeSearchFragment?
+        })
+        viewModel.currentRecipeDetailsFragment.observe(this, Observer { fragment ->
+            recipeDetailsFragment = fragment as RecipeDetailsFragment?
         })
 
         setupFragments()
@@ -122,7 +136,15 @@ class MainActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         bottomNavigation.setOnItemSelectedListener { item ->
             val fragmentToShow = when (item.itemId) {
-                R.id.recipe_nav -> recipeSearchFragment ?: recipesPage
+                R.id.recipe_nav -> {
+                    if (recipeDetailsFragment == null) {
+                        Log.d(TAG, "recipeDetailsFragment is null")
+                    }
+                    if (recipeSearchFragment == null) {
+                        Log.d(TAG, "recipeSearchFragment is null")
+                    }
+                    recipeDetailsFragment ?: recipeSearchFragment ?: recipesPage
+                }
                 R.id.shopping_list_nav -> shoppingListPage
                 R.id.home_nav -> homePage
                 R.id.inbox_nav -> inboxPage
@@ -136,29 +158,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Function used to peform fragment transactions
-    private fun switchFragments(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().apply {
-            // Hide all fragments
-            supportFragmentManager.fragments.forEach {
-                if (it is RecipeSearchFragment) {
-                    remove(it)
-                } else {
-                    hide(it)
-                }
-            }
-
-            if (!fragment.isAdded) {
-                // If the fragment is not added, add it now
-                add(R.id.fragment_container, fragment)
-            }
-            // Show the desired fragment
-            show(fragment)
-            commit()
+    fun switchFragments(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        supportFragmentManager.fragments.forEach {
+            transaction.hide(it)
         }
-        Log.d(TAG, "Fragment switched")
-        activeFragment = fragment  // Update the active fragment reference
-        activeFragmentTag = fragment.tag ?: "" // Update the active fragment tag
-
+        if (!fragment.isAdded) {
+            transaction.add(R.id.fragment_container, fragment)
+        }
+        transaction.show(fragment)
+        // Add every fragment change to the back stack unless it's a main navigation item
+        if (fragment !in arrayOf(homePage, shoppingListPage, inboxPage, profilePage, recipesPage)) {
+            transaction.addToBackStack(null)
+        }
+        transaction.commit()
+        activeFragment = fragment
+        Log.d(TAG, "Fragment switched to: ${fragment.javaClass.simpleName}")
     }
 
     override fun onStart() {
