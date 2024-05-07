@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -181,8 +182,19 @@ class InboxPage : Fragment() {
 
         class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             fun bind(notification: Notifications) {
-                itemView.findViewById<TextView>(R.id.notification_title).text = notification.title
-                itemView.findViewById<TextView>(R.id.notification_body).text = notification.message
+//
+                val titleView = itemView.findViewById<TextView>(R.id.notification_title)
+                val bodyView = itemView.findViewById<TextView>(R.id.notification_body)
+
+                titleView.text = notification.title
+                bodyView.text = notification.message
+
+                // change text color for expired items
+                if (notification.title.contains("Expiring Today") || notification.title.contains("Expired")) {
+                    bodyView.setTextColor(ContextCompat.getColor(itemView.context, R.color.red))
+                } else {
+                    bodyView.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+                }
             }
         }
     }
