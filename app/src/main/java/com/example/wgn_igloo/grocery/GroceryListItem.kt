@@ -1,7 +1,7 @@
 package com.example.wgn_igloo.grocery
 import com.google.firebase.Timestamp
 
-data class ShoppingListItem(
+data class GroceryListItem(
     val category: String = "",
     val lastPurchased: Timestamp = Timestamp.now(),
     val name: String = "",

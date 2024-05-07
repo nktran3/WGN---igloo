@@ -3,7 +3,7 @@ package com.example.wgn_igloo.database
 import android.content.Context
 import android.util.Log
 import com.example.wgn_igloo.home.GroceryItem
-import com.example.wgn_igloo.grocery.ShoppingListItem
+import com.example.wgn_igloo.grocery.GroceryListItem
 import com.example.wgn_igloo.inbox.Notifications
 import com.example.wgn_igloo.recipe.SavedRecipe
 import com.google.firebase.firestore.FirebaseFirestore
@@ -128,7 +128,7 @@ class FirestoreHelper(private val context: Context) {
     // This method transfers an item from the "shoppingList" to "groceryItems".
     // It deletes the item from the shopping list and then adds it to the grocery items.
     // The update includes a new document ID.
-    fun moveItemToInventory(uid: String, item: ShoppingListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    fun moveItemToInventory(uid: String, item: GroceryListItem, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         // First, delete the item from the shopping list
         db.collection("users").document(uid).collection("shoppingList").document(item.name).delete()
             .addOnSuccessListener {
@@ -199,7 +199,7 @@ class FirestoreHelper(private val context: Context) {
             }
     }
 
-    private fun mapShoppingListItemToGroceryItem(item: ShoppingListItem): GroceryItem {
+    private fun mapShoppingListItemToGroceryItem(item: GroceryListItem): GroceryItem {
         // Generate a unique identifier for the grocery item - not needed
         val uniqueName = "${item.name}_${System.currentTimeMillis()}"
         return GroceryItem(

@@ -16,7 +16,7 @@
         tools:context=".home.NewItemsFormFragment">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_add_shopping"
+            android:id="@+id/toolbar_add_grocery"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/top_nav_background"
@@ -25,7 +25,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/toolbar_add_shopping_title"
+                android:id="@+id/toolbar_add_grocery_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -44,7 +44,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.051"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar_add_shopping" />
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_add_grocery" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/item_input"
