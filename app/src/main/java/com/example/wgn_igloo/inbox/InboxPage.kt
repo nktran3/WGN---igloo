@@ -85,7 +85,6 @@ class InboxPage : Fragment() {
                             Log.d(TAG, "${item.name} expires on $date. Days until expiration: $diffDays")
                             // Check if notification needs to be sent
                             if (diffDays < 3 && !item.expireNotified) {
-                                //TODO: Capitalize the item name and make post-expiration red
                                 var notif: Notifications
                                 if (diffDays < 0){
                                     if (diffDays == -1){
@@ -102,7 +101,7 @@ class InboxPage : Fragment() {
                                 } else if (diffDays == 0) {
                                     notif = Notifications(
                                         title = "Item Expiring Today",
-                                        message = "${item.name} is expiring today"
+                                        message = "${item.name} is expiring today!!!"
                                     )
                                 } else if (diffDays == 1){
                                     notif = Notifications(
